@@ -29,6 +29,9 @@ import '../../../../features/wishlist/presentation/controllers/wishlist_controll
 import '../../../../features/wishlist/presentation/bindings/wishlist_binding.dart';
 import 'image_vew_screen.dart';
 
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+
 class PublicListingDetailsView extends GetView<PublicListingsController> {
   const PublicListingDetailsView({super.key});
 
@@ -1897,6 +1900,29 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
       }),
     ));
   }
+
+  Widget buildFormattedText(String text) {
+  final isHtml = text.trimLeft().startsWith('<');
+  if (isHtml) {
+    return Html(
+      data: text,
+      style: {
+        "body": Style(
+          margin: Margins.zero,
+          padding: HtmlPaddings.zero,
+          fontSize: FontSize(14),
+          lineHeight: LineHeight(1.5),
+        ),
+      },
+    );
+  } else {
+    return MarkdownBody(
+      data: text,
+      softLineBreak: true,
+    );
+  }
+}
+
   void _showDescriptionBottomSheet(BuildContext context, String description) {
     print("This is text description- ${description}");
     showModalBottomSheet(
@@ -1952,7 +1978,8 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
             Expanded(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child:Text(description),
+                // child:Text(description),
+                child:buildFormattedText(description)
               ),
             ),
           ],
