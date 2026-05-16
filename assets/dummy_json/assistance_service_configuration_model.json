@@ -1,0 +1,200 @@
+{
+  "success": true,
+  "status_code": 200,
+  "message": "Status OK",
+  "data": {
+    "categories": [
+      {
+        "id": 1,
+        "name": "Art and design",
+        "icon": "https://firebasestorage.googleapis.com/v0/b/stayverz.firebasestorage.app/o/art_and_design_icon.png?alt=media",
+        "status": true
+      },
+      {
+        "id": 2,
+        "name": "Fitness and wellness",
+        "icon": "https://firebasestorage.googleapis.com/v0/b/stayverz.firebasestorage.app/o/fitness_and_wellness_icon.png?alt=media",
+        "status": true
+      },
+      {
+        "id": 3,
+        "name": "Food and drink",
+        "icon": "https://firebasestorage.googleapis.com/v0/b/stayverz.firebasestorage.app/o/food_and_drink_icon.png?alt=media",
+        "status": true
+      },
+      {
+        "id": 4,
+        "name": "History and culture",
+        "icon": "https://firebasestorage.googleapis.com/v0/b/stayverz.firebasestorage.app/o/history_and_culture_icon.png?alt=media",
+        "status": false
+      },
+      {
+        "id": 5,
+        "name": "Nature and outdoors",
+        "icon": "https://firebasestorage.googleapis.com/v0/b/stayverz.firebasestorage.app/o/nature_and_outdoors_icon.png?alt=media",
+        "status": true
+      }
+    ],
+    "experiences": {
+      "art_and_design": [
+        {
+          "id": 3,
+          "name": "Architecture tour",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/Kitchen.svg",
+          "icon_mobile": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/Kitchen.svg",
+          "status": true
+        },
+        {
+          "id": 4,
+          "name": "Art workshop",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/Washer.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/bf8c15f35c8b4c74b377f14d50c8f262-washing.png",
+          "status": false
+        },
+        {
+          "id": 1,
+          "name": "Gallery tour",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/Wifi.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/amenities/38ac9a1b4c0b4d5f8b116c6ed2370c76-wifi.png",
+          "status": false
+        },
+        {
+          "id": 2,
+          "name": "Shopping & fashion experience",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/TV.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/7d0e2ffae83448418b6974fae27a86cd-tv.png",
+          "status": false
+        }
+      ],
+      "fitness_and_wellness": [
+        {
+          "id": 10,
+          "name": "Beauty experience",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/HotTub.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/f3a94278d46742a6b589d1d57261a53f-tub.png",
+          "status": false
+        },
+        {
+          "id": 11,
+          "name": "Wellness experience",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/Patio.svg",
+          "icon_mobile": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/Patio.svg",
+          "status": true
+        },
+        {
+          "id": 18,
+          "name": "Workout",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/LakeAccess.svg",
+          "icon_mobile": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/LakeAccess.svg",
+          "status": true
+        }
+      ],
+      "food_and_drink": [
+        {
+          "id": 22,
+          "name": "Cooking class",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/SmokeAlarm.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/f0438491a04b48ca98ad7f3613ea56f8-smoke.png",
+          "status": false
+        },
+        {
+          "id": 23,
+          "name": "Dining experience",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/FirstAidKit.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/6be693a63ad0488b9f7793feb757848c-aidbox.png",
+          "status": false
+        },
+        {
+          "id": 24,
+          "name": "Food tour",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/FireExtinguisher.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/e90ff25b5c1e452f8e1a73288c152ba3-fire.png",
+          "status": false
+        },
+        {
+          "id": 25,
+          "name": "Tasting",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/CarbonMonoxideAlarm.svg",
+          "icon_mobile": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/CarbonMonoxideAlarm.svg",
+          "status": true
+        }
+      ],
+      "history_and_culture": [
+        {
+          "id": 22,
+          "name": "Cultural tour",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/SmokeAlarm.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/f0438491a04b48ca98ad7f3613ea56f8-smoke.png",
+          "status": true
+        },
+        {
+          "id": 23,
+          "name": "Landmark tour",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/FirstAidKit.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/6be693a63ad0488b9f7793feb757848c-aidbox.png",
+          "status": true
+        },
+        {
+          "id": 24,
+          "name": "Museum tour",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/FireExtinguisher.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/e90ff25b5c1e452f8e1a73288c152ba3-fire.png",
+          "status": true
+        }
+      ],
+      "nature_and_outdoors": [
+        {
+          "id": 22,
+          "name": "Flying experience",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/SmokeAlarm.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/f0438491a04b48ca98ad7f3613ea56f8-smoke.png",
+          "status": true
+        },
+        {
+          "id": 23,
+          "name": "Outdoor experience",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/FirstAidKit.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/6be693a63ad0488b9f7793feb757848c-aidbox.png",
+          "status": true
+        },
+        {
+          "id": 24,
+          "name": "Water sport experience",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/FireExtinguisher.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/e90ff25b5c1e452f8e1a73288c152ba3-fire.png",
+          "status": true
+        },
+        {
+          "id": 24,
+          "name": "Wildlife experience",
+          "icon": "https://d26o11dgjud8ta.cloudfront.net/icons/amenities/FireExtinguisher.svg",
+          "icon_mobile": "https://dapcxdqknn4nj.cloudfront.net/icons/aminity/e90ff25b5c1e452f8e1a73288c152ba3-fire.png",
+          "status": true
+        }
+      ]
+    },
+    "cancellation_policy": [
+      {
+        "id": 1,
+        "policy_name": "Non-refundable",
+        "description": "You will not receive a refund if you cancel your reservation",
+        "refund_percentage": 0,
+        "cancellation_deadline": 0
+      },
+      {
+        "id": 2,
+        "policy_name": "Flexible",
+        "description": "Full refund 1 day prior to arrival",
+        "refund_percentage": 100,
+        "cancellation_deadline": 1
+      },
+      {
+        "id": 3,
+        "policy_name": "Moderate",
+        "description": "Full refund 5 days prior to arrival",
+        "refund_percentage": 100,
+        "cancellation_deadline": 5
+      }
+    ]
+  }
+}

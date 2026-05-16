@@ -1,0 +1,117 @@
+E/libEGL  ( 4549): called unimplemented OpenGL ES API
+D/EGL_emulation( 4549): app_time_stats: avg=2366.52ms min=2366.52ms max=2366.52ms count=1
+I/flutter ( 4549): AppImages.subscribeIcon['selected'] assets/icons/selected_subscribe_icon.svg
+[GETX] Instance "PublicListingsController" has been created
+[GETX] Instance "PublicListingsRepository" has been created
+[GETX] Instance "ListingFilterConfigRepository" has been created
+I/flutter ( 4549): ┌───────────────────────────────────────────────────────────────────────────────────────────────────
+I/flutter ( 4549): │ #0   ApiClient._logRequest (package:stayverz_flutter_app/services/network/api_client.dart:200:13)
+I/flutter ( 4549): ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+I/flutter ( 4549): │ 🐛     🚀 [1748950957865_GET] GET /listings/public/listings/
+I/flutter ( 4549): │ 🐛     Query Parameters: {page: 1, page_size: 10}
+I/flutter ( 4549): │ 🐛     Data: null
+I/flutter ( 4549): │ 🐛     
+I/flutter ( 4549): └───────────────────────────────────────────────────────────────────────────────────────────────────
+I/flutter ( 4549): ┌───────────────────────────────────────────────────────────────────────────────────────────────────
+I/flutter ( 4549): │ #0   ApiClient._logRequest (package:stayverz_flutter_app/services/network/api_client.dart:200:13)
+I/flutter ( 4549): ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+I/flutter ( 4549): │ 🐛     🚀 [1748950957881_GET] GET /listings/public/configurations/
+I/flutter ( 4549): │ 🐛     Query Parameters: null
+I/flutter ( 4549): │ 🐛     Data: null
+I/flutter ( 4549): │ 🐛     
+I/flutter ( 4549): └───────────────────────────────────────────────────────────────────────────────────────────────────
+[GETX] Instance "PublicListingsController" has been initialized
+I/flutter ( 4549): 🔄 Loading filter configurations...
+W/WindowOnBackDispatcher( 4549): OnBackInvokedCallback is not enabled for the application.
+W/WindowOnBackDispatcher( 4549): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+I/flutter ( 4549): 🌐 GET http://192.168.8.158:8000/api/v1/listings/public/listings/?page=1&page_size=10
+I/flutter ( 4549): 🔍 Query Params: {page: 1, page_size: 10}
+I/flutter ( 4549): 🌐 GET http://192.168.8.158:8000/api/v1/listings/public/configurations/
+I/flutter ( 4549): *** Request ***
+I/flutter ( 4549): uri: http://192.168.8.158:8000/api/v1/listings/public/listings/?page=1&page_size=10
+I/flutter ( 4549): method: GET
+I/flutter ( 4549): responseType: ResponseType.json
+I/flutter ( 4549): followRedirects: true
+I/flutter ( 4549): persistentConnection: true
+I/flutter ( 4549): connectTimeout: 0:00:30.000000
+I/flutter ( 4549): sendTimeout: 0:00:30.000000
+I/flutter ( 4549): receiveTimeout: 0:00:30.000000
+I/flutter ( 4549): receiveDataWhenStatusError: true
+I/flutter ( 4549): extra: {}
+I/flutter ( 4549): headers:
+I/flutter ( 4549):  Accept: application/json
+I/flutter ( 4549):  Content-Type: application/json
+I/flutter ( 4549):  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoidGlicm93IiwibGFzdF9uYW1lIjoiMjEyMyIsInVzZXJuYW1lIjoiMjEyMTIxMjEyMTNfZ3Vlc3QiLCJ1X3R5cGUiOiJndWVzdCIsInBob25lX251bWJlciI6IjIxMjEyMTIxMjEzIiwiaXNfYWN0aXZlIjp0cnVlLCJleHAiOjE3NDg5NTMwNjAsInRva2VuX3R5cGUiOiJhY2Nlc3MifQ.onwrU4Hz7MokPeunHZYJhXtiRrCWlQ_DjtHvEfvDvKE
+I/flutter ( 4549): data:
+I/flutter ( 4549): null
+I/flutter ( 4549): 
+I/flutter ( 4549): *** Request ***
+I/flutter ( 4549): uri: http://192.168.8.158:8000/api/v1/listings/public/configurations/
+I/flutter ( 4549): method: GET
+I/flutter ( 4549): responseType: ResponseType.json
+I/flutter ( 4549): followRedirects: true
+I/flutter ( 4549): persistentConnection: true
+I/flutter ( 4549): connectTimeout: 0:00:30.000000
+I/flutter ( 4549): sendTimeout: 0:00:30.000000
+I/flutter ( 4549): receiveTimeout: 0:00:30.000000
+I/flutter ( 4549): receiveDataWhenStatusError: true
+I/flutter ( 4549): extra: {}
+I/flutter ( 4549): headers:
+I/flutter ( 4549):  Accept: application/json
+I/flutter ( 4549):  Content-Type: application/json
+I/flutter ( 4549):  Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaXJzdF9uYW1lIjoidGlicm93IiwibGFzdF9uYW1lIjoiMjEyMyIsInVzZXJuYW1lIjoiMjEyMTIxMjEyMTNfZ3Vlc3QiLCJ1X3R5cGUiOiJndWVzdCIsInBob25lX251bWJlciI6IjIxMjEyMTIxMjEzIiwiaXNfYWN0aXZlIjp0cnVlLCJleHAiOjE3NDg5NTMwNjAsInRva2VuX3R5cGUiOiJhY2Nlc3MifQ.onwrU4Hz7MokPeunHZYJhXtiRrCWlQ_DjtHvEfvDvKE
+I/flutter ( 4549): data:
+I/flutter ( 4549): null
+I/flutter ( 4549): 
+I/flutter ( 4549): *** Response ***
+I/flutter ( 4549): uri: http://192.168.8.158:8000/api/v1/listings/public/configurations/
+I/flutter ( 4549): statusCode: 200
+I/flutter ( 4549): headers:
+I/flutter ( 4549):  vary: Accept, Cookie, origin
+I/flutter ( 4549):  content-length: 3374
+I/flutter ( 4549):  referrer-policy: same-origin
+I/flutter ( 4549):  cross-origin-opener-policy: same-origin
+I/flutter ( 4549):  content-type: application/json
+I/flutter ( 4549):  x-frame-options: DENY
+I/flutter ( 4549):  x-content-type-options: nosniff
+[log] ✅ Response [200] GET /listings/public/configurations/
+I/flutter ( 4549):  server: daphne
+I/flutter ( 4549):  allow: GET, HEAD, OPTIONS
+I/flutter ( 4549): Response Text:
+I/flutter ( 4549): {"success":true,"status_code":200,"message":"Status OK","data":{"categories":[{"id":1,"name":"Home","icon":"https://dapcxdqknn4nj.cloudfront.net//icons/categories/ApartmentHome.svg"},{"id":2,"name":"Apartment","icon":"https://dapcxdqknn4nj.cloudfront.net//icons/categories/Apartment.svg"},{"id":3,"name":"Guest House","icon":"https://dapcxdqknn4nj.cloudfront.net//icons/categories/GuestHouse.svg"},{"id":4,"name":"Hotel","icon":"https://dapcxdqknn4nj.cloudfront.net//icons/categories/Hotel.svg"},{"id":5,"name":"Cabin","icon":"https://dapcxdqknn4nj.cloudfront.net//icons/categories/Cabin.svg"}],"amenities":{"regular":[{"id":1,"name":"Wifi","icon":"https://dapcxdqknn4nj.cloudfront.net/icons/amenities/Wifi.svg"},{"id":2,"name":"TV","icon":"https://dapcxdqknn4nj.cloudfront.net/icons/amenities/TV.svg"},{"id":3,"name":"Kitchen","icon":"https://dapcxdqknn4nj.cloudfront.net/icons/amenities/Kitchen.svg"},{"id":4,"name":"Washer","icon":"https://dapcxdqknn4nj.cloudfront.net/icons/amenities/Washer.svg"},{"id":5,"name":"Free p
+I/flutter ( 4549): 
+I/flutter ( 4549): ┌───────────────────────────────────────────────────────────────────────────────────────────────────
+I/flutter ( 4549): │ #0   ApiClient._logResponse (package:stayverz_flutter_app/services/network/api_client.dart:209:13)
+I/flutter ( 4549): ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+I/flutter ( 4549): │ 🐛     ✅ [1748950957881_GET] 200 OK
+I/flutter ( 4549): │ 🐛     Data: {success: true, status_code: 200, message: Status OK, data: {categories: [{id: 1, name: Home, icon: https://dapcxdqknn4nj.cloudfront.net//icons/categories/ApartmentHome.svg}, {id: 2, name: Apartment, icon: https://dapcxdqknn4nj.cloudfront.net//icons/categories/Apartment.svg}, {id: 3, name: Guest House, icon: https://dapcxdqknn4nj.cloudfront.net//icons/categories/GuestHouse.svg}, {id: 4, name: Hotel, icon: https://dapcxdqknn4nj.cloudfront.net//icons/categories/Hotel.svg}, {id: 5, name: Cabin, icon: https://dapcxdqknn4nj.cloudfront.net//icons/categories/Cabin.svg}], amenities: {regular: [{id: 1, name: Wifi, icon: https://dapcxdqknn4nj.cloudfront.net/icons/amenities/Wifi.svg}, {id: 2, name: TV, icon: https://dapcxdqknn4nj.cloudfront.net/icons/amenities/TV.svg}, {id: 3, name: Kitchen, icon: https://dapcxdqknn4nj.cloudfront.net/icons/amenities/Kitchen.svg}, {id: 4, name: Washer, icon: https://dapcxdqknn4nj.cloudfront.net/icons/amenities/Washer.svg}, {id: 5, name: Free parking on premises, icon:
+I/flutter ( 4549): │ 🐛     
+I/flutter ( 4549): └───────────────────────────────────────────────────────────────────────────────────────────────────
+I/flutter ( 4549): ❌ Failed to load filter configurations: Unexpected error occurred
+I/flutter ( 4549): *** Response ***
+I/flutter ( 4549): uri: http://192.168.8.158:8000/api/v1/listings/public/listings/?page=1&page_size=10
+I/flutter ( 4549): statusCode: 200
+I/flutter ( 4549): headers:
+I/flutter ( 4549):  vary: Accept, Cookie, origin
+[log] I/flutter ( 4549):  content-length: 9895
+📥 Response Data (truncated): {success: true, status_code: 200, message: Status OK, data: {categories: [{id: 1, name: Home, icon: https://dapcxdqknn4nj.cloudfront.net//icons/categories/ApartmentHome.svg}, {id: 2, name: Apartment, icon: https://dapcxdqknn4nj.cloudfront.net//icons/categories/Apartment.svg}, {id: 3, name: Guest House, icon: https://dapcxdqknn4nj.cloudfront.net//icons/categories/GuestHouse.svg}, {id: 4, name: Hotel, icon: https://dapcxdqknn4nj.cloudfront.net//icons/categories/Hotel.svg}, {id: 5, name: Cabin, icon: https://dapcxdqknn4nj.cloudfront.net//icons/categories/Cabin.svg}], amenities: {regular: [{id: 1, name: Wifi, icon: https://dapcxdqknn4nj.cloudfront.net/icons/amenities/Wifi.svg}, {id: 2, name: TV, icon: https://dapcxdqknn4nj.cloudfront.net/icons/amenities/TV.svg}, {id: 3, name: Kitchen, icon: https://dapcxdqknn4nj.cloudfront.net/icons/amenities/Kitchen.svg}, {id: 4, name: Washer, icon: https://dapcxdqknn4nj.cloudfront.net/icons/amenities/Washer.svg}, {id: 5, name: Free parking on premises, i...
+[log] ✅ Response [200] GET /listings/public/listings/
+I/flutter ( 4549):  referrer-policy: same-origin
+I/flutter ( 4549):  cross-origin-opener-policy: same-origin
+I/flutter ( 4549):  content-type: application/json
+I/flutter ( 4549):  x-frame-options: DENY
+I/flutter ( 4549):  x-content-type-options: nosniff
+I/flutter ( 4549):  server: daphne
+I/flutter ( 4549):  allow: GET, HEAD, OPTIONS
+I/flutter ( 4549): Response Text:
+[log] 📥 Response Data (truncated): {success: true, status_code: 200, message: Status OK, meta_data: {total: 6, page_size: 10, next: null, previous: null}, data: [{id: 8, latitude: 39.1911, longitude: -106.8175, instant_booking_allowed: true, require_guest_good_track_record: true, enable_length_of_stay_discount: false, length_of_stay_discounts: {}, created_at: 2025-05-20T16:26:32.042814+06:00, updated_at: 2025-05-20T16:27:47.464771+06:00, unique_id: 2adc8e8b-5a39-4963-a2dd-81c2371bdf2e, title: Write your awesome title, description: Run to this hill and private cabin surrounded by scenic mountain views, perfect for couples or small families., price: 5000.0, cover_photo: https://images.unsplash.com/5/unsplash-kitsune-4.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=bc01c83c3da0425e9baa6c7a9204af81, images: [https://images.unsplash.com/5/unsplash-kitsune-4.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=bc01c83c3da0425e9baa6c7a9204af81, https://images.unsplash.com/5/unsplash-kitsune-4.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEy...
+next":null,"previous":null},"data":[{"id":8,"latitude":39.1911,"longitude":-106.8175,"instant_booking_allowed":true,"require_guest_good_track_record":true,"enable_length_of_stay_discount":false,"length_of_stay_discounts":{},"created_at":"2025-05-20T16:26:32.042814+06:00","updated_at":"2025-05-20T16:27:47.464771+06:00","unique_id":"2adc8e8b-5a39-4963-a2dd-81c2371bdf2e","title":"Write your awesome title","description":"Run to this hill and private cabin surrounded by scenic mountain views, perfect for couples or small families.","price":5000.0,"cover_photo":"https://images.unsplash.com/5/unsplash-kitsune-4.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=bc01c83c3da0425e9baa6c7a9204af81","images":["https://images.unsplash.com/5/unsplash-kitsune-4.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=bc01c83c3da0425e9baa6c7a9204af81","https://images.unsplash.com/5/unsplash-kitsune-4.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMD
+I/flutter ( 4549): 
+I/flutter ( 4549): ┌───────────────────────────────────────────────────────────────────────────────────────────────────
+I/flutter ( 4549): │ #0   ApiClient._logResponse (package:stayverz_flutter_app/services/network/api_client.dart:209:13)
+I/flutter ( 4549): ├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+I/flutter ( 4549): │ 🐛     ✅ [1748950957865_GET] 200 OK
+I/flutter ( 4549): │ 🐛     Data: {success: true, status_code: 200, message: Status OK, meta_data: {total: 6, page_size: 10, next: null, previous: null}, data: [{id: 8, latitude: 39.1911, longitude: -106.8175, instant_booking_allowed: true, require_guest_good_track_record: true, enable_length_of_stay_discount: false, length_of_stay_discounts: {}, created_at: 2025-05-20T16:26:32.042814+06:00, updated_at: 2025-05-20T16:27:47.464771+06:00, unique_id: 2adc8e8b-5a39-4963-a2dd-81c2371bdf2e, title: Write your awesome title, description: Run to this hill and private cabin surrounded by scenic mountain views, perfect for couples or small families., price: 5000.0, cover_photo: https://images.unsplash.com/5/unsplash-kitsune-4.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=bc01c83c3da0425e9baa6c7a9204af81, images: [https://images.unsplash.com/5/unsplash-kitsune-4.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=bc01c83c3da0425e9baa6c7a9204af81, https://images.unsplash.com/5/unsplash-kitsune-4.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9
+I/flutter ( 4549): │ 🐛     
+I/flutter ( 4549): └───────────────────────────────────────────────────────────────────────────────────────────────────
+I/flutter ( 4549): ⚠️ No categories available to display
