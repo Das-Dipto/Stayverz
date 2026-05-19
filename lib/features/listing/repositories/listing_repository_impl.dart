@@ -51,10 +51,16 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
     required String query,
   }) async {
     try {
+      // final response = await _apiClient.get(
+      //   'https://api-sub.stayverz.com/search/suggestions',
+      //   queryParameters: {'q': query},
+      // );
+
       final response = await _apiClient.get(
-        'https://api-sub.stayverz.com/search/suggestions',
-        queryParameters: {'q': query},
+        'https://apix.stayverz.com/api/v1/maps/suggestions/',
+        queryParameters: {'place': query},
       );
+      
 
       return SectionResponse.fromJson(response.data);
     } catch (e) {

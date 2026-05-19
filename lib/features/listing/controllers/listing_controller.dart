@@ -48,6 +48,8 @@ class ListingController extends GetxController {
   // State variables
   RxList<SectionModel> suggestionsNew = <SectionModel>[].obs;
   final RxBool isHostListingLoading = false.obs;
+  // ADD THIS
+  final RxBool isSectionSearchLoading = false.obs;
   final RxBool isCoHostListingLoading = false.obs;
   final RxBool isAssistanceListingLoading = false.obs;
   final RxBool isLoadingg = false.obs;
@@ -331,7 +333,7 @@ class ListingController extends GetxController {
   }
 
   Future<void> fetchListings({String? search, String? status}) async {
-    isHostListingLoading.value = true;
+    isSectionSearchLoading.value = true;  // ✅ CHANGE TO THIS
     hasError.value = false;
     errorMessage.value = '';
 
@@ -363,7 +365,7 @@ class ListingController extends GetxController {
       hasError.value = true;
       errorMessage.value = e.toString();
     } finally {
-      isHostListingLoading.value = false;
+       isSectionSearchLoading.value = false;  // ✅
     }
   }
 
@@ -1225,6 +1227,8 @@ class ListingController extends GetxController {
       final SectionResponse response =
       await _repository.getSectionSuggestions(query: query);
 
+      print("Okay this is keyword search response ${response.data}");
+      
       suggestionsNew.value = response.data;
 
       return response.data;

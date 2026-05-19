@@ -7,15 +7,15 @@ class SectionResponse {
     required this.data,
   });
 
-  factory SectionResponse.fromJson(Map<String, dynamic> json) {
-    return SectionResponse(
-      statusCode: json['statusCode'] as int?,
-      data: (json['data'] as List<dynamic>?)
-          ?.map((e) => SectionModel.fromJson(e as Map<String, dynamic>))
-          .toList() ??
-          [],
-    );
-  }
+factory SectionResponse.fromJson(Map<String, dynamic> json) {
+  return SectionResponse(
+    statusCode: json['status_code'] as int?,  // ✅ fix key
+    data: (json['data'] as List<dynamic>?)
+        ?.map((e) => SectionModel.fromJson(e as Map<String, dynamic>))
+        .toList() ??
+        [],
+  );
+}
 
   Map<String, dynamic> toJson() => {
     'statusCode': statusCode,
@@ -41,17 +41,13 @@ class SectionModel {
   factory SectionModel.fromJson(Map<String, dynamic> json) {
     return SectionModel(
       id: json['id'] as int?,
-      displayName: json['display_name'] as String? ?? '',
+      displayName: json['address'] as String? ?? '',
       subText: json['sub_text'] as String? ?? '',
-      lat: (json['lat'] != null)
-          ? (json['lat'] is int
-          ? (json['lat'] as int).toDouble()
-          : json['lat'] as double?)
+      lat: (json['latitude'] != null)
+          ? double.tryParse(json['latitude'].toString())
           : null,
-      long: (json['long'] != null)
-          ? (json['long'] is int
-          ? (json['long'] as int).toDouble()
-          : json['long'] as double?)
+      long: (json['longitude'] != null)
+          ? double.tryParse(json['longitude'].toString())
           : null,
     );
   }

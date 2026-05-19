@@ -220,6 +220,10 @@ class PublicListingsRepositoryImpl implements PublicListingsRepository {
       if (checkIn != null) queryParams['check_in'] = checkIn;
       if (checkOut != null) queryParams['check_out'] = checkOut;
 
+      print("This is Search Data ${queryParams}");
+      print("Long ${longitude}");
+      print("Lat ${latitude}");
+
       final response = await _apiClient.get(
         'https://api-sub.stayverz.com/search/results',
         queryParameters: queryParams,

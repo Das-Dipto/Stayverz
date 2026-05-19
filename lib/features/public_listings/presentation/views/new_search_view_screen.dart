@@ -38,22 +38,34 @@ class NewSearchViewScreen extends GetView<PublicListingsController> {
     final double lat = searchData['lat'] ?? 0.0;
     final double long = searchData['long'] ?? 0.0;
 
-    final String locationId = "${searchData['locationId']}" ?? "";
+    // final String locationId = "${searchData['locationId']}" ?? "";
+    final String locationId = searchData['locationId']?.toString() ?? "";
     final String startDate = searchData['start_date'] ?? '';
     final String endDate = searchData['end_date'] ?? '';
 
     /// 🔹 Trigger API call once when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.fetchUpdatedListings(
-        id: locationId.isNotEmpty ? int.tryParse(locationId) : null,
-        latitude: locationId.isEmpty ? lat : null,
-        longitude: locationId.isEmpty ? long : null,
-        radius: locationId.isEmpty ? 6 : null,
-        guests: totalGuests > 0 ? totalGuests : null,
-        checkIn: startDate.isNotEmpty ? startDate : null,
-        checkOut: endDate.isNotEmpty ? endDate : null,
-        // loadMore: true
-      );
+      // controller.fetchUpdatedListings(
+      //   id: locationId.isNotEmpty ? int.tryParse(locationId) : null,
+      //   latitude: locationId.isEmpty ? lat : null,
+      //   longitude: locationId.isEmpty ? long : null,
+      //   radius: locationId.isEmpty ? 6 : null,
+      //   guests: totalGuests > 0 ? totalGuests : null,
+      //   checkIn: startDate.isNotEmpty ? startDate : null,
+      //   checkOut: endDate.isNotEmpty ? endDate : null,
+      //   // loadMore: true
+      // );
+
+      final SectionModel? location = searchData['location'];
+
+        controller.fetchUpdatedListings(
+          latitude: location?.lat ?? (lat != 0.0 ? lat : null),
+          longitude: location?.long ?? (long != 0.0 ? long : null),
+          radius: 6,
+          guests: totalGuests > 0 ? totalGuests : null,
+          checkIn: startDate.isNotEmpty ? startDate : null,
+          checkOut: endDate.isNotEmpty ? endDate : null,
+        );
 
     });
 
