@@ -53,6 +53,9 @@ import 'package:stayverz_flutter_app/features/public_listings/presentation/views
 import 'package:stayverz_flutter_app/features/messaging/presentation/views/message_conversation_page.dart';
 import 'package:stayverz_flutter_app/features/messaging/bindings/messaging_binding.dart';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+
 // Global navigator key for showing bottom sheet before GetMaterialApp is ready
 final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -110,6 +113,13 @@ Future<void> main() async {
       MaterialApp(
         debugShowCheckedModeBanner: false,
         navigatorKey: globalNavigatorKey, // Assign global key for bottom sheet access
+            localizationsDelegates: const [                        // 👈 add this
+      GlobalMaterialLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      FlutterQuillLocalizations.delegate,
+    ],
+    supportedLocales: const [Locale('en')],   
         home: SplashLauncher(initialRoute: initialRoute),
       ),
     );
@@ -317,6 +327,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
         useMaterial3: false,
       ),
+        localizationsDelegates: const [                         // 👈 add this
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    FlutterQuillLocalizations.delegate,
+  ],
+  supportedLocales: const [Locale('en')],  
       builder: (context, child) {
         // Wrap entire app with connectivity listener
         return ConnectivityListener(

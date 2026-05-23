@@ -1337,8 +1337,46 @@ class ListingController extends GetxController {
 
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      // if (!serviceEnabled) {
+      //   Get.snackbar(
+      //     "GPS is Turned Off",
+      //     "Please turn on your location services to continue",
+      //     icon: const Icon(Icons.location_off, color: Colors.white),
+      //     backgroundColor: const Color(0xFFF15927), // Your brand orange color
+      //     colorText: Colors.white,
+      //     snackPosition: SnackPosition.BOTTOM,
+      //     duration: const Duration(seconds: 4),
+      //     margin: const EdgeInsets.all(16),
+      //     borderRadius: 12,
+      //     isDismissible: true,
+      //     forwardAnimationCurve: Curves.easeOut,
+      //     reverseAnimationCurve: Curves.easeIn,
+      //   );
+      //   return;
+      // }
+
       if (!serviceEnabled) {
-        _errorDisplay.showError('Location services are disabled.');
+        Get.snackbar(
+          "Location Services Disabled",
+          "Please enable GPS / Location to use this feature",
+          icon: const Icon(Icons.location_off_rounded, color: Colors.white, size: 28),
+          backgroundColor: const Color(0xFFF15927),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 5),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          borderRadius: 12,
+          mainButton: TextButton(
+            onPressed: () async {
+              Get.back(); // close snackbar
+              await Geolocator.openLocationSettings();
+            },
+            child: const Text(
+              "Open Settings",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+        );
         return;
       }
 

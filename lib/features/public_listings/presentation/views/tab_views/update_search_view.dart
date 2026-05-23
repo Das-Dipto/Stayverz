@@ -363,36 +363,37 @@ class _UpdateSearchViewState extends State<UpdateSearchView> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "${suggestion.displayName}",
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Color(0xFF4E4E4E),
-                                    fontSize: 18.2,
-                                    fontFamily: 'Kumbh Sans',
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.29,
-                                  ),
-                                ),
-                                if (suggestion.subText!.isNotEmpty)
-                                  Text(
-                                    "${suggestion.subText}",
-                                    style: const TextStyle(
-                                      color: Color(0xFF717375),
-                                      fontSize: 12.4,
-                                      fontFamily: 'Kumbh Sans',
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.2,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
+Expanded(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        "${suggestion.displayName}",
+        maxLines: 4,                    // Allow up to 2 lines
+        softWrap: true,                 // Enable wrapping
+        overflow: TextOverflow.ellipsis, // Keep ellipsis only if still too long
+        style: const TextStyle(
+          color: Color(0xFF4E4E4E),
+          fontSize: 16,
+          fontFamily: 'Kumbh Sans',
+          fontWeight: FontWeight.w400,
+          height: 1.29,
+        ),
+      ),
+      if (suggestion.subText!.isNotEmpty)
+        Text(
+          "${suggestion.subText}",
+          style: const TextStyle(
+            color: Color(0xFF717375),
+            fontSize: 12.4,
+            fontFamily: 'Kumbh Sans',
+            fontWeight: FontWeight.w400,
+            height: 1.2,
+          ),
+        ),
+    ],
+  ),
+),       
                         ],
                       ),
                     ),
@@ -461,6 +462,9 @@ class _UpdateSearchViewState extends State<UpdateSearchView> {
                       ),
                     );
                   }),
+                
+                
+                
                 ],
               ),
             );
@@ -698,8 +702,16 @@ class _UpdateSearchViewState extends State<UpdateSearchView> {
     controllerLocation.suggestionController.text = "${suggestion.displayName}";
   }
 
-  Future<List<SectionModel>> suggestionsCallback(String pattern) async =>
-      controllerLocation.onSectionSearchChange(pattern);
+  // Future<List<SectionModel>> suggestionsCallback(String pattern) async =>
+  //     controllerLocation.onSectionSearchChange(pattern);
+  
+  Future<List<SectionModel>> suggestionsCallback(String pattern) async {
+  if (pattern.trim().isEmpty) {
+    final query = "A";
+    return controllerLocation.onSectionSearchChange(query);
+  }
+  return controllerLocation.onSectionSearchChange(pattern);
+}
 
   Widget gridLayoutBuilder(BuildContext context, List<Widget> items) {
     return ListView(

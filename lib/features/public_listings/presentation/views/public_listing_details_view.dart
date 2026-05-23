@@ -633,40 +633,42 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
               ),
             ),
             Gap(10),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${controller.listingDetails.value.description}',
-                    maxLines: 4, // 👈 limit to 4 lines
-                    overflow: TextOverflow.ellipsis, // 👈 show "..." after 4 lines
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.5,
-                    ),
-                  ),
-                  SizedBox(height: 6),
-                  GestureDetector(
-                    onTap: () => _showDescriptionBottomSheet(
-                      context,
-                      '${controller.listingDetails.value.description}',
-                    ),
-                    child: Text(
-                      'Show more >',
-                      style: TextStyle(
-                        color: Color(0xFFF15B25),
-                        fontSize: 16,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w500,
-                        height: 1.38,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+// NEW CODE - Better handling for HTML / Markdown / Plain text
+Padding(
+  padding: EdgeInsets.symmetric(horizontal: 20),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Preview with limited height
+      SizedBox(
+        height: 88, // ≈ 4 lines
+        child: ClipRect(
+          child: buildFormattedText(
+            controller.listingDetails.value.description ?? '',
+          ),
+        ),
+      ),
+      const SizedBox(height: 6),
+      GestureDetector(
+        onTap: () => _showDescriptionBottomSheet(
+          context,
+          controller.listingDetails.value.description ?? '',
+        ),
+        child: Text(
+          'Show more >',
+          style: TextStyle(
+            color: Color(0xFFF15B25),
+            fontSize: 16,
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w500,
+            height: 1.38,
+          ),
+        ),
+      ),
+    ],
+  ),
+),
+           
             Gap(15),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -1901,9 +1903,15 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
     ));
   }
 
-  Widget buildFormattedText(String text) {
-  final isHtml = text.trimLeft().startsWith('<');
-  if (isHtml) {
+Widget buildFormattedText(String text) {
+  if (text.trim().isEmpty) {
+    return const Text('No description available.');
+  }
+
+  final trimmed = text.trimLeft();
+
+  // Check for HTML
+  if (trimmed.startsWith('<') && (trimmed.contains('</') || trimmed.contains('/>'))) {
     return Html(
       data: text,
       style: {
@@ -1912,15 +1920,33 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
           padding: HtmlPaddings.zero,
           fontSize: FontSize(14),
           lineHeight: LineHeight(1.5),
+          color: Colors.black,
         ),
       },
     );
-  } else {
+  }
+
+  // Check for Markdown (common indicators)
+  else if (trimmed.contains('**') || 
+           trimmed.contains('__') || 
+           trimmed.contains('# ') || 
+           trimmed.contains('- ') || 
+           trimmed.contains('1. ')) {
     return MarkdownBody(
       data: text,
       softLineBreak: true,
+      styleSheet: MarkdownStyleSheet(
+        p: const TextStyle(fontSize: 14, height: 1.5),
+        strong: const TextStyle(fontWeight: FontWeight.bold),
+      ),
     );
   }
+
+  // Plain text fallback
+  return Text(
+    text,
+    style: const TextStyle(fontSize: 14, height: 1.5),
+  );
 }
 
   void _showDescriptionBottomSheet(BuildContext context, String description) {
