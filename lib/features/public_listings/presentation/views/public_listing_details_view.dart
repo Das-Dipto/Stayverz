@@ -624,6 +624,7 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 'Description',
+                // test
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 16,
