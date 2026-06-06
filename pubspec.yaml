@@ -90,7 +90,7 @@ dependencies:
   connectivity_plus: ^6.1.0
   flutter_markdown: ^0.7.4
   flutter_quill: ^11.5.0
-
+  app_links: ^6.3.4
 
 
 

@@ -36,7 +36,7 @@
 <!--                <data android:scheme="http" android:host="apix.stayverz.com" />-->
 <!--                <data android:scheme="https" />-->
 <!--            </intent-filter>-->
-            <intent-filter android:autoVerify="true">
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -44,6 +44,16 @@
                     android:host="stayverz.com"
                     android:pathPrefix="/r/" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https"
+                    android:host="stayverz.com"
+                    android:pathPrefix="/rooms/" />
+            </intent-filter>
+            
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,6 +42,7 @@ import 'features/splash/presentation/splash_lancher.dart';
 import 'features/splash/presentation/splash_screen.dart';
 import 'features/messaging/presentation/views/archived_message_screen.dart';
 import 'features/messaging/presentation/views/inbox_settings_screen.dart';
+import 'package:stayverz_flutter_app/features/public_listings/presentation/views/public_listing_details_view.dart';
 import 'features/user_feedback/presentation/give_user_feedback_screen.dart';
 import 'features/user_feedback/bindings/user_feedback_binding.dart';
 import 'services/cache/cache_manager.dart';
@@ -57,7 +59,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
 // Global navigator key for showing bottom sheet before GetMaterialApp is ready
-final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> globalNavigatorKey =
+    GlobalKey<NavigatorState>();
 
 // Global instance of MainController for easy access
 late final MainController mainControl;
@@ -71,63 +74,65 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    // Initialize HTTP overrides for development
     await GetStorage.init();
     HttpOverrides.global = MyHttpOverrides();
 
     await Firebase.initializeApp();
     await NotificationService().initFCM();
 
-    // Lock orientation
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
 
-    // Initialize bindings & services
     MainBinding().dependencies();
 
     final prefs = await CacheManager.initAuth();
 
-    // Get controller
     mainControl = Get.find<MainController>();
 
-    // Restore cached session
     await _restoreAppState(prefs);
 
-    // Decide initial route
-    final String initialRoute =
-        mainControl.isLogin.value
-            ? (mainControl.uType.value == 'host'
-                ? AppRoute.host
-                : AppRoute.guest)
-            : AppRoute.guest;
+    final String initialRoute = mainControl.isLogin.value
+        ? (mainControl.uType.value == 'host' ? AppRoute.host : AppRoute.guest)
+        : AppRoute.guest;
 
-    // 🚀 START APP WITH SPLASH
+    // ✅ Capture deep link if app was cold-started via a link
+    Uri? initialDeepLink;
+    try {
+      final appLinks = AppLinks();
+      initialDeepLink = await appLinks.getInitialLink();
+      print('🔗 DEEP LINK CAPTURED: $initialDeepLink');
+    } catch (e) {
+      print('❌ DEEP LINK ERROR: $e');
+    }
+
     runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
-        navigatorKey: globalNavigatorKey, // Assign global key for bottom sheet access
-            localizationsDelegates: const [                        // 👈 add this
-      GlobalMaterialLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      FlutterQuillLocalizations.delegate,
-    ],
-    supportedLocales: const [Locale('en')],   
-        home: SplashLauncher(initialRoute: initialRoute),
+        navigatorKey: globalNavigatorKey,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          FlutterQuillLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('en')],
+        home: SplashLauncher(
+          initialRoute: initialRoute,
+          initialDeepLink: initialDeepLink,
+        ),
       ),
     );
   } catch (e) {
     runApp(
       const MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: SplashScreen(), // fallback splash
+        home: SplashScreen(),
       ),
     );
   }
@@ -135,22 +140,17 @@ Future<void> main() async {
 
 Future<void> _restoreAppState(SharedPreferences prefs) async {
   try {
-    // Restore authentication state
     final token = prefs.getString(CacheKeys.token.name);
     final refToken = prefs.getString(CacheKeys.refreshToken.name);
     final userName = prefs.getString(CacheKeys.username.name);
     final password = prefs.getString(CacheKeys.password.name);
 
     if (token != null && token.isNotEmpty) {
-
-      // Update MainController state
       mainControl.accessToken.value = token;
       mainControl.refreshToken.value = refToken ?? '';
       mainControl.isLogin.value = true;
       mainControl.username.value = userName ?? '';
       mainControl.password.value = password ?? '';
-
-      // Restore other user data
       mainControl.userId.value = prefs.getString(CacheKeys.msisdn.name) ?? '';
       mainControl.mongouserId.value =
           prefs.getString(CacheKeys.mongoUserId.name) ?? '';
@@ -164,9 +164,6 @@ Future<void> _restoreAppState(SharedPreferences prefs) async {
           prefs.getString(CacheKeys.guardianId.name) ?? '';
       mainControl.profileImageUrl.value =
           prefs.getString(CacheKeys.profileImageUrl.name) ?? '';
-
-
-      // Force update the UI
       mainControl.update();
     } else {
       mainControl.isLogin.value = false;
@@ -174,37 +171,33 @@ Future<void> _restoreAppState(SharedPreferences prefs) async {
       mainControl.uType.value = '';
     }
   } catch (e) {
-    // Ensure we're in a clean state if restoration fails
     mainControl.isLogin.value = false;
     mainControl.accessToken.value = '';
     mainControl.uType.value = '';
     rethrow;
-  } finally {
-  }
+  } finally {}
 }
 
 final List<GetPage> appPages = [
   GetPage(
     name: AppRoute.login,
     page: () => LoginView(),
-    // MainBinding is already initialized, no need for separate AuthBinding
   ),
   GetPage(
     name: SignupScreen.routeName,
     page: () => SignupScreen(),
-    // MainBinding is already initialized, no need for separate AuthBinding
   ),
   GetPage(
     name: AppRoute.host,
     page: () => const HostBottomNavigationBarView(),
-    middlewares: [AuthGuard(), ConnectivityGuard()], // Add connectivity guard
+    middlewares: [AuthGuard(), ConnectivityGuard()],
     binding: HostBinding(),
   ),
   GetPage(
     name: AppRoute.guest,
     page: () => const GuestBottomNavigationBarView(),
     binding: GuestBinding(),
-    middlewares: [ConnectivityGuard()], // Add connectivity guard
+    middlewares: [ConnectivityGuard()],
   ),
   GetPage(
     name: AppRoute.blogDetails,
@@ -238,20 +231,14 @@ final List<GetPage> appPages = [
     page: () => ShareRecommendationScreen(),
     binding: ListingBinding(),
   ),
-  // Conversation screen route - using the static route name from MessageConversationScreen
   GetPage(
     name: MessageConversationScreen.routeName,
     page: () {
       final args = Get.arguments as Map<String, dynamic>;
-      // if (!args.containsKey('conversationId') || !args.containsKey('receiver') || !args.containsKey('sender')) {
-      //   throw ArgumentError('Missing required arguments for conversation screen');
-      // }
       return MessageConversationScreen(
         conversationId: args['conversationId'] ?? '',
         sender: args['receiver'] as dynamic?,
-        //sender: args['receiver'] as User?,
         receiver: args['sender'] as dynamic?,
-        // receiver: args['sender'] as User?,
         isGroupChat: args['is_group_chat'] ?? false,
         roomMembers: args['room_members'] ?? [],
         status: args['status'] ?? 'Inquiry',
@@ -289,11 +276,6 @@ final List<GetPage> appPages = [
     page: () => AssistanceScheduleBookingScreen(),
     binding: PublicAssistanceServiceBinding(),
   ),
-  // GetPage(
-  //   name: GiveUserFeedbackScreen.route,
-  //   page: () => const GiveUserFeedbackScreen(),
-  //   binding: UserFeedbackBinding(),
-  // ),
   GetPage(
     name: AssistanceReservationInfoFormScreen.route,
     page: () => AssistanceReservationInfoFormScreen(),
@@ -316,9 +298,76 @@ final List<GetPage> appPages = [
   ),
 ];
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final String initialRoute;
-  const MyApp({super.key, required this.initialRoute});
+  final Uri? initialDeepLink;
+
+  const MyApp({
+    super.key,
+    required this.initialRoute,
+    this.initialDeepLink,
+  });
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final _appLinks = AppLinks();
+
+  @override
+  void initState() {
+    super.initState();
+    print('🏁 MyApp initState called');
+    print('🔗 initialDeepLink in MyApp: ${widget.initialDeepLink}');
+
+    // ✅ Handle cold start deep link after GetMaterialApp is ready
+    if (widget.initialDeepLink != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        print('📲 postFrameCallback firing for deep link');
+        _navigateFromUri(widget.initialDeepLink!);
+      });
+    }
+
+    // ✅ Handle deep links when app is already open (foreground/background)
+    _appLinks.uriLinkStream.listen((uri) {
+      print('📡 uriLinkStream received: $uri');
+      _navigateFromUri(uri);
+    });
+  }
+
+  // ✅ THIS IS A SEPARATE METHOD — not nested inside initState
+  void _navigateFromUri(Uri uri) {
+    print('🚀 _navigateFromUri called with: $uri');
+    final path = uri.path;
+    print('📍 path: $path');
+
+    // Handle listing deep links: /rooms/<uniqueId>
+    if (path.startsWith('/rooms/') && path.length > 7) {
+      final uniqueId = path.substring(7);
+      print('✅ Navigating to listing with uniqueId: $uniqueId');
+      Get.to(
+        () => PublicListingDetailsView(),
+        arguments: {'id': uniqueId},
+      );
+    }
+    // Handle referral deep links: /r/<code>
+    else if (path.startsWith('/r/') && path.length > 3) {
+      final referralCode = path.substring(3);
+      print('✅ Navigating to signup with referralCode: $referralCode');
+      try {
+        Get.find<MainController>().deepLinkReferer = referralCode;
+      } catch (_) {}
+      Get.toNamed(
+        SignupScreen.routeName,
+        arguments: {'referralCode': referralCode},
+      );
+    } else {
+      print('⚠️ No matching route for path: $path');
+    }
+  }
+
+  // ✅ build() is properly at the class level — NOT inside any other method
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
@@ -327,41 +376,36 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
         useMaterial3: false,
       ),
-        localizationsDelegates: const [                         // 👈 add this
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    FlutterQuillLocalizations.delegate,
-  ],
-  supportedLocales: const [Locale('en')],  
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en')],
       builder: (context, child) {
-        // Wrap entire app with connectivity listener
         return ConnectivityListener(
           child: child ?? const SizedBox.shrink(),
         );
       },
       onGenerateRoute: (RouteSettings settings) {
-        final routeName =
-            (settings.name == '/')
-                ? initialRoute
-                : (settings.name ?? initialRoute);
-
+        final routeName = (settings.name == '/')
+            ? widget.initialRoute
+            : (settings.name ?? widget.initialRoute);
 
         Uri? uri = Uri.tryParse(routeName);
         final String path = uri?.path ?? routeName;
 
         final arguments = settings.arguments ?? uri?.queryParameters;
+
         // Handle referral deep links: /r/<code>
         if (path.startsWith('/r/') && path.length > 3) {
-          final referralCode = path.substring(3); // Extract code after "/r/"
-
-          // Store the referral code in MainController
+          final referralCode = path.substring(3);
           try {
             final mainController = Get.find<MainController>();
             mainController.deepLinkReferer = referralCode;
           } catch (e) {}
 
-          // Navigate to splash screen which can handle the referral logic
           final splashPage = appPages.firstWhere(
             (p) => p.name == SignupScreen.routeName,
           );
@@ -378,6 +422,31 @@ class MyApp extends StatelessWidget {
             transitionDuration:
                 splashPage.transitionDuration ??
                 const Duration(milliseconds: 300),
+          );
+        }
+
+        // Handle listing deep links: /rooms/<uniqueId>
+        if (path.startsWith('/rooms/') && path.length > 7) {
+          final uniqueId = path.substring(7);
+
+          final page = appPages.firstWhere(
+            (p) => p.name == AppRoute.publicListings,
+            orElse: () =>
+                appPages.firstWhere((p) => p.name == AppRoute.guest),
+          );
+
+          return GetPageRoute(
+            settings: RouteSettings(
+              name: AppRoute.publicListings,
+              arguments: {'id': uniqueId, 'fromDeepLink': true},
+            ),
+            page: page.page,
+            binding: page.binding,
+            bindings: page.bindings,
+            middlewares: page.middlewares,
+            transition: page.transition,
+            transitionDuration:
+                page.transitionDuration ?? const Duration(milliseconds: 300),
           );
         }
 
@@ -400,9 +469,8 @@ class MyApp extends StatelessWidget {
         );
       },
       debugShowCheckedModeBanner: false,
-      initialRoute: initialRoute,
+      initialRoute: widget.initialRoute,
       defaultTransition: Transition.fadeIn,
-      // getPages: appPages, // Disabled: using onGenerateRoute exclusively to ensure middlewares/bindings apply to deep links
       initialBinding: MainBinding(),
     );
   }

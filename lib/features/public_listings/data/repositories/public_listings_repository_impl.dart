@@ -113,14 +113,19 @@ class PublicListingsRepositoryImpl implements PublicListingsRepository {
   }
 
   @override
-  Future<ListingDetailsModel> getListingDetails({String id = ''}) async {
-    try {
-      final response = await _apiClient.get('https://api-sub.stayverz.com/listings/details/$id');
-      return ListingDetailsModel.fromJson((response.data?['data'] ?? {}));
-    } catch (e) {
-      rethrow;
-    }
+Future<ListingDetailsModel> getListingDetails({String id = ''}) async {
+  try {
+    final response = await _apiClient.get('https://api-sub.stayverz.com/listings/details/$id');
+    
+    // ADD THIS LINE
+    print("RAW RESPONSE DATA: ${response.data}");
+    
+    return ListingDetailsModel.fromJson((response.data?['data'] ?? {}));
+  } catch (e) {
+    print("ERROR IN getListingDetails: $e"); // ADD THIS TOO
+    rethrow;
   }
+}
 
   @override
   Future<LocationResponse> getDistrictPoints({String query = ''}) async {

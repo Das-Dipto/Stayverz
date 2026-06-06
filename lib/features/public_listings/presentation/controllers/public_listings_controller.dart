@@ -554,7 +554,7 @@ class PublicListingsController extends GetxController {
       // Get listings from repository
       final result = await _repository.getListingDetails(id: listingId);
 
-
+      print("The result is the following- ${result}");
       listingDetails.value = result;
 
       // Hide loading state
