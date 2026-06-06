@@ -109,9 +109,23 @@ class ListingDetailsModel {
     this.serviceChargePercentage,
     this.reviews,
   });
+factory ListingDetailsModel.fromJson(Map<String, dynamic> json) {
+  try {
+    // Debug every suspicious field
+    final fields = [
+      'length_of_stay_discounts',
+      'calendar_data', 
+      'cancellation_policy',
+      'host',
+      'amenities',
+      'reviews',
+    ];
+    for (final f in fields) {
+      if (json[f] != null) {
+        print('FIELD $f = type: ${json[f].runtimeType} | value: ${json[f]}');
+      }
+    }
 
-
-  factory ListingDetailsModel.fromJson(Map<String, dynamic> json) {
     return ListingDetailsModel(
       id: json['id'] as int?,
       latitude: (json['latitude'] as num?)?.toDouble(),
@@ -119,7 +133,7 @@ class ListingDetailsModel {
       instantBookingAllowed: json['instant_booking_allowed'] as bool?,
       requireGuestGoodTrackRecord: json['require_guest_good_track_record'] as bool?,
       enableLengthOfStayDiscount: json['enable_length_of_stay_discount'] as bool?,
-      lengthOfStayDiscounts: json['length_of_stay_discounts'] != null 
+      lengthOfStayDiscounts: json['length_of_stay_discounts'] != null && json['length_of_stay_discounts'] is Map
           ? Map<String, dynamic>.from(json['length_of_stay_discounts'])
           : null,
       uniqueId: json['unique_id'] as String?,
@@ -128,26 +142,11 @@ class ListingDetailsModel {
       price: (json['price'] as num?)?.toDouble(),
       coverPhoto: json['cover_photo'] as String?,
       images: json['images'] != null ? List<String>.from(json['images']) : null,
-      living_room_images: json['living_room_images'] != null
-          ? List<String>.from(json['living_room_images'])
-          : null,
-
-      kitchen_images: json['kitchen_images'] != null
-          ? List<String>.from(json['kitchen_images'])
-          : null,
-
-      bathroom_images: json['bathroom_images'] != null
-          ? List<String>.from(json['bathroom_images'])
-          : null,
-
-      bedroom_images: json['bedroom_images'] != null
-          ? List<String>.from(json['bedroom_images'])
-          : null,
-
-      washroom_images: json['washroom_images'] != null
-          ? List<String>.from(json['washroom_images'])
-          : null,
-
+      living_room_images: json['living_room_images'] != null ? List<String>.from(json['living_room_images']) : null,
+      kitchen_images: json['kitchen_images'] != null ? List<String>.from(json['kitchen_images']) : null,
+      bathroom_images: json['bathroom_images'] != null ? List<String>.from(json['bathroom_images']) : null,
+      bedroom_images: json['bedroom_images'] != null ? List<String>.from(json['bedroom_images']) : null,
+      washroom_images: json['washroom_images'] != null ? List<String>.from(json['washroom_images']) : null,
       placeType: json['place_type'] as String?,
       status: json['status'] as String?,
       verificationStatus: json['verification_status'] as String?,
@@ -163,7 +162,7 @@ class ListingDetailsModel {
       smokingAllowed: json['smoking_allowed'] as bool?,
       mediaAllowed: json['media_allowed'] as bool?,
       unmarriedCouplesAllowed: json['unmarried_couples_allowed'] as bool?,
-      cancellationPolicy: json['cancellation_policy'] != null 
+      cancellationPolicy: json['cancellation_policy'] != null && json['cancellation_policy'] is Map
           ? CancellationPolicy.fromJson(json['cancellation_policy'])
           : null,
       checkIn: json['check_in'] as String?,
@@ -179,23 +178,28 @@ class ListingDetailsModel {
       city: json['city'] as String?,
       isDeleted: json['is_deleted'] as bool?,
       deletedAt: json['deleted_at'] != null ? DateTime.tryParse(json['deleted_at']) : null,
-      host: json['host'] != null ? Host.fromJson(json['host']) : null,
+      host: json['host'] != null && json['host'] is Map
+          ? Host.fromJson(json['host'])
+          : null,
       category: json['category'] as int?,
-      amenities: (json['amenities'] as List<dynamic>?)
-          ?.map((item) => AmenityItem.fromJson(item))
-          .toList(),
-      calendarData: json['calendar_data'] != null
+      amenities: json['amenities'] is List
+          ? (json['amenities'] as List).map((item) => AmenityItem.fromJson(item)).toList()
+          : null,
+      calendarData: json['calendar_data'] != null && json['calendar_data'] is Map
           ? Map.from(json['calendar_data']).map((k, v) =>
               MapEntry(k as String, CalendarDay.fromJson(v as Map<String, dynamic>)))
           : null,
       serviceChargePercentage: (json['service_charge_percentage'] as num?)?.toDouble(),
-      reviews: json['reviews'] != null
-          ? (json['reviews'] as List)
-              .map((e) => Review.fromJson(e as Map<String, dynamic>))
-              .toList()
+      reviews: json['reviews'] is List
+          ? (json['reviews'] as List).map((e) => Review.fromJson(e as Map<String, dynamic>)).toList()
           : null,
     );
+  } catch (e, stack) {
+    print('fromJson ERROR: $e');
+    print('STACK: $stack');
+    rethrow;
   }
+}
 
   Map<String, dynamic> toJson() {
     return {
@@ -373,7 +377,7 @@ class CalendarDay {
       price: (json['price'] as num).toDouble(),
       isBlocked: json['is_blocked'],
       isBooked: json['is_booked'],
-      bookingData: json['booking_data'] != null && (json['booking_data'] as Map).isNotEmpty
+      bookingData: json['booking_data'] != null && json['booking_data'] is Map && (json['booking_data'] as Map).isNotEmpty
           ? BookingData.fromJson(json['booking_data'])
           : BookingData.empty(),
       note: json['note'] ?? '',

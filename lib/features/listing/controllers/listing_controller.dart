@@ -1280,13 +1280,15 @@ class ListingController extends GetxController {
       isCalendarLoading.value = false;
       isInitialLoad.value = false; // Set to false after the first API call
       Future.delayed(Duration(seconds: 1), () {
-        calenderViewController.animateTo(
-          DateTime.now().month *
-              (calenderViewController.position.maxScrollExtent / 12),
-          duration: Duration(seconds: 1),
-          curve: Curves.easeIn,
-        );
-      });
+  if (calenderViewController.hasClients) {
+    calenderViewController.animateTo(
+      DateTime.now().month *
+          (calenderViewController.position.maxScrollExtent / 12),
+      duration: Duration(seconds: 1),
+      curve: Curves.easeIn,
+    );
+  }
+});
     }
   }
 

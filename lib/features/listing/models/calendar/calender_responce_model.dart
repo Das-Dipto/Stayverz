@@ -27,17 +27,20 @@ class CalendarDataWrapper {
 
   CalendarDataWrapper({required this.listing, required this.calendarData});
 
-  factory CalendarDataWrapper.fromJson(Map<String, dynamic> json) {
-    final Map<String, dynamic> rawCalendar = json['calendar_data'] ?? {};
-    final Map<String, CalendarDayData> calendarData = rawCalendar.map(
-      (key, value) => MapEntry(key, CalendarDayData.fromJson(value)),
-    );
+factory CalendarDataWrapper.fromJson(Map<String, dynamic> json) {
+  // API sometimes returns [] instead of {} when empty
+  final rawCalendar = json['calendar_data'];
+  final Map<String, CalendarDayData> calendarData = (rawCalendar is Map)
+      ? rawCalendar.map(
+          (key, value) => MapEntry(key.toString(), CalendarDayData.fromJson(value)),
+        )
+      : {};
 
-    return CalendarDataWrapper(
-      listing: Listing.fromJson(json['listing']),
-      calendarData: calendarData,
-    );
-  }
+  return CalendarDataWrapper(
+    listing: Listing.fromJson(json['listing']),
+    calendarData: calendarData,
+  );
+}
 }
 
 class Listing {
