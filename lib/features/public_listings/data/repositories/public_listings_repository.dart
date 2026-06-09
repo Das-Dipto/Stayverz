@@ -48,6 +48,14 @@ abstract class PublicListingsRepository {
 
   Future<HomeResponse> getHomeLayout({required String tab});
 
+  Future<void> postAvgResponseTime({
+  required int listingId,
+  required int hostId,
+  required int guestId,
+  required int avgResponseTimeSeconds,
+  required int totalResponses,
+});
+
 
   Future<PropertyListResponse> getUpdatedPublicListings({
   int page,

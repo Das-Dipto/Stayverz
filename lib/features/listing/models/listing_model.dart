@@ -105,8 +105,9 @@ class ListingModel {
       json['require_guest_good_track_record'] as bool,
       enable_length_of_stay_discount:
       json['enable_length_of_stay_discount'] as bool,
-      length_of_stay_discounts:
-      json['length_of_stay_discounts'] as Map<String, dynamic>,
+      length_of_stay_discounts: (json['length_of_stay_discounts'] is Map)
+          ? Map<String, dynamic>.from(json['length_of_stay_discounts'])
+          : {},
       created_at: json['created_at'] as String,
       updated_at: json['updated_at'] as String,
       unique_id: json['unique_id'] as String,
@@ -131,7 +132,9 @@ class ListingModel {
       smoking_allowed: json['smoking_allowed'] as bool,
       media_allowed: json['media_allowed'] as bool,
       unmarried_couples_allowed: json['unmarried_couples_allowed'] as bool,
-      cancellation_policy: json['cancellation_policy'] as Map<String, dynamic>,
+      cancellation_policy: (json['cancellation_policy'] is Map)
+      ? Map<String, dynamic>.from(json['cancellation_policy'])
+      : {},
       check_in: json['check_in'] as String,
       check_out: json['check_out'] as String,
       avg_rating: (json['avg_rating'] as num).toDouble(),

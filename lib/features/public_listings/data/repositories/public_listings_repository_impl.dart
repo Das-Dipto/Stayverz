@@ -127,6 +127,30 @@ Future<ListingDetailsModel> getListingDetails({String id = ''}) async {
   }
 }
 
+@override
+Future<void> postAvgResponseTime({
+  required int listingId,
+  required int hostId,
+  required int guestId,
+  required int avgResponseTimeSeconds,
+  required int totalResponses,
+}) async {
+  try {
+    await _apiClient.post(
+      'https://node-api.stayverz.com/api/v2/response/avg-time',
+      data: {
+        'listing_id': listingId,
+        'host_id': hostId,
+        'guest_id': guestId,
+        'avg_response_time_seconds': avgResponseTimeSeconds,
+        'total_responses': totalResponses,
+      },
+    );
+  } catch (e) {
+    // silently fail — don't block chat flow
+  }
+}
+
   @override
   Future<LocationResponse> getDistrictPoints({String query = ''}) async {
     try {
@@ -185,9 +209,11 @@ Future<ListingDetailsModel> getListingDetails({String id = ''}) async {
         data: messageRequest.toJson(),
       );
 
-      if (response.statusCode == 201 && response.data != null) {
-        return MessageBookingResponse.fromJson(response.data);
-      } else {
+     if (response.statusCode == 201 && response.data != null) {
+      final result = MessageBookingResponse.fromJson(response.data);
+
+      return result;
+    }  else {
         throw Exception('Failed to start user chat.');
       }
     } on dio.DioException catch (e) {

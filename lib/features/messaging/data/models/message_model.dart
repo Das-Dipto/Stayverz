@@ -374,10 +374,9 @@ class PriceInfo {
     price: json["price"],
     isBlocked: json["is_blocked"],
     isBooked: json["is_booked"],
-    bookingData: json["booking_data"] == null
-        ? null
-        : BookingData.fromJson(json["booking_data"]),
-    note: json["note"],
+bookingData: json["booking_data"] == null || json["booking_data"] is List
+    ? null
+    : BookingData.fromJson(json["booking_data"]),
   );
 
   Map<String, dynamic> toJson() => {

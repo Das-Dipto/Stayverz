@@ -1490,6 +1490,7 @@ Padding(
                           // API call
                           await controller.startUserChatRequest(
                             request: messageRequest,
+                            guestId: mainControl.userId.value, // ADD THIS
                           );
 
                           // Close loading

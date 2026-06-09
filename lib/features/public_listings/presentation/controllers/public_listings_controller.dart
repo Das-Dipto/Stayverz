@@ -658,16 +658,32 @@ class PublicListingsController extends GetxController {
   final RxString chatRoomId = ''.obs;
   Future<void> startUserChatRequest({
     required MessageBookingRequest request,
+    required String guestId, // ADD THIS PARAM
   }) async {
     try {
       isLoadinggc.value = true;
       hasErrorgc.value = false;
 
-      final response = await _repository.startUserChat(messageRequest: request);
+  final response = await _repository.startUserChat(
+    messageRequest: request,
+  );
 
 
       if (response.success == true) {
         chatRoomId.value = response.data?.chatRoomId ?? '';
+
+         try {
+            await _repository.postAvgResponseTime(
+              listingId: request.listing ?? 0,
+              hostId: request.toUser ?? 0,
+              guestId: int.tryParse(guestId) ?? 0,
+              avgResponseTimeSeconds: 0,
+              totalResponses: 0,
+            );
+            print("✅ avgTime API called successfully");
+          } catch (e) {
+            print("❌ avgTime API failed: $e");
+          }
       } else {
         errorMessage.value = response.message ?? 'Failed to start chat.';
         chatRoomId.value = '';

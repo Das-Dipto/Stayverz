@@ -3266,11 +3266,34 @@ class SingleFieldBottomSheetBody extends GetView<ListingEditController> {
             ),
           ),
           const Gap(8),
-          CustomInputText(
-            controller: textControl,
-            helperText: hitText,
-            keyboardType: keyboardType,
-            maxLines: isTextArea ? null : 1,
+           Builder(
+            builder: (context) {
+              final rawText = textControl.text;
+              if (rawText.contains('<') && rawText.contains('>')) {
+                final stripped = rawText
+                    .replaceAll(RegExp(r'<[^>]*>'), '')
+                    .replaceAll('&nbsp;', ' ')
+                    .replaceAll('&amp;', '&')
+                    .replaceAll('&lt;', '<')
+                    .replaceAll('&gt;', '>')
+                    .replaceAll('&quot;', '"')
+                    .trim();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (textControl.text != stripped) {
+                    textControl.text = stripped;
+                    textControl.selection = TextSelection.collapsed(
+                      offset: stripped.length,
+                    );
+                  }
+                });
+              }
+              return CustomInputText(
+                controller: textControl,
+                helperText: hitText,
+                keyboardType: keyboardType,
+                maxLines: isTextArea ? null : 1,
+              );
+            },
           ),
           const Gap(18),
         ],

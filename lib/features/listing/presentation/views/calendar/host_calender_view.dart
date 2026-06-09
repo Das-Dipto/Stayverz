@@ -1029,7 +1029,7 @@ class _HostCalenderViewState extends State<HostCalenderView> {
                                                 isSelected
                                                     ? FontWeight.bold
                                                     : FontWeight.normal,
-                                            fontSize: 16,
+                                            fontSize: 10,
                                           ),
                                           child: Text(
                                             '$day',
@@ -1081,8 +1081,7 @@ class _HostCalenderViewState extends State<HostCalenderView> {
                                         milliseconds: 350,
                                       ),
                                       alignment: Alignment.center,
-                                      height: 70,
-                                      width: 60,
+                        
                                       child: Container(
                                         padding: const EdgeInsets.all(3),
                                         decoration: BoxDecoration(

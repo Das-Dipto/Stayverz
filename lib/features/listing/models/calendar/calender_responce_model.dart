@@ -93,11 +93,11 @@ class CalendarDayData {
       price: (json['price'] != null) ? (json['price'] as num).toDouble() : null,
       isBlocked: json['is_blocked'] as bool?,
       isBooked: json['is_booked'] as bool?,
-      bookingData:
-          (json['booking_data'] != null &&
-                  (json['booking_data'] as Map).isNotEmpty)
-              ? BookingData.fromJson(json['booking_data'])
-              : null,
+      bookingData: (json['booking_data'] != null &&
+              json['booking_data'] is Map &&
+              (json['booking_data'] as Map).isNotEmpty)  // ✅ safe
+          ? BookingData.fromJson(Map<String, dynamic>.from(json['booking_data']))
+          : null,
       note: json['note'] as String?,
     );
   }

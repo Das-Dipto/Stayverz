@@ -84,12 +84,17 @@ class MessageBookingResponse {
 
 class MessageBookingResponseData {
   final String? chatRoomId;
+  final int? avgResponseTimeSeconds; // ADD THIS
 
-  MessageBookingResponseData({this.chatRoomId});
+  MessageBookingResponseData({
+    this.chatRoomId,
+    this.avgResponseTimeSeconds, // ADD THIS
+  });
 
   factory MessageBookingResponseData.fromJson(Map<String, dynamic> json) {
     return MessageBookingResponseData(
       chatRoomId: json['chat_room_id'] as String?,
+      avgResponseTimeSeconds: json['avg_response_time_seconds'] as int?, // ADD THIS
     );
   }
 }

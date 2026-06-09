@@ -15,6 +15,7 @@ import 'package:stayverz_flutter_app/features/listing/models/map_suggestions_res
 import '../../models/assistance_cancellation_polices_response.dart';
 import '../widgets/location_suggestor_text_field_widget.dart';
 
+
 class EditAssistanceListingScreen extends GetView<AssistanceServiceEditController> {
 
    EditAssistanceListingScreen({super.key});
@@ -25,6 +26,32 @@ class EditAssistanceListingScreen extends GetView<AssistanceServiceEditControlle
      return status.split('_').map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : '').join(' ');
    }
 
+
+String _stripHtml(String? input) {
+  if (input == null || input.trim().isEmpty) return '';
+
+  print("🔍 RAW: $input");
+
+  String result = input;
+
+  // Remove all tags including attributes
+  result = result.replaceAll(RegExp(r'<[^>]*>', caseSensitive: false), ' ');
+
+  // Decode entities
+  result = result
+      .replaceAll('&amp;', '&')
+      .replaceAll('&nbsp;', ' ')
+      .replaceAll('&lt;', '<')
+      .replaceAll('&gt;', '>')
+      .replaceAll('&quot;', '"')
+      .replaceAll('&#39;', "'")
+      .replaceAll('&apos;', "'");
+
+  result = result.replaceAll(RegExp(r'\s+'), ' ').trim();
+
+  print("✅ CLEANED: $result");
+  return result;
+}
 
    @override
     Widget build(BuildContext context) {
@@ -458,7 +485,9 @@ class EditAssistanceListingScreen extends GetView<AssistanceServiceEditControlle
   }
 
    void _showAboutYouModalBottomSheet() {
-     controller.aboutYouController.text = controller.listingDetails.value?.aboutYou ?? '';
+   final raw = controller.listingDetails.value?.aboutYou ?? '';
+    print("📌 About You Raw: $raw");
+    controller.aboutYouController.text = _stripHtml(raw);
      Get.bottomSheet(
          Obx(() {
            return EditBottomSheet(
@@ -483,7 +512,9 @@ class EditAssistanceListingScreen extends GetView<AssistanceServiceEditControlle
    }
 
   void _showDescriptionModalBottomSheet() {
-    controller.descriptionController.text = controller.listingDetails.value?.details ?? '';
+    final raw = controller.listingDetails.value?.details ?? '';
+      print("📌 Details Raw: $raw");                    // ← This is the one in your screenshot
+      controller.descriptionController.text = _stripHtml(raw);
     Get.bottomSheet(
         Obx(() {
             return EditBottomSheet(
@@ -495,7 +526,7 @@ class EditAssistanceListingScreen extends GetView<AssistanceServiceEditControlle
               },
               child: SingleFieldBottomSheetBody(
                 description: 'Write Some awesome Descriptions',
-                label: 'Add Description',
+                label: 'Add Descriptionnnn',
                 hitText: 'Enter description',
                 textControl: controller.descriptionController,
               ),
@@ -508,7 +539,9 @@ class EditAssistanceListingScreen extends GetView<AssistanceServiceEditControlle
   }
 
   void _showDescribeAssistanceModalBottomSheet() {
-    controller.describeAssistanceController.text = controller.listingDetails.value?.assistanceDescription ?? '';
+    final raw = controller.listingDetails.value?.assistanceDescription ?? '';
+      print("📌 Assistance Description Raw: $raw");
+      controller.describeAssistanceController.text = _stripHtml(raw);
     Get.bottomSheet(
         Obx(() {
             return EditBottomSheet(
@@ -1540,6 +1573,7 @@ class SingleFieldBottomSheetBody extends GetView<AssistanceServiceEditController
 
   @override
   Widget build(BuildContext context) {
+    print("🎯 SingleFieldBottomSheetBody - Setting text: ${textControl.text}");
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal:  18.0),
       child: Column(
@@ -1561,7 +1595,7 @@ class SingleFieldBottomSheetBody extends GetView<AssistanceServiceEditController
             label,
             style: TextStyle(
               color: Colors.black,
-              fontSize: 12,
+              fontSize: 5,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w400,
             ),
