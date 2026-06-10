@@ -67,6 +67,12 @@ abstract class MessagingRepository {
       String conversationId,
       );
 
+      Future<void> postFirstReply({
+  required int listingId,
+  required int hostId,
+  required int guestId,
+});
+
   // =======================
   // WebSocket stream getters
   // =======================
@@ -181,6 +187,27 @@ class MessagingRepositoryImpl implements MessagingRepository {
     //   );
     // }
   }
+
+  Future<void> postFirstReply({
+  required int listingId,
+  required int hostId,
+  required int guestId,
+}) async {
+  try {
+    final response = await _apiClient.post(
+      'https://node-api.stayverz.com/api/v2/response/first-reply',
+      data: {
+        'listing_id': listingId,
+        'host_id': hostId,
+        'guest_id': guestId,
+      },
+    );
+    print('✅ firstReply response: ${response.data}');
+  } catch (e) {
+    print('❌ firstReply error: $e');
+    // silently fail
+  }
+}
 
   void _handleNotificationClick(MessagePayload payload) {
     try {

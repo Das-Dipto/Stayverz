@@ -123,7 +123,8 @@ class ListingEditController extends GetxController {
         throw Exception("Listing ID is required");
       }
 
-      createdListingId = createdListingId.isNotEmpty ? createdListingId : listingIdToUse;
+      // createdListingId = createdListingId.isNotEmpty ? createdListingId : listingIdToUse;
+      createdListingId = listingIdToUse;
 
       // Call API
       final res = await _repository.getSingleListingDetails(id: createdListingId);

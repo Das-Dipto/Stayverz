@@ -52,7 +52,17 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
         // Set the id parameter for the controller
         Get.parameters['id'] = Get.arguments['id'].toString();
         // Fetch my_listing details
-        controller.fetchListingDetails();
+       controller.fetchListingDetails().then((_) {
+  final hostId = controller.listingDetails.value.host?.id;
+  print('✅ hostId after fetch: $hostId');
+  if (hostId != null) {
+    controller.fetchHostAvgResponseTime(hostId: hostId);
+  } else {
+    print('⚠️ hostId is null after fetchListingDetails');
+  }
+});
+
+
         // Check if this my_listing is in wishlist
         final listingId = int.tryParse(Get.arguments['id'].toString());
         if (listingId != null) {
@@ -139,6 +149,24 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
         },
       );
     }
+
+    Widget _statDot(Color color, String label) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
+      const SizedBox(width: 4),
+      Text(
+        label,
+        style: const TextStyle(fontSize: 11, color: Colors.black54),
+      ),
+    ],
+  );
+}
     void _share(BuildContext context, String url) async {
       await Share.share(
         url,
@@ -1306,6 +1334,134 @@ Padding(
                                   ),
                                 ],
                               ),
+
+                              // ✅ ADD THIS BELOW
+
+// ✅ NEW: Conditional Response Time Label
+Obx(() {
+  final data = controller.hostAvgResponseTime;
+  if (data.isEmpty || data['data'] == null) return const SizedBox.shrink();
+
+  final overall = data['data']['overall'];
+  final replied = data['data']['replied'];
+  final pending = data['data']['pending'];
+
+  final avgTimeInSeconds = overall?['avg_response_time_seconds'] ?? 0;
+  final avgFormatted = overall?['avg_response_time_formatted'] ?? 'N/A';
+  final totalResponses = replied?['total_responses'] ?? 0;
+  final totalPending = pending?['total_pending'] ?? 0;
+  final totalConversations = overall?['total_conversations'] ?? 0;
+  final responseRate = totalConversations > 0
+      ? ((totalResponses / totalConversations) * 100).round()
+      : 0;
+
+  // 🎯 Categorize response time (User-friendly labels)
+  String responseTitle;
+  Color titleColor;
+  IconData titleIcon;
+
+  if (avgTimeInSeconds <= 3600) {                    // ≤ 1 hour
+    responseTitle = "Lightning Fast";
+    titleColor = Colors.green;
+    titleIcon = Icons.bolt;
+  } 
+  else if (avgTimeInSeconds <= 7200) {               // ≤ 2 hours
+    responseTitle = "Very Fast";
+    titleColor = Colors.green;
+    titleIcon = Icons.flash_on;
+  } 
+  else if (avgTimeInSeconds <= 14400) {              // ≤ 4 hours
+    responseTitle = "Fast";
+    titleColor = Colors.orange;
+    titleIcon = Icons.thumb_up_alt_outlined;
+  } 
+  else if (avgTimeInSeconds <= 28800) {              // ≤ 8 hours
+    responseTitle = "Quick Responder";
+    titleColor = Colors.orange;
+    titleIcon = Icons.schedule;
+  } 
+  else if (avgTimeInSeconds <= 86400) {              // ≤ 24 hours
+    responseTitle = "Usually responds within a day";
+    titleColor = Colors.deepOrange;
+    titleIcon = Icons.timer_outlined;
+  } 
+  else {                                             // > 24 hours
+    responseTitle = "Responds within a few days";
+    titleColor = Colors.redAccent;
+    titleIcon = Icons.hourglass_bottom;
+  }
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Gap(10),
+      const Divider(color: Color(0xFFF0F1F5)),
+      const Gap(6),
+
+      // Dynamic Title Row
+      Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: titleColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(titleIcon, color: titleColor, size: 18),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                responseTitle,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: titleColor,
+                ),
+              ),
+              Row(
+                children: [
+                  Container(
+                    width: 7,
+                    height: 7,
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Responds in $avgFormatted',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+
+      const Gap(8),
+
+      // Stats Row
+      Wrap(
+        spacing: 12,
+        runSpacing: 4,
+        children: [
+          _statDot(Colors.green, '$totalResponses responses'),
+          _statDot(Colors.orange, '$totalPending waiting for reply'),
+          _statDot(Colors.blue, '$responseRate% response rate'),
+        ],
+      ),
+    ],
+  );
+}),
                             ],
                           ),
                         ),

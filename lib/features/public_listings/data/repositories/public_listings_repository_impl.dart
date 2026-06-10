@@ -137,19 +137,21 @@ Future<void> postAvgResponseTime({
 }) async {
   try {
     await _apiClient.post(
-      'https://node-api.stayverz.com/api/v2/response/avg-time',
+      'https://node-api.stayverz.com/api/v2/response/first-message',
       data: {
         'listing_id': listingId,
         'host_id': hostId,
         'guest_id': guestId,
-        'avg_response_time_seconds': avgResponseTimeSeconds,
-        'total_responses': totalResponses,
+        // 'avg_response_time_seconds': avgResponseTimeSeconds,
+        // 'total_responses': totalResponses,
       },
     );
   } catch (e) {
     // silently fail — don't block chat flow
   }
 }
+
+
 
   @override
   Future<LocationResponse> getDistrictPoints({String query = ''}) async {
@@ -195,6 +197,20 @@ Future<void> postAvgResponseTime({
       rethrow;
     }
   }
+
+  @override
+Future<Map<String, dynamic>> getHostAvgResponseTime({required int hostId}) async {
+  try {
+    final response = await _apiClient.get(
+      'https://node-api.stayverz.com/api/v2/response/avg-time/host/$hostId',
+    );
+    print('✅ avgResponseTime response: ${response.data}');
+    return response.data ?? {};
+  } catch (e) {
+    print('❌ avgResponseTime error: $e');
+    return {};
+  }
+}
 
 
 

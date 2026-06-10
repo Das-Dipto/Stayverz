@@ -57,6 +57,8 @@ abstract class PublicListingsRepository {
 });
 
 
+
+
   Future<PropertyListResponse> getUpdatedPublicListings({
   int page,
   int? id,
@@ -73,6 +75,8 @@ abstract class PublicListingsRepository {
     int page = 1,
     int pageSize = 10,
   });
+
+  Future<Map<String, dynamic>> getHostAvgResponseTime({required int hostId});
 
 }
 

@@ -3125,13 +3125,15 @@ class EditBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return SafeArea(
       top: true,
+      bottom: true,          // ← Added this
       minimum: const EdgeInsets.only(top: 16),
       child: Padding(
         padding: EdgeInsets.only(
           top: 16,
-          bottom: bottomInset > 0 ? 20 : 0,
+          bottom: bottomInset > 0 ? 20 : 16,   // ← Increased fallback bottom padding
         ),
         child: SingleChildScrollView(
           child: IntrinsicHeight(
@@ -3140,7 +3142,12 @@ class EditBottomSheet extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 8.0, right: 18, left: 18),
+                  padding: const EdgeInsets.only(
+                    top: 8.0,
+                    bottom: 12.0,     // ← Added bottom padding for header
+                    right: 18,
+                    left: 18,
+                  ),
                   child: Row(
                     children: [
                       Expanded(
@@ -3185,16 +3192,15 @@ class EditBottomSheet extends StatelessWidget {
                           onPressed: isLoading ? null : onSave,
                           style: TextButton.styleFrom(padding: EdgeInsets.zero),
                           iconAlignment: IconAlignment.end,
-                          icon:
-                              isLoading
-                                  ? SizedBox(
-                                    height: 16,
-                                    width: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 0.6,
-                                    ),
-                                  )
-                                  : Icon(Icons.check),
+                          icon: isLoading
+                              ? SizedBox(
+                                  height: 16,
+                                  width: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 0.6,
+                                  ),
+                                )
+                              : Icon(Icons.check),
                           label: Text(
                             'Save',
                             style: TextStyle(

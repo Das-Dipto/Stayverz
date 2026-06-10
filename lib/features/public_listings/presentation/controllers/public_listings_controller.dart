@@ -698,6 +698,21 @@ class PublicListingsController extends GetxController {
     }
   }
 
+
+  // Add this observable
+final RxMap<String, dynamic> hostAvgResponseTime = <String, dynamic>{}.obs;
+
+// Add this method
+Future<void> fetchHostAvgResponseTime({required int hostId}) async {
+  try {
+    final result = await _repository.getHostAvgResponseTime(hostId: hostId);
+    hostAvgResponseTime.value = result;
+    print('✅ hostAvgResponseTime: $result');
+  } catch (e) {
+    print('❌ fetchHostAvgResponseTime error: $e');
+  }
+}
+
   //new filter option update---
   RxSet<String> selectedRoomTypes = <String>{}.obs;
 

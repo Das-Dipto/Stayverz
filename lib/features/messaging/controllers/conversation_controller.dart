@@ -18,6 +18,7 @@ import '../data/models/message_payload.dart';
 import '../data/repositories/messaging_repository.dart';
 import '../data/services/notification_service.dart';
 
+
 /// Controller for managing individual conversation messages and real-time events
 class ConversationController extends GetxController with WidgetsBindingObserver {
   final MessagingRepository _repository;
@@ -987,6 +988,31 @@ class ConversationController extends GetxController with WidgetsBindingObserver 
 
       // Send the message
       final message = await _repository.sendMessage(conversationId, content);
+
+      // ✅ Only call if current user is HOST
+if (mainControl.uType.value == 'host') {
+  try {
+    final chatRoom = _extraData.value.chatRoom;
+    final listingId = chatRoom?.listing?.id;
+    final hostId = chatRoom?.toUser.firstOrNull?.userId ?? chatRoom?.fromUser?.userId;
+    final guestId = chatRoom?.fromUser?.userId;
+
+    if (listingId != null && hostId != null && guestId != null) {
+      await _repository.postFirstReply(
+        listingId: listingId,
+        hostId: hostId,
+        guestId: guestId,
+      );
+      print('✅ firstReply POST success');
+    } else {
+      print('⚠️ firstReply skipped: listingId=$listingId hostId=$hostId guestId=$guestId');
+    }
+  } catch (e) {
+    print('❌ firstReply POST failed: $e');
+    // silently fail
+  }
+}
+
       canSendMessage.value = false;
 
       // Message sent successfully

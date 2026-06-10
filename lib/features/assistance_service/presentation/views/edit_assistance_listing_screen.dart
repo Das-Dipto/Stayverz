@@ -1478,14 +1478,23 @@ class EditBottomSheet extends StatelessWidget {
     this.isMax = false
   });
 
-  @override
+@override
+
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom > 0 ? 20.0 : 16.0;
+
     return SafeArea(
+      bottom: true,
       child: Column(
         mainAxisSize: isMax ? MainAxisSize.max : MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 12.0, right: 18, left: 18),
+            padding: const EdgeInsets.only(
+              top: 12.0,
+              bottom: 12.0,
+              right: 18,
+              left: 18,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -1531,7 +1540,13 @@ class EditBottomSheet extends StatelessWidget {
                           padding: EdgeInsets.zero
                       ),
                       iconAlignment: IconAlignment.end,
-                      icon: isLoading ? SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 0.6,),) : Icon(Icons.check),
+                      icon: isLoading 
+                          ? const SizedBox(
+                              height: 16, 
+                              width: 16, 
+                              child: CircularProgressIndicator(strokeWidth: 0.6),
+                            ) 
+                          : Icon(Icons.check),
                       label: Text(
                         'Save',
                         style: TextStyle(
@@ -1546,8 +1561,16 @@ class EditBottomSheet extends StatelessWidget {
               ],
             ),
           ),
-          Divider(height: 30,),
-          child,
+          Divider(height: 30),
+          
+          // Content area
+          if (isMax)
+            Expanded(child: child)
+          else
+            child,
+
+          // Bottom safe padding for Cancel/Save buttons
+          SizedBox(height: bottomPadding),
         ],
       ),
     );
@@ -1591,16 +1614,16 @@ class SingleFieldBottomSheetBody extends GetView<AssistanceServiceEditController
             ),
           ),
           const Gap(12),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 5,
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          const Gap(8),
+          // Text(
+          //   label,
+          //   style: TextStyle(
+          //     color: Colors.black,
+          //     fontSize: 8,
+          //     fontFamily: 'Inter',
+          //     fontWeight: FontWeight.w400,
+          //   ),
+          // ),
+          // const Gap(8),
           if(showLocationSuggestion)LocationSuggesterTextFieldWidget(
             controller: textControl,
             hintText: 'Enter area',

@@ -349,13 +349,13 @@ class MessageConversationScreen extends GetView<ConversationController> {
                                                         bool isListingObject =
                                                         message.meta?.listing is Listing;
 
-                                                        final listingId = isListingObject
-                                                            ? message.meta?.listing?.uniqueId
-                                                            : message.meta?.listing ?? '';
+                                                       final listingId = isListingObject
+                                                          ? message.meta?.listing?.uniqueId ?? ''
+                                                          : message.meta?.listing?.toString() ?? '';
 
-                                                        final listingIdBook = isListingObject
-                                                            ? message.meta?.listing?.id
-                                                            : message.meta?.listing ?? '';
+                                                      final listingIdBook = isListingObject
+                                                          ? message.meta?.listing?.id?.toString() ?? ''  // int → String
+                                                          : message.meta?.listing?.toString() ?? '';
 
                                                         if (listingId.isEmpty) {
                                                           Fluttertoast.showToast(
@@ -384,39 +384,49 @@ class MessageConversationScreen extends GetView<ConversationController> {
 
                                                             } else {
 
-                                                              if (message.meta?.assistance == true) {
+                           if (message.meta?.assistance == true) {
+  AssistanceServiceBinding().dependencies();
+  final listingController = Get.find<AssistanceServiceEditController>();
+  
+  listingController.clearAllStates(); // ✅ clear stale data
+  
+  await listingController.fetchAssistanceSingleListingDetails(
+    id: listingId, // ✅ pass id directly, before navigation
+  );
+  
+  Get.to(
+    () => EditAssistanceListingScreen(),
+    arguments: {'id': listingId}, // ✅ navigate after fetch
+  );
+  return;
+}
 
-                                                                AssistanceServiceBinding().dependencies();
+                                                          ListingBinding().dependencies();
 
-                                                                final listingController =
-                                                                Get.find<AssistanceServiceEditController>();
+final listingController = Get.find<ListingEditController>();
 
-                                                                Get.to(
-                                                                      () => EditAssistanceListingScreen(),
-                                                                  arguments: {'id': listingId},
-                                                                );
+// 🔍 LOG 1 - check what IDs we have
+print('=== VIEW DETAILS PRESSED ===');
+print('message.meta?.listing: ${message.meta?.listing}');
+print('isListingObject: $isListingObject');
+print('listingId: $listingId');
+print('listingIdBook: $listingIdBook');
 
-                                                                await listingController
-                                                                    .fetchAssistanceSingleListingDetails();
+listingController.clearAllStates();
 
-                                                                return;
-                                                              }
+print('createdListingId after clear: ${listingController.createdListingId}'); // 🔍 LOG 2
 
-                                                              ListingBinding().dependencies();
+try {
+ await listingController.fetchListingDetailsHost(
+  id: listingIdBook, // ✅ now always a proper String
+);
+  print('fetch completed, listingDetails: ${listingController.listingDetails.value}'); // 🔍 LOG 3
+} catch (e) {
+  print('fetch ERROR: $e'); // 🔍 LOG 4
+}
 
-                                                              final listingController =
-                                                              Get.find<ListingEditController>();
-
-                                                              await listingController
-                                                                  .fetchListingDetailsHost(
-                                                                id: message.meta?.listing,
-                                                              );
-
-                                                              Get.to(
-                                                                    () => EditListingScreen(),
-                                                                arguments: {'id': listingId},
-                                                              );
-                                                            }
+Get.to(() => EditListingScreen(), arguments: {'id': listingId});
+}
 
                                                           } catch (e) {
 

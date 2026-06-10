@@ -107,22 +107,25 @@ class AssistanceServiceEditController extends GetxController {
     finalUploadedImages.clear();
   }
 
-  Future<void> fetchAssistanceSingleListingDetails() async {
-    isLoading.value = true;
-    hasError.value = false;
-    errorMessage.value = '';
+ // ✅ AFTER
+Future<void> fetchAssistanceSingleListingDetails({String? id}) async {
+  isLoading.value = true;
+  hasError.value = false;
+  errorMessage.value = '';
 
-    try {
-      createdListingId = createdListingId.isNotEmpty ? createdListingId : Get.arguments?['id'] ?? '';
-      var res = await _repository.getAssistanceSingleListingDetails(id: createdListingId);
-      listingDetails.value = res;
-    } catch (e) {
-      hasError.value = true;
-      errorMessage.value = e.toString();
-    } finally {
-      isLoading.value = false;
-    }
+  try {
+    createdListingId = id ?? Get.arguments?['id'] ?? ''; // ✅ uses passed id
+    if (createdListingId.isEmpty) throw Exception("Listing ID is required");
+    
+    var res = await _repository.getAssistanceSingleListingDetails(id: createdListingId);
+    listingDetails.value = res;
+  } catch (e) {
+    hasError.value = true;
+    errorMessage.value = e.toString();
+  } finally {
+    isLoading.value = false;
   }
+}
 
   Future<void> fetchAssistanceCategory() async {
     isLoading.value = true;

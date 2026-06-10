@@ -159,7 +159,8 @@ class Meta {
 
     return Meta(
       instantBook: json["instant_book"],
-      assistance: json["assistance"],
+      // assistance: json["assistance"],
+      assistance: json["is_assistance"],
       instantBookStatus: json["instant_book_status"],
       listing: listingValue,
       booking: bookingValue,
@@ -169,7 +170,8 @@ class Meta {
 
   Map<String, dynamic> toJson() => {
     "instant_book": instantBook,
-    "assistance": assistance,
+    // "assistance": assistance,
+    "is_assistance": assistance,
     "instant_book_status": instantBookStatus,
     "listing": listing is Listing ? (listing as Listing).toJson() : listing,
     "booking": booking is Booking
