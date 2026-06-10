@@ -1360,33 +1360,33 @@ Obx(() {
   Color titleColor;
   IconData titleIcon;
 
-  if (avgTimeInSeconds <= 3600) {                    // ≤ 1 hour
+  if (avgTimeInSeconds <= 60) {                    // ≤ 1 hour
     responseTitle = "Lightning Fast";
     titleColor = Colors.green;
     titleIcon = Icons.bolt;
   } 
-  else if (avgTimeInSeconds <= 7200) {               // ≤ 2 hours
+  else if (avgTimeInSeconds <= 300) {               // ≤ 2 hours
     responseTitle = "Very Fast";
     titleColor = Colors.green;
     titleIcon = Icons.flash_on;
   } 
-  else if (avgTimeInSeconds <= 14400) {              // ≤ 4 hours
+  else if (avgTimeInSeconds <= 900) {              // ≤ 4 hours
     responseTitle = "Fast";
     titleColor = Colors.orange;
     titleIcon = Icons.thumb_up_alt_outlined;
   } 
-  else if (avgTimeInSeconds <= 28800) {              // ≤ 8 hours
-    responseTitle = "Quick Responder";
+  else if (avgTimeInSeconds <= 3600) {              // ≤ 8 hours
+    responseTitle = "Good";
     titleColor = Colors.orange;
     titleIcon = Icons.schedule;
   } 
   else if (avgTimeInSeconds <= 86400) {              // ≤ 24 hours
-    responseTitle = "Usually responds within a day";
+    responseTitle = "Average";
     titleColor = Colors.deepOrange;
     titleIcon = Icons.timer_outlined;
   } 
   else {                                             // > 24 hours
-    responseTitle = "Responds within a few days";
+    responseTitle = "Slow";
     titleColor = Colors.redAccent;
     titleIcon = Icons.hourglass_bottom;
   }
