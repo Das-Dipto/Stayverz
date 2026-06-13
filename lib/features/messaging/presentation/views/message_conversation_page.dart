@@ -195,12 +195,13 @@ class MessageConversationScreen extends GetView<ConversationController> {
           // Messages list
           Expanded(
             child: Obx(() {
-              if (controller.isLoading && !controller.isReloadThisConv.value) {
-                return ChatShimmer(
-                  itemCount: 10,
-                  isDarkMode: Theme.of(context).brightness == Brightness.dark,
-                );
-              }
+              // Chatshimmer
+              // if (controller.isLoading && !controller.isReloadThisConv.value) {
+              //   return ChatShimmer(
+              //     itemCount: 10,
+              //     isDarkMode: Theme.of(context).brightness == Brightness.dark,
+              //   );
+              // }
 
               if (controller.errorMessage != null) {
                 return Center(
@@ -230,6 +231,16 @@ class MessageConversationScreen extends GetView<ConversationController> {
                       controller.messages[controller.messages.length -
                           1 -
                           index];
+
+                  // ✅ Skip if same content as immediately previous message from same user
+                  if (index < controller.messages.length - 1) {
+                    final prevMessage = controller.messages[controller.messages.length - 2 - index];
+                    if (prevMessage.content == message.content &&
+                        prevMessage.user?.userId == message.user?.userId &&
+                        message.mType != MType.SYSTEM) {
+                      return const SizedBox.shrink();
+                    }
+                  }
 
                   if (message.mType == MType.SYSTEM) {
                     return Container(
