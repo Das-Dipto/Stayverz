@@ -33,7 +33,8 @@ class ConversationController extends GetxController with WidgetsBindingObserver 
            notificationService ?? Get.find<NotificationService>();
 
   // Required conversation parameters - initialized in initializeConversation()
-  late String conversationId;
+  String conversationId = '';
+
   late dynamic? receiver;
   late dynamic? sender;
 
@@ -102,7 +103,6 @@ class ConversationController extends GetxController with WidgetsBindingObserver 
     WidgetsBinding.instance.addObserver(this);
     _setupScrollListener();
     _setupNotificationListener();
-    _startPeriodicSync(); // Start fallback sync timer
   }
 
   @override
@@ -125,6 +125,7 @@ class ConversationController extends GetxController with WidgetsBindingObserver 
 
   /// Sync messages from API - lightweight check for new messages
   Future<void> _syncMessages() async {
+    if (conversationId.isEmpty || _isLoading.value) return;
     try {
       final lastMessage = _messages.isNotEmpty ? _messages.last : null;
       final newMessages = await _repository.getConversationMessages(
@@ -213,6 +214,7 @@ class ConversationController extends GetxController with WidgetsBindingObserver 
     _isLoading.value = true;
     _errorMessage.value = null;
     this.conversationId = conversationId;
+    _startPeriodicSync(); // ← ADD THIS LINE HERE
     
     // Ensure InboxController has a healthy connection
     if (Get.isRegistered<InboxController>()) {

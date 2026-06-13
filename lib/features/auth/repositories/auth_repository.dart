@@ -128,6 +128,7 @@ class AuthRepository implements AuthRepositoryInterface {
         },
       );
       
+      print("Following are the response payload- ${response}");
       final data = response.data;
       if (data['success'] == true && data['status_code'] == 200) {
         return ApiResponse.success(data['data'] ?? {'message': 'OTP sent successfully'});
@@ -192,13 +193,15 @@ class AuthRepository implements AuthRepositoryInterface {
         "phone_number": phone,
         "u_type": type,
         "scope": scope, // ✅ fixed from 'type' to 'scope'
+        "email":""
       };
 
+print("This is the request payload- ${phone}, ${type}, ${scope}");
       final response = await _apiClient.post(
         '/otp/public/otp-request/',
         data: payload,
       );
-
+  print("Following are the response payload- ${response}");
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data;
         return OtpModel.fromJson(data); // ✅ returns correct model
