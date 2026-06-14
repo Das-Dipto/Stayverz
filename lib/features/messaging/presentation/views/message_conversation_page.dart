@@ -233,8 +233,9 @@ class MessageConversationScreen extends GetView<ConversationController> {
                           index];
 
                   // ✅ Skip if same content as immediately previous message from same user
-                  if (index < controller.messages.length - 1) {
-                    final prevMessage = controller.messages[controller.messages.length - 2 - index];
+                  if (index > 0) {
+                    final prevMessage = controller.messages[controller.messages.length - index];
+                    print("This is previous message ${prevMessage.content}, and current message- ${message.content}");
                     if (prevMessage.content == message.content &&
                         prevMessage.user?.userId == message.user?.userId &&
                         message.mType != MType.SYSTEM) {
@@ -677,8 +678,9 @@ Get.to(() => EditListingScreen(), arguments: {'id': listingId});
   }
 
   Widget _buildMessageBubble(MessageData message) {
-    final isCurrentUser =
-        "${message.user?.userId ?? 0}" == controller.currentUserId;
+   final isCurrentUser =
+    "${message.user?.userId ?? 0}" == controller.currentUserId ||
+    (message.user?.id != null && message.user?.id == controller.currentUserId);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),

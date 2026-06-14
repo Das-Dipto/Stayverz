@@ -411,7 +411,7 @@ class ConversationController extends GetxController with WidgetsBindingObserver 
       
       switch (action) {
         case WebSocketEventTypes.message:
-          _handleIncomingMessage(message);
+          // _handleIncomingMessage(message);
           break;
 
         case 'error':
@@ -531,11 +531,11 @@ class ConversationController extends GetxController with WidgetsBindingObserver 
       String? senderId;
 
       if (userRaw is Map<String, dynamic>) {
-        // Global room format: user is an object with user_id
+     // Global room format: user is an object with user_id
         userData = userRaw;
-        senderId = message['user_id']?.toString() ??
-                   userData['user_id']?.toString() ??
-                   userData['id']?.toString();
+        // ✅ Use numeric user_id for comparison, NOT MongoDB id
+        senderId = userData['user_id']?.toString() ?? 
+                   message['user_id']?.toString();
       } else if (userRaw is String) {
         // Conversation channel format: user is just the user ID string
         senderId = userRaw;
@@ -616,10 +616,13 @@ class ConversationController extends GetxController with WidgetsBindingObserver 
       FromUserClass messageUser;
       if (userData != null) {
         // Global room format - full user data
+        final numericUserId = senderUserId is int 
+            ? senderUserId 
+            : int.tryParse(senderUserId?.toString() ?? '');
         messageUser = FromUserClass(
           id: userData['id']?.toString(),
           image: userData['image']?.toString() ?? userData['avatar']?.toString(),
-          userId: senderUserId is int ? senderUserId : int.tryParse(senderUserId?.toString() ?? ''),
+          userId: numericUserId,
         );
       } else {
         // Conversation channel format - user is just a string ID
@@ -640,13 +643,15 @@ class ConversationController extends GetxController with WidgetsBindingObserver 
           }
         }
         // Create minimal user info - try to use receiver data if available
-        final isFromReceiver = senderId != null && senderId != currentUserId.toString();
+      final isFromReceiver = senderId != null && senderId != currentUserId.toString();
         messageUser = FromUserClass(
           id: senderId,
           image: isFromReceiver ? (receiver?.avatar ?? '') : mainControl.profileImageUrl.value,
-          userId: isFromReceiver ? receiver?.userId : int.tryParse(currentUserId),
-        );
-      }
+          userId: isFromReceiver
+              ? receiver?.userId  // ✅ use numeric userId of receiver for correct side detection
+              : int.tryParse(currentUserId),
+      );
+    }
 
       // Create message data from WebSocket payload
       final newMessage = MessageData(
