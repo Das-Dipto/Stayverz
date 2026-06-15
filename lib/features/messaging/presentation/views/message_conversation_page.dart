@@ -793,13 +793,23 @@ Get.to(() => EditListingScreen(), arguments: {'id': listingId});
     );
   }
 
-  String _formatMessageTime(DateTime? timestamp) {
+
+String _formatMessageTime(DateTime? timestamp) {
     if (timestamp == null) return '';
+
     final now = DateTime.now();
+    // ✅ Simple fix: just use timestamp as-is (API already returns local time)
+    // For real-time WS messages we already fixed createdAt at source
     final difference = now.difference(timestamp);
 
-    if (difference.inDays > 0) {
-      return '${timestamp.day}/${timestamp.month}/${timestamp.year}';
+    if (difference.isNegative || difference.inSeconds < 30) {
+      return 'Now';
+    } else if (difference.inDays > 0) {
+      final months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      ];
+      return '${months[timestamp.month - 1]} ${timestamp.day}';
     } else if (difference.inHours > 0) {
       return '${difference.inHours}h ago';
     } else if (difference.inMinutes > 0) {

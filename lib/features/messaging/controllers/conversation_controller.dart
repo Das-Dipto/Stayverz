@@ -653,12 +653,24 @@ class ConversationController extends GetxController with WidgetsBindingObserver 
       );
     }
 
+    // ✅ Parse created_at as UTC then convert to local
+      DateTime? parsedTime;
+      final rawTime = message['created_at']?.toString() ?? '';
+      if (rawTime.isNotEmpty) {
+        // Server sends UTC time without 'Z' suffix, so append it
+        final utcString = rawTime.contains('Z') || rawTime.contains('+') 
+            ? rawTime 
+            : '${rawTime}Z';
+        parsedTime = DateTime.tryParse(utcString)?.toLocal();
+      }
+      parsedTime ??= DateTime.now();
+
       // Create message data from WebSocket payload
       final newMessage = MessageData(
         id: messageId ?? 'ws_${DateTime.now().millisecondsSinceEpoch}',
         user: messageUser,
         content: messageContent,
-        createdAt: DateTime.tryParse(message['created_at'] ?? '') ?? DateTime.now(),
+        createdAt: parsedTime,
         isRead: false,
       );
 
