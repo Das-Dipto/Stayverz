@@ -158,9 +158,14 @@ class InboxScreen extends GetView<InboxController> {
                 color: const Color(0xFFF15925),
                 child: ListView.separated(
                   padding: const EdgeInsets.only(left: 16, bottom: 40,right: 16,top: 10),
-                  itemBuilder: (context, index) {
-                    final room = controller.filteredChatRooms[index];
-                    return InboxListItem(room: room);
+                 itemBuilder: (context, index) {
+                 final room = controller.filteredChatRooms[index];
+                    return Obx(() {
+                      final updatedRoom = controller.filteredChatRooms.length > index 
+                          ? controller.filteredChatRooms[index] 
+                          : room;
+                      return InboxListItem(room: updatedRoom);
+                    });
                   },
                   separatorBuilder: (context, index) => const Divider(
                     height: 30,
@@ -260,6 +265,16 @@ class InboxListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     MainController mc = Get.find<MainController>();
     InboxController Inbox = Get.find<InboxController>();
+
+        
+    // ✅ Get live room data from controller instead of stale prop
+    final InboxController inboxCtrl = Get.find<InboxController>();
+    final liveRoom = inboxCtrl.filteredChatRooms.firstWhere(
+      (r) => r.id == room.id,
+      orElse: () => room,
+    );
+
+
     final myUserId = mc.userId.value;
     final matchWithParticipant = "${room.sender?.userId ?? 0}" == myUserId;
     bool isGroupChat = false;
@@ -293,14 +308,14 @@ class InboxListItem extends StatelessWidget {
       senderUser = room.receiver;
     }
     Color statusTextColor = Colors.orangeAccent;
-    if(room.status == 'confirmed') {
+    if(liveRoom.status == 'confirmed') {
       statusTextColor = Colors.teal;
     }
-    if(room.status == 'cancelled') {
+    if(liveRoom.status == 'cancelled') {
       statusTextColor = Colors.red;
     }
 
-    String theLastMessage = room.lastMessage ?? '';
+String theLastMessage = liveRoom.lastMessage ?? '';
 
     if(MainUtils.looksLikeJson(theLastMessage)) {
       var data;
@@ -460,7 +475,7 @@ class InboxListItem extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          (room.status ?? 'Chat').capitalize ?? 'Chat',
+                         (liveRoom.status ?? 'Chat').capitalize ?? 'Chat',
                           style: TextStyle(
                             color: statusTextColor,
                             fontSize: 12,
@@ -472,7 +487,7 @@ class InboxListItem extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        _formatDate(room.lastMessageTime),
+                        _formatDate(liveRoom.lastMessageTime),
                         style: const TextStyle(
                           color: Colors.black54,
                           fontSize: 10,
@@ -501,7 +516,7 @@ class InboxListItem extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (room.unreadCount > 0) ...[
+                     if (liveRoom.unreadCount > 0) ...[
                         const SizedBox(width: 8),
                         Container(
                           constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
@@ -512,7 +527,7 @@ class InboxListItem extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            room.unreadCount > 99 ? '99+' : '${room.unreadCount}',
+                            liveRoom.unreadCount > 99 ? '99+' : '${liveRoom.unreadCount}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
@@ -530,10 +545,10 @@ class InboxListItem extends StatelessWidget {
                   Text(
                     theLastMessage.trim(),
                     style: TextStyle(
-                      color: room.unreadCount > 0 ? Colors.black87 : Colors.grey[600],
+                      color: liveRoom.unreadCount > 0 ? Colors.black87 : Colors.grey[600],
                       fontSize: 12,
                       fontFamily: 'Inter',
-                      fontWeight: room.unreadCount > 0 ? FontWeight.w600 : FontWeight.w300,
+                      fontWeight: liveRoom.unreadCount > 0 ? FontWeight.w600 : FontWeight.w300,
                       height: 1.3,
                     ),
                     maxLines: 1,
@@ -548,23 +563,36 @@ class InboxListItem extends StatelessWidget {
     );
   }
 
+
+
   String _formatDate(DateTime? dateTime) {
     if (dateTime == null) return '';
-    
+
+    // ✅ Treat as UTC and convert to local
+    final local = DateTime.utc(
+      dateTime.year, dateTime.month, dateTime.day,
+      dateTime.hour, dateTime.minute, dateTime.second,
+    ).toLocal();
+
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    final messageDate = DateTime(local.year, local.month, local.day);
     
     if (messageDate == today) {
-      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+      return '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
     } else {
       final months = [
         'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
       ];
-      return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}';
+      return '${months[local.month - 1]} ${local.day}, ${local.year}';
     }
   }
+
+
+
+
+
 }
 
 // Hello I am Tamim
