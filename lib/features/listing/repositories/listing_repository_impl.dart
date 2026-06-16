@@ -226,10 +226,13 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
   Future<ApiResponse<CreatedListing>> createHostListing({
     required Map<String, dynamic> body,
   }) async {
+
+  
     final response = await _apiClient.post(
       '/listings/host/listings/',
       data: body,
     );
+    
     CreateHostListingResponseModel data = CreateHostListingResponseModel.fromJson(response.data);
     if (data.success == true && data.data != null) {
       return ApiResponse.success(data.data);
@@ -244,6 +247,7 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
       }
       return ApiResponse.error(errorMessage);
     }
+    
   }
 
   @override
@@ -297,6 +301,10 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
       '/listings/host/listings/$id/',
       data: body,
     );
+
+    print("This is update response body- ${body}");
+    // return ApiResponse.error("Error Message");
+
     CreateHostListingResponseModel data = CreateHostListingResponseModel.fromJson(response.data);
     if (data.success == true && data.data != null) {
       return ApiResponse.success(data.data);
@@ -311,6 +319,9 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
       }
       return ApiResponse.error(errorMessage);
     }
+
+
+
   }
 
   @override

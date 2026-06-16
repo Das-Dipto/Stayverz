@@ -5,11 +5,68 @@ import 'package:get/get.dart';
 import '../../../../widgets/own_app_bar.dart';
 import '../../controllers/listing_controller.dart';
 
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import '../../models/area_new_model.dart';
+import '../../../public_listings/data/models/search_view_modle.dart';
+
 class AddManualLocationScreen extends GetView<ListingController> {
   final String? uniqId;
   AddManualLocationScreen({super.key, this.uniqId});
 
   final _formKey = GlobalKey<FormState>();
+
+  Widget _addressTypeAheadField() {
+  return TypeAheadField<SectionModel>(
+    controller: controller.suggestionController,
+    suggestionsCallback: (pattern) async {
+      if (pattern.trim().isEmpty) return controller.onSectionSearchChange('A');
+      return controller.onSectionSearchChange(pattern);
+    },
+    onSelected: (SectionModel suggestion) {
+      controller.suggestionController.text = suggestion.displayName ?? '';
+      // Auto-fill division/district/subdistrict if available
+      if (suggestion.displayName != null) {
+        controller.areaSearchCtrl.text = suggestion.displayName ?? '';
+      }
+    },
+    builder: (context, textController, focusNode) => TextFormField(
+      controller: textController,
+      focusNode: focusNode,
+      decoration: InputDecoration(
+        hintText: 'Search address...',
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        filled: true,
+        fillColor: Colors.white,
+        prefixIcon: const Icon(Icons.search, color: Colors.grey),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.5), width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.5), width: 1),
+        ),
+      ),
+    ),
+    itemBuilder: (context, SectionModel suggestion) => ListTile(
+      leading: const Icon(Icons.location_on_outlined),
+      title: Text(suggestion.displayName ?? ''),
+      subtitle: suggestion.subText?.isNotEmpty == true
+          ? Text(suggestion.subText!, style: const TextStyle(fontSize: 12))
+          : null,
+    ),
+    decorationBuilder: (context, child) => Material(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(8),
+      child: child,
+    ),
+    listBuilder: (context, items) => ListView(
+      shrinkWrap: true,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      children: items,
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +143,11 @@ class AddManualLocationScreen extends GetView<ListingController> {
                 _label('Apartment / Flat / Holding No'),
                 _field(controller.flatCtrl),
 
+                _label('Address'),
+                _addressTypeAheadField(),
+
                 _label('Road / Section / Block / Area'),
-                _field(controller.areaSearchCtrl),
+                _field(controller.areaSearchCtrl, readOnly: true),
 
                 _label('Division'),
                 _divisionDropdown(),

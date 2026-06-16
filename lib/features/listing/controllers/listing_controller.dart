@@ -1527,16 +1527,20 @@ class ListingController extends GetxController {
 
 
   Map<String, dynamic> buildLocationJson() {
-    return {
-      "apartment_name": propertyCtrl.text.trim(),
-      "property_name": propertyCtrl.text.trim(),
-      "country": selectedCountry.value,
-      "apartment_no": flatCtrl.text.trim(),
-      "division": selectedDivision.value.isNotEmpty ? selectedDivision.value : divisionCtrl.text.trim(),
-      "district": selectedDistrict.value.isNotEmpty ? selectedDistrict.value : districtCtrl.text.trim(),
-      "thana": selectedSubDistrict.value.isNotEmpty ? selectedSubDistrict.value : subDistrictCtrl.text.trim(),
-      "area": areaSearchCtrl.text.trim(),
-    };
+      final json = {
+    "apartment_name": propertyCtrl.text.trim(),
+    "property_name": propertyCtrl.text.trim(),
+    "country": selectedCountry.value,
+    "apartment_no": flatCtrl.text.trim(),
+    "division": selectedDivision.value.isNotEmpty ? selectedDivision.value : divisionCtrl.text.trim(),
+    "district": selectedDistrict.value.isNotEmpty ? selectedDistrict.value : districtCtrl.text.trim(),
+    "thana": selectedSubDistrict.value.isNotEmpty ? selectedSubDistrict.value : subDistrictCtrl.text.trim(),
+    "area": areaSearchCtrl.text.trim(),
+  };
+
+  print("📦 buildLocationJson: $json"); // 👈 ADD HERE
+
+  return json;
   }
   RxBool isSubmittingLocation = false.obs;
   Future<bool> submitLocationData(String? uniqId) async {
@@ -1609,6 +1613,9 @@ class ListingController extends GetxController {
 
       listingAddress.value = addressData;
 
+      // ✅ Replace with this
+print("📍 RAW Address Data: $addressData");// 👈 ADD HERE
+
       // 👇 IMPORTANT
       applyFetchedAddressToForm();
 
@@ -1624,6 +1631,19 @@ class ListingController extends GetxController {
   void applyFetchedAddressToForm() {
     final data = listingAddress.value;
     if (data == null) return;
+
+  print("🏠 Applying Address to Form:");       // 👈 ADD HERE
+  print("   apartmentName : ${data.apartmentName}");
+  print("   propertyName  : ${data.propertyName}");
+  print("   apartmentNo   : ${data.apartmentNo}");
+  print("   area          : ${data.area}");
+  print("   division      : ${data.division}");
+  print("   district      : ${data.district}");
+  print("   thana         : ${data.thana}");
+  print("   zipCode       : ${data.zipCode}");
+  print("   country       : ${data.country}");
+  print("   address       : ${data.address}");
+
 
     // Text fields
     propertyCtrl.text = data.apartmentName ?? '';
