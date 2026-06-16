@@ -50,6 +50,7 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
   Future<SectionResponse> getSectionSuggestions({
     required String query,
   }) async {
+    print("This is the query that arrives ${query}");
     try {
       // final response = await _apiClient.get(
       //   'https://api-sub.stayverz.com/search/suggestions',

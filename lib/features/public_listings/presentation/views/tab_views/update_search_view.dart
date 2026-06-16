@@ -140,6 +140,7 @@ class _UpdateSearchViewState extends State<UpdateSearchView> {
       },
     };
 
+    print("This is currentSearch- ${currentSearch}");
     // Save new search safely
     storage.write('lastSearch', currentSearch);
 

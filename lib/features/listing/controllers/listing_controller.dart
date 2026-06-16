@@ -1529,7 +1529,8 @@ class ListingController extends GetxController {
   Map<String, dynamic> buildLocationJson() {
       final json = {
     "apartment_name": propertyCtrl.text.trim(),
-    "property_name": propertyCtrl.text.trim(),
+    // "property_name": propertyCtrl.text.trim(),
+    "property_name": null,
     "country": selectedCountry.value,
     "apartment_no": flatCtrl.text.trim(),
     "division": selectedDivision.value.isNotEmpty ? selectedDivision.value : divisionCtrl.text.trim(),
@@ -1543,31 +1544,41 @@ class ListingController extends GetxController {
   return json;
   }
   RxBool isSubmittingLocation = false.obs;
-  Future<bool> submitLocationData(String? uniqId) async {
-    if (isSubmittingLocation.value) return false;
+ Future<bool> submitLocationData(String? uniqId) async {
+  if (isSubmittingLocation.value) return false;
 
-    try {
-      isSubmittingLocation.value = true;
+  try {
+    isSubmittingLocation.value = true;
 
-      final result = await _repository.updateListingLocation(
-        listingId: uniqId ?? createdListingId ?? '',
-        body: buildLocationJson(),
+    final result = await _repository.updateListingLocation(
+      listingId: uniqId ?? createdListingId ?? '',
+      body: buildLocationJson(),
+    );
+
+    if (result.isSuccess) {
+      
+      // 👇 ADD THIS — override address with just area value
+      await _repository.updateListing(
+        id: uniqId ?? createdListingId ?? '',
+        body: {
+          "address": areaSearchCtrl.text.trim(),
+        },
       );
-
-
-      if (result.isSuccess) {
-        return true;
-      } else {
-        Fluttertoast.showToast(
-          msg: "Failed to update location",
-          gravity: ToastGravity.TOP,
-        );
-        return false;
-      }
-    } finally {
-      isSubmittingLocation.value = false;
+      
+      print("✅ Address overridden with area: ${areaSearchCtrl.text.trim()}");
+      
+      return true;
+    } else {
+      Fluttertoast.showToast(
+        msg: "Failed to update location",
+        gravity: ToastGravity.TOP,
+      );
+      return false;
     }
+  } finally {
+    isSubmittingLocation.value = false;
   }
+}
 
 
   Map<String, dynamic> buildLocationJsonForMAp() {
