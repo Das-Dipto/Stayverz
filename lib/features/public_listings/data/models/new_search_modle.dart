@@ -67,8 +67,8 @@ class NewPropertyItem {
       title: json['title'] ?? '',
       uniqueId: json['unique_id'] ?? '',
       coverPhoto: json['coverPhoto'] ?? '',
-      price: json['price'] ?? 0,
-      guestCount: json['guestCount'] ?? 0,
+      price: (json['price'] ?? 0).toInt(),
+      guestCount: (json['guestCount'] ?? json['guest_count'] ?? 0).toInt(),
       area: json['area'] ?? '',
       thana: json['thana'] ?? '',
       district: json['district'] ?? '',
@@ -77,7 +77,7 @@ class NewPropertyItem {
           .toList() ??
           [],
       avgRating: (json['avg_rating'] ?? 0).toDouble(),
-      totalRatingCount: json['total_rating_count'] ?? 0,
+      totalRatingCount: (json['total_rating_count'] ?? 0).toInt(),
 
       livingRoomImages: _parseStringList(json['living_room_images']),
       kitchenImages: _parseStringList(json['kitchen_images']),
@@ -108,9 +108,17 @@ class NewMeta {
   factory NewMeta.fromJson(Map<String, dynamic> json) {
     return NewMeta(
       total: json['total'] ?? 0,
-      page: int.tryParse(json['page']?.toString() ?? '0') ?? 0,
-      pageSize: json['pageSize'] ?? 0,
-      lastPage: json['last_page'] ?? 0,
+      page: int.tryParse(json['page']?.toString() ?? '1') ?? 1,
+      pageSize: int.tryParse(
+        json['pageSize']?.toString() ?? 
+        json['page_size']?.toString() ?? 
+        '10'
+      ) ?? 10,
+      lastPage: int.tryParse(
+        json['last_page']?.toString() ?? 
+        json['lastPage']?.toString() ?? 
+        '1'
+      ) ?? 1,
     );
   }
 }

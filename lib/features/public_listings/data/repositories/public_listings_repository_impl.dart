@@ -244,43 +244,82 @@ Future<Map<String, dynamic>> getHostAvgResponseTime({required int hostId}) async
   }
 
   @override
-  Future<PropertyListResponse> getUpdatedPublicListings({
-    int page = 1,
-    int? id,
-    double? latitude,
-    double? longitude,
-    int? radius,
-    int? guests,
-    String? checkIn,
-    String? checkOut,
-  }) async {
-    try {
-      final Map<String, dynamic> queryParams = {
-        'page': page,
-      };
-      // add only if not null
-      if (id != null) queryParams['id'] = id;
-      if (latitude != null) queryParams['latitude'] = latitude;
-      if (longitude != null) queryParams['longitude'] = longitude;
-      if (radius != null) queryParams['radius'] = radius;
-      if (guests != null) queryParams['guests'] = guests;
-      if (checkIn != null) queryParams['check_in'] = checkIn;
-      if (checkOut != null) queryParams['check_out'] = checkOut;
+@override
+Future<PropertyListResponse> getUpdatedPublicListings({
+  int page = 1,
+  int? id,
+  double? latitude,
+  double? longitude,
+  int? radius,
+  int? guests,
+  String? checkIn,
+  String? checkOut,
+}) async {
+  try {
+    final bool hasLocationFilter = id != null || 
+                                  (latitude != null && longitude != null);
 
-      print("This is Search Data ${queryParams}");
-      print("Long ${longitude}");
-      print("Lat ${latitude}");
+    final Map<String, dynamic> queryParams = {'page': page};
 
-      final response = await _apiClient.get(
-        'https://api-sub.stayverz.com/search/results',
-        queryParameters: queryParams,
-      );
+    if (guests != null) queryParams['guests'] = guests;
+    if (checkIn != null) queryParams['check_in'] = checkIn;
+    if (checkOut != null) queryParams['check_out'] = checkOut;
 
-      return PropertyListResponse.fromJson(response.data ?? {});
-    } catch (e) {
-      rethrow;
+    String endpoint;
+    Map<String, dynamic> finalParams = Map.from(queryParams);
+
+    if (hasLocationFilter) {
+      // 🔵 Location-based search
+      endpoint = 'https://api-sub.stayverz.com/search/results';
+      if (id != null) finalParams['id'] = id;
+      if (latitude != null) finalParams['latitude'] = latitude;
+      if (longitude != null) finalParams['longitude'] = longitude;
+      if (radius != null) finalParams['radius'] = radius;
+    } else {
+      // 🔴 General search (no location)
+      endpoint = 'https://apix.stayverz.com/api/v1/listings/public/listings/';
+      finalParams['page_size'] = 10;
     }
+
+    print("🔍 Using endpoint: $endpoint");
+    print("📊 Params: $finalParams");
+
+    final response = await _apiClient.get(
+      endpoint,
+      queryParameters: finalParams,
+    );
+
+    final Map<String, dynamic> json = response.data ?? {};
+
+    if (hasLocationFilter) {
+      return PropertyListResponse.fromJson(json);
+    } else {
+      return _parseGeneralResponse(json, page);
+    }
+  } catch (e) {
+    print("❌ Error in getUpdatedPublicListings: $e");
+    rethrow;
   }
+}
+
+// ADD THIS NEW HELPER METHOD at the bottom of the class (inside the class, before the last })
+PropertyListResponse _parseGeneralResponse(Map<String, dynamic> json, int currentPage) {
+  final metaData = json['meta_data'] ?? {};
+
+  return PropertyListResponse(
+    statusCode: json['status_code'] ?? json['statusCode'] ?? 200,
+    data: (json['data'] as List<dynamic>?)
+            ?.map((e) => NewPropertyItem.fromJson(e))
+            .toList() ??
+        [],
+    meta: NewMeta.fromJson({
+      'total': metaData['total'] ?? 0,
+      'page': currentPage,
+      'pageSize': metaData['page_size'],
+      'last_page': metaData['next'] != null ? currentPage + 1 : currentPage,
+    }),
+  );
+}
 
   @override
   Future<PropertyListResponse> getSectionViewListings({

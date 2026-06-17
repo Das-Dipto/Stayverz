@@ -1530,7 +1530,7 @@ class ListingController extends GetxController {
       final json = {
     "apartment_name": propertyCtrl.text.trim(),
     // "property_name": propertyCtrl.text.trim(),
-    "property_name": null,
+    "property_name": "",
     "country": selectedCountry.value,
     "apartment_no": flatCtrl.text.trim(),
     "division": selectedDivision.value.isNotEmpty ? selectedDivision.value : divisionCtrl.text.trim(),
