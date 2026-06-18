@@ -23,6 +23,18 @@ class ConnectivityInterceptor extends dio.Interceptor {
 
   @override
   void onError(dio.DioException err, dio.ErrorInterceptorHandler handler) async {
+
+
+      print('================================');
+  print('TYPE      : ${err.type}');
+  print('MESSAGE   : ${err.message}');
+  print('ERROR      : ${err.error}');
+  print('STATUS     : ${err.response?.statusCode}');
+  print('RESPONSE   : ${err.response?.data}');
+  print('REQUEST URL: ${err.requestOptions.uri}');
+  print('================================');
+
+
     // Convert to our custom exception
     final networkException = NetworkExceptionFactory.fromDioException(err);
 

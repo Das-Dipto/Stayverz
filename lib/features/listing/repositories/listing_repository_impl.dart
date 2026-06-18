@@ -23,6 +23,7 @@ import '../models/listing_model.dart';
 import '../models/map_suggestions_response_model.dart';
 import '../models/payment_post_model.dart';
 import 'listing_repository_interface.dart';
+import 'dart:convert';
 
 class ListingRepositoryImpl implements ListingRepositoryInterface {
   final ApiClient _apiClient = Get.find<ApiClient>();
@@ -172,6 +173,9 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
   Future<Either<String, Map<String, dynamic>>> postPayment(
     PaymentPostModel payment,
   ) async {
+
+    print("Payment payload: ${payment.toJson()}");
+    
     try {
       final response = await _apiClient.post(
         '/payments/user/ssl-order-payment/',
