@@ -177,11 +177,14 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
     print("Payment payload: ${payment.toJson()}");
     
     try {
+      print("Api triggered");
+
       final response = await _apiClient.post(
         '/payments/user/ssl-order-payment/',
         data: payment.toJson(),
-      );
 
+      );
+      print("This is payment response- ${response}");
       if (response.statusCode == 201 || response.statusCode == 200) {
         return Right(response.data as Map<String, dynamic>);
       } else {
