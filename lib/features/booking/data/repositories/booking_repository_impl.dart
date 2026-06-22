@@ -425,43 +425,55 @@ class BookingRepositoryImpl implements BookingRepositoryInterface {
     }
   }
 
-  @override
-  Future<Either<Failure, BookingResponse>> getHostInstantBookings({
-    required String status,
-    int page = 1,
-  }) async {
-    try {
-      final response = await _apiClient.get(
-        "/bookings/host/reservations/instant-booking/",
-        queryParameters: {
-          "status": status, // dynamic status
-          "page": page,
-          "page_size": 20,
-        },
-      );
+ @override
+Future<Either<Failure, BookingResponse>> getHostInstantBookings({
+  required String status,
+  int page = 1,
+}) async {
+  try {
+    final response = await _apiClient.get(
+      "/bookings/host/reservations/instant-booking/",
+      queryParameters: {
+        "status": status,
+        "page": page,
+        "page_size": 20,
+      },
+    );
 
-      // Check if response data is not null
-      if (response.statusCode == 200 && response.data != null) {
-        try {
-          final bookingResponse = BookingResponse.fromJson(
-            response.data as Map<String, dynamic>,
-          );
-          return Right(bookingResponse);
-        } catch (e, stackTrace) {
-          // JSON parsing error
-          return Left(ServerFailure(message: 'Failed to parse booking data'));
+    if (response.statusCode == 200 && response.data != null) {
+      try {
+        final rawData = response.data as Map<String, dynamic>;
+        final dataList = rawData['data'] as List<dynamic>? ?? [];
+
+        for (int i = 0; i < dataList.length; i++) {
+          try {
+            BookingData2.fromJson(dataList[i] as Map<String, dynamic>);
+            print('✅ Item $i parsed OK');
+          } catch (e) {
+            print('❌ Item $i FAILED: $e');
+            print('❌ Item $i DATA: ${dataList[i]}');
+            break;
+          }
         }
-      } else {
-        return Left(
-          ServerFailure(message: 'Failed to load host instant bookings'),
-        );
+
+        final bookingResponse = BookingResponse.fromJson(rawData);
+        return Right(bookingResponse);
+      } catch (e, stackTrace) {
+        print('❌ PARSE ERROR: $e');
+        print('❌ STACK: $stackTrace');
+        return Left(ServerFailure(message: 'Failed to parse booking data: $e'));
       }
-    } on DioException catch (e) {
-      return Left(ServerFailure.fromDioError(e));
-    } catch (e, stackTrace) {
-      return Left(ServerFailure(message: 'An unexpected error occurred'));
+    } else {
+      return Left(ServerFailure(message: 'Failed to load host instant bookings'));
     }
+  } on DioException catch (e) {
+    return Left(ServerFailure.fromDioError(e));
+  } catch (e, stackTrace) {
+    print('❌ OUTER ERROR: $e');
+    print('❌ OUTER STACK: $stackTrace');
+    return Left(ServerFailure(message: 'An unexpected error occurred: $e'));
   }
+}
 
   @override
   Future<Either<Failure, AssistanceReservationListResponse>>
@@ -484,6 +496,9 @@ class BookingRepositoryImpl implements BookingRepositoryInterface {
           );
           return Right(bookingResponse);
         } catch (e, stackTrace) {
+            print('❌ ASSISTANCE PARSE ERROR: $e');
+            print('❌ STACK: $stackTrace');
+            print('❌ RAW DATA: ${response.data}');
           // JSON parsing error
           return Left(ServerFailure(message: 'Failed to parse booking data'));
         }
@@ -523,6 +538,9 @@ class BookingRepositoryImpl implements BookingRepositoryInterface {
           );
           return Right(bookingResponse);
         } catch (e, stackTrace) {
+            print('❌ ASSISTANCE PARSE ERROR: $e');
+            print('❌ STACK: $stackTrace');
+            print('❌ RAW DATA: ${response.data}');
           // JSON parsing error
           return Left(ServerFailure(message: 'Failed to parse booking data'));
         }

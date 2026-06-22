@@ -475,7 +475,7 @@ Get.to(() => EditListingScreen(), arguments: {'id': listingId});
 
                                                               return;
                                                             }
-
+                                                          print("This is the listingIdBook that get called- ${listingIdBook}");
                                                             Get.to(
                                                                   () => PublicListingDetailsView(),
                                                               arguments: {'id': listingIdBook},

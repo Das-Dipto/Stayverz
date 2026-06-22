@@ -199,13 +199,15 @@ class PriceInfo {
     required this.bookingData,
   });
 
-  factory PriceInfo.fromJson(Map<String, dynamic> json) {
-    return PriceInfo(
-      note: json['note'] ?? '',
-      price: (json['price'] ?? 0).toDouble(),
-      bookingData: json['booking_data'] ?? {},
-    );
-  }
+factory PriceInfo.fromJson(Map<String, dynamic> json) {
+  return PriceInfo(
+    note: json['note'] ?? '',
+    price: (json['price'] ?? 0).toDouble(),
+    bookingData: json['booking_data'] is Map
+        ? Map<String, dynamic>.from(json['booking_data'])
+        : {},
+  );
+}
 }
 
 class CalendarInfo {

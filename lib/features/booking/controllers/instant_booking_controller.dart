@@ -7,6 +7,7 @@ import '../../listing/models/assistance_book_guest_model.dart';
 import '../data/models/book_and_go_model.dart';
 import '../data/models/host_model_instant.dart';
 import '../domain/repositories/booking_repository_interface.dart';
+import 'dart:convert';
 
 class InstantBookingController extends GetxController {
   final _errorDisplay = Get.find<ErrorDisplayManager>();

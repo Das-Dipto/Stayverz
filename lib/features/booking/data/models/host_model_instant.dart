@@ -259,17 +259,19 @@ class PriceInfo {
     required this.originalCalendarPrice,
   });
 
-  factory PriceInfo.fromJson(Map<String, dynamic> json) {
-    return PriceInfo(
-      id: json['id'] ?? 0,
-      note: json['note'] ?? '',
-      price: (json['price'] as num?)?.toDouble() ?? 0,
-      isBooked: json['is_booked'] ?? false,
-      isBlocked: json['is_blocked'] ?? false,
-      bookingData: json['booking_data'] != null ? Map<String, dynamic>.from(json['booking_data']) : null,
-      originalCalendarPrice: (json['original_calendar_price'] as num?)?.toDouble() ?? 0,
-    );
-  }
+factory PriceInfo.fromJson(Map<String, dynamic> json) {
+  return PriceInfo(
+    id: json['id'] ?? 0,
+    note: json['note'] ?? '',
+    price: (json['price'] as num?)?.toDouble() ?? 0,
+    isBooked: json['is_booked'] ?? false,
+    isBlocked: json['is_blocked'] ?? false,
+    bookingData: json['booking_data'] is Map
+        ? Map<String, dynamic>.from(json['booking_data'])
+        : null,
+    originalCalendarPrice: (json['original_calendar_price'] as num?)?.toDouble() ?? 0,
+  );
+}
 }
 
 class CalendarInfo {

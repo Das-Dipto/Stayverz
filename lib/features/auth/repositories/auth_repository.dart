@@ -149,6 +149,7 @@ class AuthRepository implements AuthRepositoryInterface {
     String otp,
     {String? referCode}
   ) async {
+    print("This is fullname:${fullName}, phonenumber:${phoneNumber}, uType:${uType}, password:${password}, otp:${otp}, referCode:${referCode}");
     try {
       final response = await _apiClient.post(
         '/accounts/public/register/ref/',

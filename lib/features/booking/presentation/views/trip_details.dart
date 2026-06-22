@@ -404,77 +404,78 @@ class _TripDetailsState extends State<TripDetails> {
     );
   }
 
-  void showReviewPopup(BuildContext context, dynamic reviewData) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        final String fullName = reviewData.fullName;
-        final String review = reviewData.review;
-        final double rating = reviewData.rating.toDouble();
-        final String image = reviewData.image;
-        final String createdAt = reviewData.createdAt;
+void showReviewPopup(BuildContext context, dynamic reviewData) {
+  showDialog(
+    context: context,
+    builder: (dialogContext) {
+      final String fullName = reviewData.fullName;
+      final String review = reviewData.review;
+      final double rating = reviewData.rating.toDouble();
+      final String image = reviewData.image;
+      final String createdAt = reviewData.createdAt;
 
-        final formattedDate = DateFormat('MMM dd, yyyy • hh:mm a')
-            .format(DateTime.parse(createdAt));
+      final formattedDate = DateFormat('MMM dd, yyyy • hh:mm a')
+          .format(DateTime.parse(createdAt));
 
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: image.isNotEmpty
-                      ? NetworkImage(image)
-                      : const AssetImage('assets/avatar_placeholder.png') as ImageProvider,
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundImage: image.isNotEmpty
+                    ? NetworkImage(image)
+                    : const AssetImage('assets/avatar_placeholder.png') as ImageProvider,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                fullName,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              Text(
+                formattedDate,
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
+              const SizedBox(height: 10),
+              RatingBarIndicator(
+                rating: rating,
+                itemBuilder: (context, index) => const Icon(
+                  Icons.star,
+                  color: Colors.amber,
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  fullName,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                Text(
-                  formattedDate,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                ),
-                const SizedBox(height: 10),
-                RatingBarIndicator(
-                  rating: rating,
-                  itemBuilder: (context, index) => const Icon(
-                    Icons.star,
-                    color: Colors.amber,
+                itemCount: 5,
+                itemSize: 24.0,
+                direction: Axis.horizontal,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '"$review"',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Navigator.of(dialogContext).pop(), // ✅ Fix
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  itemCount: 5,
-                  itemSize: 24.0,
-                  direction: Axis.horizontal,
+                  backgroundColor: Colors.black,
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  '"$review"',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    backgroundColor: Colors.black,
-                  ),
-                  child: const Text("Close", style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
+                child: const Text("Close", style: TextStyle(color: Colors.white)),
+              ),
+            ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
+
   @override
   void initState() {
     // TODO: implement initState

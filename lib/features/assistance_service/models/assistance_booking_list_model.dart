@@ -154,7 +154,7 @@ class AssistanceReservationBookData {
 
     return AssistanceReservationBookData(
       id: (json['id'] is num) ? (json['id'] as num).toInt() : 0,
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
       invoiceNo: json['invoice_no'] as String?,
       guestId: json['guest_id']?.toString(),
@@ -163,8 +163,8 @@ class AssistanceReservationBookData {
       listingId: (json['listing_id'] is num) ? (json['listing_id'] as num).toInt() : null,
       pgwTransactionNumber: json['pgw_transaction_number'] as String?,
       listing: json['listing'] != null ? Listing.fromJson(json['listing']) : null,
-      checkIn: json['check_in'] != null ? DateTime.parse(json['check_in']) : null,
-      checkOut: json['check_out'] != null ? DateTime.parse(json['check_out']) : null,
+      checkIn: json['check_in'] != null ? DateTime.tryParse(json['check_in']) : null,
+      checkOut: json['check_out'] != null ? DateTime.tryParse(json['check_out']) : null,
       nightCount: (json['night_count'] is num) ? (json['night_count'] as num).toInt() : null,
       guestCount: (json['guest_count'] is num) ? (json['guest_count'] as num).toInt() : null,
       price: (json['price'] is num) ? (json['price'] as num).toInt() : null,
@@ -208,7 +208,7 @@ class AssistanceReservationBookData {
       extraGuestCharge: (json['extra_guest_charge'] is num)
           ? (json['extra_guest_charge'] as num).toInt()
           : null,
-      expiresAt: json['expires_at'] != null ? DateTime.parse(json['expires_at']) : null,
+      expiresAt: json['expires_at'] != null ? DateTime.tryParse(json['expires_at']) : null,
       guest: json['guest'] != null ? Guest.fromJson(json['guest']) : null,
     );
   }
@@ -337,9 +337,8 @@ class Listing {
 
     return Listing(
       id: (json['id'] is num) ? (json['id'] as num).toInt() : 0,
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
-      uniqueId: json['uniqueId'] as String?,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
       hostId: (json['host_id'] is num) ? (json['host_id'] as num).toInt() : null,
       categoryId: (json['category_id'] is num) ? (json['category_id'] as num).toInt() : null,
       aSubCategoryId: (json['a_sub_category_id'] is num)
@@ -369,7 +368,7 @@ class Listing {
       cancellationPolicyId: (json['cancellation_policy_id'] is num)
           ? (json['cancellation_policy_id'] as num).toInt()
           : null,
-      deletedAt: json['deletedAt'] != null ? DateTime.parse(json['deletedAt']) : null,
+      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
       avgRating: (json['avg_rating'] is num) ? (json['avg_rating'] as num).toDouble() : null,
       totalRatingSum: (json['total_rating_sum'] is num)
           ? (json['total_rating_sum'] as num).toInt()
@@ -579,17 +578,17 @@ class Guest {
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
       image: json['image'] as String?,
-      phoneNumber: json['phoneNumber'] as String?,
-      isActive: json['isActive'] as bool?,
+      phoneNumber: json['phone_Number'] as String?,
+      isActive: json['is_Active'] as bool?,
       status: json['status'] as String?,
       uType: json['uType'] as String?,
       role: json['role'] as String?,
       totalSellAmount: (json['total_sell_amount'] is num)
           ? (json['total_sell_amount'] as num).toInt()
           : null,
-      isPhoneVerified: json['isPhoneVerified'] as bool?,
-      isEmailVerified: json['isEmailVerified'] as bool?,
-      countryCode: json['countryCode'] as String?,
+      isPhoneVerified: json['is_phone_verified'] as bool?,
+      isEmailVerified: json['is_email_verified'] as bool?,
+      countryCode: json['country_code'] as String?,
       avgRating: (json['avg_rating'] is num)
           ? (json['avg_rating'] as num).toDouble()
           : null,
