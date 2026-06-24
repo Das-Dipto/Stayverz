@@ -366,7 +366,7 @@ class MessageConversationScreen extends GetView<ConversationController> {
                                                           : message.meta?.listing?.toString() ?? '';
 
                                                       final listingIdBook = isListingObject
-                                                          ? message.meta?.listing?.id?.toString() ?? ''  // int → String
+                                                          ? message.meta?.listing?.uniqueId ?? ''  // int → String
                                                           : message.meta?.listing?.toString() ?? '';
 
                                                         if (listingId.isEmpty) {
@@ -379,9 +379,9 @@ class MessageConversationScreen extends GetView<ConversationController> {
 
                                                         /// 🔥 Your existing logic below unchanged
                                                         /// You can still use Get.to / Get.toNamed if needed
-
+                                                        print("This is the userType now- ${mainControl.uType.value}");
                                                         if (mainControl.uType.value == 'host') {
-
+      print("This is the listingIdBook that get called from host- ${listingIdBook}");
                                                           try {
 
                                                             if (message.meta?.instantBook == true) {
@@ -475,7 +475,7 @@ Get.to(() => EditListingScreen(), arguments: {'id': listingId});
 
                                                               return;
                                                             }
-                                                          print("This is the listingIdBook that get called- ${listingIdBook}");
+                                                          print("This is the listingIdBook that get called from guest- ${listingIdBook}");
                                                             Get.to(
                                                                   () => PublicListingDetailsView(),
                                                               arguments: {'id': listingIdBook},

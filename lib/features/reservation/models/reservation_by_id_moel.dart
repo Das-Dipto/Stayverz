@@ -117,8 +117,27 @@ class RoomReservation {
       gatewayFee: (json['gateway_fee'] ?? 0).toDouble(),
       refundAmount: (json['refund_amount'] ?? 0).toDouble(),
       isRefunded: json['is_refunded'] ?? false,
-      priceInfo: (json['price_info'] as Map<String, dynamic>? ?? {})
-          .map((k, v) => MapEntry(k, PriceInfo.fromJson(v))),
+// ✅ Fixed - handles both List and Map
+priceInfo: () {
+  final raw = json['price_info'];
+  if (raw == null) return <String, PriceInfo>{};
+  
+  // API sends a List → convert to Map using index as key
+  if (raw is List) {
+    return {
+      for (int i = 0; i < raw.length; i++)
+        '${i}': PriceInfo.fromJson(raw[i] as Map<String, dynamic>)
+    };
+  }
+  
+  // API sends a Map → parse normally
+  if (raw is Map) {
+    return (raw as Map<String, dynamic>)
+        .map((k, v) => MapEntry(k, PriceInfo.fromJson(v as Map<String, dynamic>)));
+  }
+  
+  return <String, PriceInfo>{};
+}(),
       guestPaymentStatus: json['guest_payment_status'] ?? '',
       hostPaymentStatus: json['host_payment_status'] ?? '',
       status: json['status'] ?? '',

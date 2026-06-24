@@ -217,7 +217,9 @@ class PriceInfo {
       price: (json['price'] as num?)?.toDouble(),
       isBooked: json['is_booked'],
       isBlocked: json['is_blocked'],
-      bookingData: json['booking_data'] as Map<String, dynamic>?,
+      bookingData: json['booking_data'] is Map  
+      ? Map<String, dynamic>.from(json['booking_data']) 
+    : null,
       originalCalendarPrice: (json['original_calendar_price'] as num?)?.toDouble(),
     );
   }
