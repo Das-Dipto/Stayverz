@@ -419,34 +419,47 @@ class WhereILiveBottomSheet extends StatelessWidget {
     );
   }
 
-  void onSuggestionSelected(PlaceSuggestion suggestion) async {
-    controller.selectedPlace.value = suggestion;
-    controller.suggestionController.text = suggestion.address ?? '';
+ void onSuggestionSelected(PlaceSuggestion suggestion) async {
+  controller.selectedPlace.value = suggestion;
+  controller.suggestionController.text = suggestion.address ?? '';
 
-    final lat = suggestion.latitude;
-    final lng = suggestion.longitude;
+  final lat = suggestion.latitude;
+  final lng = suggestion.longitude;
 
-    if (lat != null && lng != null) {
-      controller.setMapLocation(
-        lat: lat,
-        lng: lng,
-        addressText: suggestion.address ?? '',
-      );
+  print('DEBUG selected address: ${suggestion.address}');
+  print('DEBUG selected lat: $lat');
+  print('DEBUG selected lng: $lng');
 
-      final GoogleMapController mapController = await _controller.future;
-      mapController.animateCamera(
-        CameraUpdate.newLatLngZoom(
-          LatLng(double.parse(lat), double.parse(lng)),
-          16,
-        ),
-      );
+  if (lat != null && lng != null) {
+    controller.setMapLocation(
+      lat: lat,
+      lng: lng,
+      addressText: suggestion.address ?? '',
+    );
 
-      controller.selectedMarker.value = Marker(
-        markerId: const MarkerId('selected-location'),
-        position: LatLng(double.parse(lat), double.parse(lng)),
-      );
-    }
+    print('DEBUG after setMapLocation:');
+    print('DEBUG controller.address: ${controller.address.value}');
+    print('DEBUG controller.latitude: ${controller.latitude.value}');
+    print('DEBUG controller.longitude: ${controller.longitude.value}');
+
+    // ✅ API call — uses createdListingId from controller as fallback
+    final success = await controller.updateMapLocation(null);
+    print('DEBUG updateMapLocation result: $success');
+
+    final GoogleMapController mapController = await _controller.future;
+    mapController.animateCamera(
+      CameraUpdate.newLatLngZoom(
+        LatLng(double.parse(lat), double.parse(lng)),
+        16,
+      ),
+    );
+
+    controller.selectedMarker.value = Marker(
+      markerId: const MarkerId('selected-location'),
+      position: LatLng(double.parse(lat), double.parse(lng)),
+    );
   }
+}
 
   Widget itemSeparatorBuilder(BuildContext context, int index) => const Gap(2);
 

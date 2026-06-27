@@ -1,5 +1,5 @@
 class BookingPostModel {
-  final int listing;
+  final  listing_id;
   final String checkIn;
   final String checkOut;
   final String? couponCode;
@@ -8,7 +8,7 @@ class BookingPostModel {
   final int? adultCount;
 
   BookingPostModel({
-    required this.listing,
+    required this.listing_id,
     required this.checkIn,
     required this.checkOut,
     this.childrenCount,
@@ -19,7 +19,7 @@ class BookingPostModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'listing': listing,
+      'listing_id': listing_id,
       'check_in': checkIn,
       'check_out': checkOut,
       if (couponCode != null)'coupon_code': couponCode,

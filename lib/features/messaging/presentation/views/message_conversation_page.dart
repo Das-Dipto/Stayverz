@@ -32,6 +32,8 @@ import '../../data/models/message_model.dart';
 import '../../controllers/conversation_controller.dart';
 import '../widgets/message_conversation_bottom_sheet.dart';
 import '../widgets/long_press_bottom_sheet.dart';
+import '../../../booking/presentation/views/trip_details.dart';
+import 'package:stayverz_flutter_app/features/booking/controllers/booking_controller.dart';
 
 class MessageConversationScreen extends GetView<ConversationController> {
   static const String routeName = '/message-conversation';
@@ -242,8 +244,8 @@ class MessageConversationScreen extends GetView<ConversationController> {
                       return const SizedBox.shrink();
                     }
                   }
-
                   if (message.mType == MType.SYSTEM) {
+print("System message content: ${message.content}");
                     return Container(
                       padding: EdgeInsets.symmetric(
                         vertical: 8,
@@ -254,6 +256,7 @@ class MessageConversationScreen extends GetView<ConversationController> {
                         color: Colors.grey.shade200 /* white */,
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      
                       child: Row(
                         spacing: 10,
                         children: [
@@ -377,6 +380,42 @@ class MessageConversationScreen extends GetView<ConversationController> {
                                                           return;
                                                         }
 
+                                                             // ✅ ADD THIS BLOCK HERE — before your existing host/guest logic
+                        final content = message.content ?? '';
+                        final isBookingConfirmation =
+                            content.contains('Your booking is confirmed for') ||
+                            content.contains('Your booking is confirmed');
+
+if (isBookingConfirmation && mainControl.uType.value == 'guest') {
+  
+  final bookingController = Get.find<BookingController>();
+
+  // Get.dialog(
+  //   const Center(child: CircularProgressIndicator()),
+  //   barrierDismissible: false,
+  // );
+
+  await bookingController.fetchBookingsFresh();
+
+  final checkIn = message.meta?.booking?.bookingDate?.checkIn;
+  final checkInStr = checkIn?.toString().split(' ').first ?? '';
+  final checkOutStr = message.meta?.booking?.bookingDate?.checkOut?.toString().split(' ').first ?? '';
+  final guestCount = message.meta?.booking?.bookingDate?.totalGuestCount ?? 0;
+
+  final matched = bookingController.bookings.firstWhereOrNull(
+    (b) => b.checkIn == checkInStr && b.checkOut == checkOutStr && b.guestCount == guestCount,
+  );
+
+  // Navigator.of(Get.context!).popUntil((route) => route is! DialogRoute);
+
+  if (matched != null) {
+    await Future.delayed(const Duration(milliseconds: 100));
+    Get.to(() => TripDetails(booking: matched));
+  } else {
+    Fluttertoast.showToast(msg: "Booking not found.");
+  }
+  return;
+}
                                                         /// 🔥 Your existing logic below unchanged
                                                         /// You can still use Get.to / Get.toNamed if needed
                                                         print("This is the userType now- ${mainControl.uType.value}");

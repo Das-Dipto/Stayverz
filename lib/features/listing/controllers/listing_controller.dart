@@ -750,6 +750,7 @@ class ListingController extends GetxController {
     isLoadingNext.value = true;
 
     try {
+      print('DEBUG goNext called, state: ${currentState.value}');
       bool canProceed = true;
       switch (currentState.value) {
         case CurrentState.FIRST:
@@ -790,26 +791,37 @@ class ListingController extends GetxController {
       if (canProceed && currentState.value != CurrentState.ELEVENTH) {
         currentState.value = CurrentState.values[currentState.value.index + 1];
       }
-    } finally {
+    }catch (e, stack) {
+    print('DEBUG goNext EXCEPTION: $e');
+    print('DEBUG stack: $stack');
+  } 
+    
+     finally {
       isLoadingNext.value = false;
     }
   }
 
-  void initListing() async {
-    var result = await _repository.createHostListing(body: {});
-    if (!result.isSuccess) {
-      Fluttertoast.showToast(
-        msg: "Failed to create my_listing first",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-      );
-      return;
-    }
+  Future<void> initListing() async {
+  try {
+    print('DEBUG initListing called');
+    var result = await _repository.createHostListing(body: {
+      "title": "Untitled Listing",
+    });
+    print('DEBUG result: ${result.isSuccess}');
+    
+    // if (!result.isSuccess) {
+    //   Fluttertoast.showToast(msg: "Failed to create listing");
+    //   return;
+    // }
     createdListingId = result.data?.uniqueId;
     await fetchCreatedListing();
     await fetchHostListingConfigurations();
     currentState(CurrentState.SECOND);
+  } catch (e, stack) {
+    print('DEBUG initListing EXCEPTION: $e');
+    print('DEBUG stack: $stack');
   }
+}
 
   void goNextAfterSelectingCategory() async {
     if (selectedCategory.value == null) {
@@ -1892,4 +1904,25 @@ print("📍 RAW Address Data: $addressData");// 👈 ADD HERE
   Future<void> searchDivisionThana(String searchText) async {
     await fetchDivisionThanaData();
   }
+
+  Future<bool> updateMapLocation(String? uniqId) async {
+  if (latitude.value.isEmpty || longitude.value.isEmpty) return false;
+
+  print('DEBUG updateMapLocation called');
+  print('DEBUG lat: ${latitude.value}, lng: ${longitude.value}, address: ${address.value}');
+
+  final result = await _repository.updateListing(
+    id: uniqId ?? createdListingId ?? '',
+    body: {
+      "address": address.value,
+      "latitude": latitude.value,
+      "longitude": longitude.value,
+    },
+  );
+
+  print('DEBUG updateMapLocation success: ${result.isSuccess}');
+  return result.isSuccess;
+}
+
+
 }

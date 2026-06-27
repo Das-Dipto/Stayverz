@@ -92,6 +92,7 @@ class BookingModel {
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
+    print('raw chat field: ${json['chat_room_id']} | keys: ${json.keys.toList()}');
     return BookingModel(
       id: json['id'] ?? 0,
       reviews: json['reviews'] ?? [],

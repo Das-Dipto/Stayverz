@@ -431,9 +431,14 @@ class PaymentScreen extends GetView<ListingController> {
               onTap: () async {
                 if (isSubmitting.value) return;
               isSubmitting.value = true;
+               // 👇 Add this temporarily
+  print('DATA ID: ${data.id}');
+  print('DATA ID TYPE: ${data.id.runtimeType}');
+  print('DATA UUID: ${data.uniqueId}');
+// print('DATA SLUG: ${data.slug}');
                 try {
                   final booking = BookingPostModel(
-                    listing: data.id,
+                    listing_id: data.uniqueId,
                     checkIn: convertToDateFormat(startDate),
                     checkOut: convertToDateFormat(endDate),
                     childrenCount: childrenCount,
@@ -475,16 +480,20 @@ class PaymentScreen extends GetView<ListingController> {
                       Get.find<ErrorDisplayManager>().showError("Booking failed");
                     }
                   } else{
-                      Get.back();
-                      Get.back();
-                      Get.back();
-                      Get.offNamed(BookAndGoScreen.routeName);
-                    Get.snackbar(
-                      'Success',
-                      'A request has been sent to host. Please wait for approval',
-                      backgroundColor: Colors.green.withOpacity(0.9),
-                      duration: const Duration(seconds: 2),
-                    );
+                     if (result != null) {
+        Get.back();
+        Get.back();
+        Get.back();
+        Get.offNamed(BookAndGoScreen.routeName);
+        Get.snackbar(
+            'Success',
+            'A request has been sent to host. Please wait for approval',
+            backgroundColor: Colors.green.withOpacity(0.9),
+            duration: const Duration(seconds: 2),
+        );
+    } else {
+        Get.find<ErrorDisplayManager>().showError("Booking failed");
+    }
                   }
                 } finally {
                  isSubmitting.value = false;

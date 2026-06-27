@@ -46,7 +46,10 @@ class StepFourthCreateListingBody extends GetView<ListingController> {
           height: 60,
           width: double.infinity,
           child: OutlinedButton.icon(
-              onPressed: () => Get.to(AddManualLocationScreen()),
+              onPressed: () => {
+                  print('DEBUG createdListingId: ${controller.createdListingId}'),
+                  Get.to(() => AddManualLocationScreen(uniqId: controller.createdListingId)),
+              },
               icon: Icon(Icons.add, color: Colors.black87, size: 24),
               style: OutlinedButton.styleFrom(
                 alignment: AlignmentGeometry.centerLeft,

@@ -231,32 +231,38 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
   }
 
   @override
-  Future<ApiResponse<CreatedListing>> createHostListing({
-    required Map<String, dynamic> body,
-  }) async {
+Future<ApiResponse<CreatedListing>> createHostListing({
+  required Map<String, dynamic> body,
+}) async {
+  try {
+    print("Create HostListing api hit with body- ${body}");
 
-  
     final response = await _apiClient.post(
       '/listings/host/listings/',
       data: body,
     );
-    
+
+    print('DEBUG status: ${response.statusCode}');
+    print('DEBUG response data: ${response.data}');
+
     CreateHostListingResponseModel data = CreateHostListingResponseModel.fromJson(response.data);
+    
+    print('DEBUG data.success: ${data.success}');
+    print('DEBUG data.data: ${data.data}');
+    print('DEBUG data.message: ${data.message}');
+
     if (data.success == true && data.data != null) {
       return ApiResponse.success(data.data);
     } else {
       String errorMessage = data.message?.toString() ?? 'Login failed';
-      // Handle field errors if present
-      if (response.data['errors'] != null && response.data['errors'] is Map) {
-        final fieldErrors = response.data['errors'];
-        if (fieldErrors.isNotEmpty) {
-          errorMessage = '$errorMessage (${fieldErrors.toString()})';
-        }
-      }
       return ApiResponse.error(errorMessage);
     }
-    
+  } catch (e, stack) {
+    print('DEBUG createHostListing EXCEPTION: $e');
+    print('DEBUG stack: $stack');
+    return ApiResponse.error(e.toString());
   }
+}
 
   @override
   Future<SingleListingData?> getSingleListingDetails({required String id}) async {
@@ -327,10 +333,9 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
       }
       return ApiResponse.error(errorMessage);
     }
-
-
-
   }
+
+  
 
   @override
   Future<ApiResponse<CreatedListing>> updateListingImageUpload({required String id, required Map<String, dynamic> body}) async {
@@ -522,6 +527,7 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
     required String listingId,
     required Map<String, dynamic> body,
   }) async {
+    print("This api get hit- ${listingId}");
     try {
       final response = await _apiClient.patch(
         'https://api-sub.stayverz.com/listings/$listingId/location',

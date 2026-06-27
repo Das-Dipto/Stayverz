@@ -250,6 +250,36 @@ class BookingController extends GetxController {
     }
   }
 
+  Future<void> fetchBookingsFresh() async {
+  final mainController = Get.find<MainController>();
+  if (mainController.uType.value != 'guest') return;
+
+  try {
+    isLoading.value = true;
+    errorMessage.value = '';
+    currentPage.value = 1;
+    hasMore.value = true;
+
+    final result = await _repository.getUserBookings(
+      page: 1,
+      pageSize: 50,
+    );
+
+    result.fold(
+      (error) {
+        errorMessage.value = error;
+      },
+      (response) {
+        bookings.assignAll(response.data);
+      },
+    );
+  } catch (e) {
+    errorMessage.value = 'An unexpected error occurred: $e';
+  } finally {
+    isLoading.value = false;
+  }
+}
+
   Future<void> refreshBookings() async {
     await fetchBookings(loadMore: false);
     await fetchAssistanceBookings();
