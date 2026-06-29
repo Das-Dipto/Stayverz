@@ -1076,25 +1076,77 @@ class ListingController extends GetxController {
   }
 
   void onPublishClick() async {
-    var result = await _repository.updateListing(
-      id: createdListingId ?? '',
-      body: {
-        "id": createdListingId,
-        "price": priceController.text,
-        'status': 'published',
-      },
+  var result = await _repository.updateListing(
+    id: createdListingId ?? '',
+    body: {
+      "id": createdListingId,
+      "price": priceController.text,
+      'status': 'published',
+    },
+  );
+  if (!result.isSuccess) {
+    Fluttertoast.showToast(
+      msg: "Failed to update price",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.TOP,
     );
-    if (!result.isSuccess) {
-      Fluttertoast.showToast(
-        msg: "Failed to update price",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-      );
-      return;
-    }
-    await fetchCreatedListing();
-    Get.off(MyListingScreen());
+    return;
   }
+  await fetchCreatedListing();
+  
+  // Reset all state after publish
+  _resetAfterPublish();
+  
+  Get.off(MyListingScreen());
+}
+
+void _resetAfterPublish() {
+  currentState.value = CurrentState.FIRST;
+  createdListingId = null;
+  createdListing.value = null;
+  selectedCategory.value = null;
+  selectedPlaceType.value = null;
+  selectedPlace.value = null;
+  selectedAmenities.clear();
+  titleController.clear();
+  descriptionController.clear();
+  priceController.clear();
+  basePriceValue.value = 0;
+  guestGatewayFeeValue.value = 0;
+  totalGuestPriceValue.value = 0;
+  youEarnPriceValue.value = 0;
+  personsCount.value = 0;
+  bedroomsCount.value = 0;
+  bedsCount.value = 0;
+  bathroomsCount.value = 0;
+  uploadedPhotoUrls.clear();
+  coverImageUrl.value = '';
+  coverImageCategory.value = '';
+  categorizedImages.value = {
+    'images': [],
+    'living_room_images': [],
+    'kitchen_images': [],
+    'bathroom_images': [],
+    'bedroom_images': [],
+    'washroom_images': [],
+  };
+  latitude.value = '';
+  longitude.value = '';
+  address.value = '';
+  selectedMarker.value = null;
+  suggestionController.clear();
+  propertyCtrl.clear();
+  flatCtrl.clear();
+  areaSearchCtrl.clear();
+  divisionCtrl.clear();
+  districtCtrl.clear();
+  subDistrictCtrl.clear();
+  zipCtrl.clear();
+  selectedCountry.value = '';
+  selectedDivision.value = '';
+  selectedDistrict.value = '';
+  selectedSubDistrict.value = '';
+}
 
   Future<List<String>> uploadCategoryPhotos(
       List<String> filePaths,
