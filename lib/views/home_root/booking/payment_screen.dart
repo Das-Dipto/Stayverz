@@ -438,7 +438,7 @@ class PaymentScreen extends GetView<ListingController> {
 // print('DATA SLUG: ${data.slug}');
                 try {
                   final booking = BookingPostModel(
-                    listing_id: data.uniqueId,
+                    listing: data.id,
                     checkIn: convertToDateFormat(startDate),
                     checkOut: convertToDateFormat(endDate),
                     childrenCount: childrenCount,

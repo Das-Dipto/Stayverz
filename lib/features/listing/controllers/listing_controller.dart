@@ -1556,29 +1556,39 @@ class ListingController extends GetxController {
   return json;
   }
   RxBool isSubmittingLocation = false.obs;
- Future<bool> submitLocationData(String? uniqId) async {
+  Future<bool> submitLocationData(String? uniqId) async {
   if (isSubmittingLocation.value) return false;
 
   try {
     isSubmittingLocation.value = true;
 
-    final result = await _repository.updateListingLocation(
-      listingId: uniqId ?? createdListingId ?? '',
-      body: buildLocationJson(),
+      // ✅ Add these prints
+    print('DEBUG submitLocationData latitude: ${latitude.value}');
+    print('DEBUG submitLocationData longitude: ${longitude.value}');
+    print('DEBUG submitLocationData address: ${address.value}');
+    print('DEBUG submitLocationData area: ${areaSearchCtrl.text.trim()}');
+
+    // ✅ Use updateListing instead of updateListingLocation
+    final result = await _repository.updateListing(
+      id: uniqId ?? createdListingId ?? '',
+      body: {
+        "apartment_name": propertyCtrl.text.trim(),
+        "property_name": "",
+        "country": selectedCountry.value,
+        "apartment_no": flatCtrl.text.trim(),
+        "division": selectedDivision.value.isNotEmpty ? selectedDivision.value : divisionCtrl.text.trim(),
+        "district": selectedDistrict.value.isNotEmpty ? selectedDistrict.value : districtCtrl.text.trim(),
+        "thana": selectedSubDistrict.value.isNotEmpty ? selectedSubDistrict.value : subDistrictCtrl.text.trim(),
+        "area": areaSearchCtrl.text.trim(),
+        "address": areaSearchCtrl.text.trim(), // ✅ address = area
+        "latitude": latitude.value,   // ✅ added
+        "longitude": longitude.value, // ✅ added
+      },
     );
 
+    print('DEBUG submitLocationData success: ${result.isSuccess}');
+
     if (result.isSuccess) {
-      
-      // 👇 ADD THIS — override address with just area value
-      await _repository.updateListing(
-        id: uniqId ?? createdListingId ?? '',
-        body: {
-          "address": areaSearchCtrl.text.trim(),
-        },
-      );
-      
-      print("✅ Address overridden with area: ${areaSearchCtrl.text.trim()}");
-      
       return true;
     } else {
       Fluttertoast.showToast(
@@ -1587,10 +1597,48 @@ class ListingController extends GetxController {
       );
       return false;
     }
+  } catch (e) {
+    print('DEBUG submitLocationData ERROR: $e');
+    return false;
   } finally {
     isSubmittingLocation.value = false;
   }
 }
+//  Future<bool> submitLocationData(String? uniqId) async {
+//   if (isSubmittingLocation.value) return false;
+
+//   try {
+//     isSubmittingLocation.value = true;
+
+//     final result = await _repository.updateListingLocation(
+//       listingId: uniqId ?? createdListingId ?? '',
+//       body: buildLocationJson(),
+//     );
+
+//     if (result.isSuccess) {
+      
+//       // 👇 ADD THIS — override address with just area value
+//       await _repository.updateListing(
+//         id: uniqId ?? createdListingId ?? '',
+//         body: {
+//           "address": areaSearchCtrl.text.trim(),
+//         },
+//       );
+      
+//       print("✅ Address overridden with area: ${areaSearchCtrl.text.trim()}");
+      
+//       return true;
+//     } else {
+//       Fluttertoast.showToast(
+//         msg: "Failed to update location",
+//         gravity: ToastGravity.TOP,
+//       );
+//       return false;
+//     }
+//   } finally {
+//     isSubmittingLocation.value = false;
+//   }
+// }
 
 
   Map<String, dynamic> buildLocationJsonForMAp() {
@@ -1602,25 +1650,30 @@ class ListingController extends GetxController {
   }
 
   RxBool isLocationSubmitting = false.obs;
-  Future<bool> submitLocationDataMAp(String? uniqId) async {
-    if (isLocationSubmitting.value) return false;
+ Future<bool> submitLocationDataMAp(String? uniqId) async {
+  if (isLocationSubmitting.value) return false;
 
-    try {
-      isLocationSubmitting.value = true;
+  try {
+    isLocationSubmitting.value = true;
 
-      final result = await _repository.updateListingLocation(
-        listingId: uniqId ?? createdListingId ?? '',
-        body: buildLocationJson(),
-      );
+    final result = await _repository.updateListing(
+      id: uniqId ?? createdListingId ?? '',
+      body: {
+        "address": address.value,
+        "latitude": latitude.value,
+        "longitude": longitude.value,
+      },
+    );
 
-      return result.isSuccess;
-    } catch (e) {
-      return false;
-    } finally {
-      isLocationSubmitting.value = false;
-    }
+    print('DEBUG submitLocationDataMAp success: ${result.isSuccess}');
+    return result.isSuccess;
+  } catch (e) {
+    print('DEBUG submitLocationDataMAp ERROR: $e');
+    return false;
+  } finally {
+    isLocationSubmitting.value = false;
   }
-
+}
 
 
   final isLoadingAddress = false.obs;

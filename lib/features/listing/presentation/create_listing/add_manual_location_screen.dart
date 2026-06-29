@@ -22,13 +22,30 @@ class AddManualLocationScreen extends GetView<ListingController> {
       if (pattern.trim().isEmpty) return controller.onSectionSearchChange('A');
       return controller.onSectionSearchChange(pattern);
     },
-    onSelected: (SectionModel suggestion) {
-      controller.suggestionController.text = suggestion.displayName ?? '';
-      // Auto-fill division/district/subdistrict if available
-      if (suggestion.displayName != null) {
-        controller.areaSearchCtrl.text = suggestion.displayName ?? '';
-      }
-    },
+onSelected: (SectionModel suggestion) {
+  controller.suggestionController.text = suggestion.displayName ?? '';
+  if (suggestion.displayName != null) {
+    controller.areaSearchCtrl.text = suggestion.displayName ?? '';
+  }
+
+  print('DEBUG onSelected fired');
+  print('DEBUG suggestion.lat: ${suggestion.lat}');
+  print('DEBUG suggestion.long: ${suggestion.long}');
+  print('DEBUG suggestion.displayName: ${suggestion.displayName}');
+
+  if (suggestion.lat != null && suggestion.long != null) {
+    controller.setMapLocation(
+      lat: suggestion.lat.toString(),
+      lng: suggestion.long.toString(),
+      addressText: suggestion.displayName ?? '',
+    );
+    print('DEBUG after setMapLocation lat: ${controller.latitude.value}');
+    print('DEBUG after setMapLocation lng: ${controller.longitude.value}');
+  } else {
+    print('DEBUG lat/long is NULL — not setting map location');
+  }
+},
+
     builder: (context, textController, focusNode) => TextFormField(
       controller: textController,
       focusNode: focusNode,
