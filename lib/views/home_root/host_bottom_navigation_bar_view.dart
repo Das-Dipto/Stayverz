@@ -90,7 +90,7 @@ class _HostBottomNavigationBarViewState extends State<HostBottomNavigationBarVie
     var c = Get.find<InboxController>();
     return UpgradeAlert(
       upgrader: Upgrader(
-        debugLogging: false,
+        debugLogging: true,
         countryCode: 'BD',
         durationUntilAlertAgain: Duration.zero,
       ),

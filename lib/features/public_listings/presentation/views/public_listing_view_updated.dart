@@ -989,7 +989,7 @@ class PropertyTabViewUpdated extends GetView<PublicListingsController> {
                         // ── Section Title (flexible so it never overlaps) ──
                         Expanded(
                           child: Text(
-                            section.sectionTitle,
+                            controller.getDisplaySectionTitle(section.sectionTitle),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(

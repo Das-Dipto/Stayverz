@@ -113,16 +113,11 @@ class EditListingScreen extends GetView<ListingEditController> {
                 Divider(height: 30, thickness: 0.6),
                 EditListingItem(
                   title: 'Status',
-                  value:
-                      (controller.listingDetails.value?.status !=
-                                  "in_progress" &&
-                              controller.listingDetails.value?.status !=
-                                  "unpublished")
-                          ? "Published"
-                          : "Unpublished",
+                  value: controller.listingDetails.value?.status == "published" ? "Published" : "Unpublished",
                   onPress: () {
                     _showStatusModalBottomSheet(
                       controller.listingDetails.value?.price ?? 0.0,
+                      controller.listingDetails.value?.status
                     );
                   },
                 ),
@@ -474,11 +469,24 @@ class EditListingScreen extends GetView<ListingEditController> {
   //   );
   // }
 
-  void _showStatusModalBottomSheet(double price) {
-    String selectedStatus =
+  void _showStatusModalBottomSheet(double price, String? publishStatus) {
+
+    if (publishStatus != "published"){
+          Fluttertoast.showToast(
+             msg: "Status- $publishStatus. Need admin approval to proceed",
+             toastLength: Toast.LENGTH_SHORT,
+             gravity: ToastGravity.BOTTOM,
+          );
+    }
+
+    else{
+        String selectedStatus =
         controller.statusController.text.isNotEmpty
             ? controller.statusController.text
             : 'unpublished'; // default to 'unpublished'
+
+   
+
 
     Get.bottomSheet(
       EditBottomSheet(
@@ -603,6 +611,8 @@ class EditListingScreen extends GetView<ListingEditController> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       isScrollControlled: true,
     );
+    }
+
   }
 
   void _showPriceModalBottomSheet(BuildContext context) {

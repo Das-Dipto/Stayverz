@@ -9,7 +9,7 @@ import '../../../../../core/utils/enums/product_listing_enums.dart';
 import 'step_eighth_create_listing_body.dart';
 import 'step_five_create_listing_body.dart';
 import 'step_fourth_create_listing_body.dart';
-import 'step_ninth_create_listing_body.dart';
+// import 'step_ninth_create_listing_body.dart';
 import 'step_one_create_listing_body.dart';
 import 'step_second_create_listing_body.dart';
 import 'step_seventh_create_listing_body.dart';
@@ -48,7 +48,7 @@ class CreateListingScreen extends GetView<ListingController> {
               bottom: isKeyboardOpen ? 0 : 80,
             ),
             child: Obx(() {
-              switch (controller.currentState.value) {
+             switch (controller.currentState.value) {
                 case CurrentState.SECOND:
                   return StepSecondCreateListingBody();
                 case CurrentState.THIRD:
@@ -64,10 +64,8 @@ class CreateListingScreen extends GetView<ListingController> {
                 case CurrentState.EIGHTH:
                   return StepEighthCreateListingBody();
                 case CurrentState.NINTH:
-                  return StepNinthCreateListingBody();
-                case CurrentState.TENTH:
                   return StepTenthCreateListingBody();
-                case CurrentState.ELEVENTH:
+                case CurrentState.TENTH:
                   return StepEleventhCreateListingBody();
                 default:
                   return StepOneCreateListingBody();
@@ -83,7 +81,7 @@ class CreateListingScreen extends GetView<ListingController> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Obx(() {
-                  if (controller.currentState.value == CurrentState.ELEVENTH) {
+                  if (controller.currentState.value == CurrentState.TENTH) {
                     return Row(
                       children: [
                         Expanded(

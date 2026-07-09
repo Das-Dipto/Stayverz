@@ -8,6 +8,7 @@ import '../../controllers/listing_controller.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../../models/area_new_model.dart';
 import '../../../public_listings/data/models/search_view_modle.dart';
+import '../../../../core/utils/enums/product_listing_enums.dart';
 
 class AddManualLocationScreen extends GetView<ListingController> {
   final String? uniqId;
@@ -348,36 +349,41 @@ onSelected: (SectionModel suggestion) {
                 SizedBox(
                   width: double.infinity,
                   height: 52,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      // Close dialog using its own context — 100% safe
-                      Navigator.of(dialogContext, rootNavigator: true).pop();
-                      // Then go back to previous screen
-                      Navigator.of(context).pop();
-                    },
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                    label: const Text(
-                      'Go Back',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Inter',
-                        color: Colors.white,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF15A24),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                  ),
+                  child: ElevatedButton(
+  onPressed: () {
+    Navigator.of(dialogContext, rootNavigator: true).pop();
+    Navigator.of(context).pop();
+    controller.currentState.value = CurrentState.SIXTH;
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFFF15A24),
+    foregroundColor: Colors.white,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    elevation: 0,
+  ),
+  child: const Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(
+        'Proceed',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Inter',
+          color: Colors.white,
+        ),
+      ),
+      Gap(8),
+      Icon(
+        Icons.arrow_forward_ios_rounded,
+        size: 16,
+        color: Colors.white,
+      ),
+    ],
+  ),
+),
                 ),
               ],
             ),

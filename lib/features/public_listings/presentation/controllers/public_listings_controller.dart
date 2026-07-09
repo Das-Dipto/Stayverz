@@ -44,6 +44,9 @@ class PublicListingsController extends GetxController {
   /// --- Adults ---
   bool get isAdultsIncrementDisabled => adults.value >= maxGuests;
 
+  List<String> hiddenListingIds = ['e70df89c-9630-4c54-b3ef-e7ff6966b184'];
+
+
   Future<void> fetchAssistanceCategory() async {
     isCategoryLoading.value = true;
     hasErrorg.value = false;
@@ -784,14 +787,40 @@ Future<void> fetchHostAvgResponseTime({required int hostId}) async {
   final selectedHomeCategoryId = RxnInt();
   final selectedTabName = 'All'.obs;
 
-  Future<void> fetchHomeLayout({required String tab}) async {
+Future<void> fetchHomeLayout({required String tab}) async {
     try {
       isLoadingg.value = true;
       hasErrorg.value = false;
 
       final response = await _repository.getHomeLayout(tab: tab);
 
-      homeSections.value = response.data;
+      final sections = response.data;
+      for (final section in sections) {
+        section.items.removeWhere((item) => hiddenListingIds.contains(item.uniqueId));
+      }
+
+      // ── Sort sections in desired display order ──
+      final desiredSectionOrder = [
+        'Bashundhara R/A Classics',
+        'Gulshan Elites',
+        'Banani Luxuries',
+        'Dhanmondi Essentials',
+        'Mirpur Casuals',
+        'Dhaka Intense Stays',
+        'Feels Like Home',
+        "Cox's Bazar Exotics",
+        'Sylhet Vibrats',
+        'Rajshahi Heritage',
+      ];
+
+      sections.sort((a, b) {
+        final aIndex = desiredSectionOrder.indexOf(getDisplaySectionTitle(a.sectionTitle));
+        final bIndex = desiredSectionOrder.indexOf(getDisplaySectionTitle(b.sectionTitle));
+        return (aIndex == -1 ? 999 : aIndex).compareTo(bIndex == -1 ? 999 : bIndex);
+      });
+
+      homeSections.value = sections;
+
       selectedTabName.value = tab;
 
       isLoadingg.value = false;
@@ -916,6 +945,22 @@ Future<void> fetchHostAvgResponseTime({required int hostId}) async {
     newListings.clear();
   }
 
+  Map<String, String> sectionTitleDisplayMap = {
+  'Rent Studio Apartment in Mirpur, Dhaka': 'Mirpur Casuals',
+  'Bashundhara Riverview Apartments': 'Bashundhara R/A Classics',
+  'Luxury Apartment in Gulshan, Dhaka': 'Gulshan Elites',
+  'Essential Stays in Dhanmondi, Dhaka': 'Dhanmondi Essentials',
+  'Luxury Short Rentals in Banani, Dhaka': 'Banani Luxuries',
+  "Exotic Stays in Cox's Bazar": "Cox's Bazar Exotics",
+  'Sylhet Vibrant Short Rentals': 'Sylhet Vibrants',
+};
+
+String getDisplaySectionTitle(String original) {
+  // print("This is original- ${original}");
+  // print("Length: ${original.length}, CodeUnits: ${original.codeUnits}");
+  return sectionTitleDisplayMap[original.trim()] ?? original;
+}
+
   String? _lastTitle;
 
   Future<void> fetchSectionViewListings({
@@ -951,8 +996,10 @@ Future<void> fetchHostAvgResponseTime({required int hostId}) async {
         page: currentPage.value,
         pageSize: pageSize,
       );
-
-      newListings.addAll(response.data);
+      print("This is the section listing view- ${response}");
+      newListings.addAll(
+        response.data.where((item) => !hiddenListingIds.contains(item.uniqueId)),
+      );
       lastPage.value = response.meta.lastPage;
 
       isLoadingListings.value = false;

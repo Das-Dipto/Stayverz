@@ -11,6 +11,30 @@ import '../../../../core/constants/app_colors.dart';
 class StepThirdCreateListingBody extends GetView<ListingController> {
   StepThirdCreateListingBody({super.key});
 
+  Widget buildLocalIcon(String? name) {
+  IconData icon;
+  switch (name) {
+    case 'Entire Place':
+      icon = Icons.home_rounded;
+      break;
+    case 'Single Room':
+    case 'Private Room':
+      icon = Icons.meeting_room_rounded;
+      break;
+    default:
+      icon = Icons.apartment_rounded;
+  }
+  return Container(
+    width: 52,
+    height: 52,
+    decoration: BoxDecoration(
+      color: AppColors.primaryColor.withOpacity(0.08),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Icon(icon, color: AppColors.primaryColor, size: 28),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -102,7 +126,11 @@ class StepThirdCreateListingBody extends GetView<ListingController> {
                               ],
                             ),
                           ),
-                          buildImage(   firstStepContents.elementAt(index).iconMobile),
+                          // buildImage(firstStepContents.elementAt(index).iconMobile),
+                          (firstStepContents.elementAt(index).name == 'Entire Place' ||
+                                firstStepContents.elementAt(index).name == 'Single Room')
+                            ? buildLocalIcon(firstStepContents.elementAt(index).name)
+                            : buildImage(firstStepContents.elementAt(index).iconMobile),
 
                           const Gap(8),
                         ],

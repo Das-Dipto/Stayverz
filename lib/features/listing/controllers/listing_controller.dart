@@ -679,70 +679,35 @@ class ListingController extends GetxController {
   }
 
 
-  String getCurrentStep(CurrentState value) {
-    switch (value) {
-      case CurrentState.FIRST:
-        return "0";
-      case CurrentState.SECOND:
-        return "1";
-      case CurrentState.THIRD:
-        return "2";
-      case CurrentState.FOURTH:
-        return "3";
-      case CurrentState.FIFTH:
-        return "4";
-      case CurrentState.SIXTH:
-        return "5";
-      case CurrentState.SEVENTH:
-        return "6";
-      case CurrentState.EIGHTH:
-        return "7";
-      case CurrentState.NINTH:
-        return "8";
-      case CurrentState.TENTH:
-        return "9";
-      case CurrentState.ELEVENTH:
-        return "10";
-    }
+ String getCurrentStep(CurrentState value) {
+  switch (value) {
+    case CurrentState.FIRST:   return "0";
+    case CurrentState.SECOND:  return "1";
+    case CurrentState.THIRD:   return "2";
+    case CurrentState.FOURTH:  return "3";
+    case CurrentState.FIFTH:   return "4";
+    case CurrentState.SIXTH:   return "5";
+    case CurrentState.SEVENTH: return "6";
+    case CurrentState.EIGHTH:  return "7";
+    case CurrentState.NINTH:   return "8";
+    case CurrentState.TENTH:   return "9";
   }
+}
 
-  void goBack() {
-    switch (currentState.value) {
-      case CurrentState.FIRST:
-        Get.back();
-        break;
-      case CurrentState.SECOND:
-        currentState.value = CurrentState.FIRST;
-        break;
-      case CurrentState.THIRD:
-        currentState.value = CurrentState.SECOND;
-        break;
-      case CurrentState.FOURTH:
-        currentState.value = CurrentState.THIRD;
-        break;
-      case CurrentState.FIFTH:
-        currentState.value = CurrentState.FOURTH;
-        break;
-      case CurrentState.SIXTH:
-        currentState.value = CurrentState.FIFTH;
-        break;
-      case CurrentState.SEVENTH:
-        currentState.value = CurrentState.SIXTH;
-        break;
-      case CurrentState.EIGHTH:
-        currentState.value = CurrentState.SEVENTH;
-        break;
-      case CurrentState.NINTH:
-        currentState.value = CurrentState.EIGHTH;
-        break;
-      case CurrentState.TENTH:
-        currentState.value = CurrentState.NINTH;
-        break;
-      case CurrentState.ELEVENTH:
-        currentState.value = CurrentState.TENTH;
-        break;
-    }
+void goBack() {
+  switch (currentState.value) {
+    case CurrentState.FIRST:   Get.back(); break;
+    case CurrentState.SECOND:  currentState.value = CurrentState.FIRST; break;
+    case CurrentState.THIRD:   currentState.value = CurrentState.SECOND; break;
+    case CurrentState.FOURTH:  currentState.value = CurrentState.THIRD; break;
+    case CurrentState.FIFTH:   currentState.value = CurrentState.FOURTH; break;
+    case CurrentState.SIXTH:   currentState.value = CurrentState.FIFTH; break;
+    case CurrentState.SEVENTH: currentState.value = CurrentState.SIXTH; break;
+    case CurrentState.EIGHTH:  currentState.value = CurrentState.SEVENTH; break;
+    case CurrentState.NINTH:   currentState.value = CurrentState.EIGHTH; break;
+    case CurrentState.TENTH:   currentState.value = CurrentState.NINTH; break;
   }
+}
 
   var isLoadingNext = false.obs;
 
@@ -752,43 +717,40 @@ class ListingController extends GetxController {
     try {
       print('DEBUG goNext called, state: ${currentState.value}');
       bool canProceed = true;
-      switch (currentState.value) {
-        case CurrentState.FIRST:
-          initListing();
-          break;
-        case CurrentState.SECOND:
-          goNextAfterSelectingCategory();
-          break;
-        case CurrentState.THIRD:
-          goNextAfterSelectingPlaceType();
-          break;
-        case CurrentState.FOURTH:
-          goNextAfterSelectingPlace();
-          break;
-        case CurrentState.FIFTH:
-          goNextAfterSelectingBasics();
-          break;
-        case CurrentState.SIXTH:
-          goNextAfterSelectingAmenities();
-          break;
-        case CurrentState.SEVENTH:
-          goNextAfterUploadedPhotos();
-          break;
-        case CurrentState.EIGHTH:
-          canProceed = await goNextAfterEnteredTitle(); // 👈 Validate here
-          break;
-        case CurrentState.NINTH:
-          goNextAfterEnteredDescription();
-          break;
-        case CurrentState.TENTH:
-          goNextAfterEnteredPrice();
-          break;
-        case CurrentState.ELEVENTH:
-          throw UnimplementedError();
-      }
 
+switch (currentState.value) {
+  case CurrentState.FIRST:
+    await initListing();
+    break;
+  case CurrentState.SECOND:
+    goNextAfterSelectingCategory();
+    break;
+  case CurrentState.THIRD:
+    goNextAfterSelectingPlaceType();
+    break;
+  case CurrentState.FOURTH:
+    canProceed = await goNextAfterEnteredTitleAndDescription();
+    break;
+ case CurrentState.FIFTH:
+  goNextAfterSelectingPlace();
+  break;
+case CurrentState.SIXTH:
+  goNextAfterSelectingAmenities();
+  break;
+case CurrentState.SEVENTH:
+  goNextAfterSelectingBasics();
+  break;
+case CurrentState.EIGHTH:
+  goNextAfterUploadedPhotos();
+  break;
+  case CurrentState.NINTH:
+    goNextAfterEnteredPrice();
+    break;
+  case CurrentState.TENTH:
+    throw UnimplementedError();
+}
       // ✅ Move only if previous step was valid
-      if (canProceed && currentState.value != CurrentState.ELEVENTH) {
+      if (canProceed && currentState.value != CurrentState.TENTH) {
         currentState.value = CurrentState.values[currentState.value.index + 1];
       }
     }catch (e, stack) {
@@ -800,6 +762,45 @@ class ListingController extends GetxController {
       isLoadingNext.value = false;
     }
   }
+
+ Future<bool> goNextAfterEnteredTitleAndDescription() async {
+  if (titleController.text.trim().isEmpty ||
+      titleController.text.trim().length < 10) {
+    Fluttertoast.showToast(
+      msg: "Title must be at least 10 characters",
+      gravity: ToastGravity.TOP,
+    );
+    return false;
+  }
+
+  if (descriptionController.text.trim().isEmpty) {
+    Fluttertoast.showToast(
+      msg: "Please enter description",
+      gravity: ToastGravity.TOP,
+    );
+    return false;
+  }
+
+  var result = await _repository.updateListing(
+    id: createdListingId ?? '',
+    body: {
+      "id": createdListingId,
+      "title": titleController.text.trim(),
+      "description": descriptionController.text.trim(),
+    },
+  );
+
+  if (!result.isSuccess) {
+    Fluttertoast.showToast(
+      msg: "Failed to update title and description",
+      gravity: ToastGravity.TOP,
+    );
+    return false;
+  }
+
+  await fetchCreatedListing();
+  return true;
+}
 
   Future<void> initListing() async {
   try {
@@ -816,7 +817,7 @@ class ListingController extends GetxController {
     createdListingId = result.data?.uniqueId;
     await fetchCreatedListing();
     await fetchHostListingConfigurations();
-    currentState(CurrentState.SECOND);
+    // currentState(CurrentState.SECOND);
   } catch (e, stack) {
     print('DEBUG initListing EXCEPTION: $e');
     print('DEBUG stack: $stack');
@@ -848,7 +849,7 @@ class ListingController extends GetxController {
       return;
     }
     await fetchCreatedListing();
-    currentState(CurrentState.THIRD);
+    // currentState(CurrentState.THIRD);
   }
 
   void goNextAfterSelectingPlaceType() async {
@@ -876,119 +877,73 @@ class ListingController extends GetxController {
       return;
     }
     await fetchCreatedListing();
-    currentState(CurrentState.FOURTH);
+    // currentState(CurrentState.FOURTH);
   }
 
-  void goNextAfterSelectingPlace() async {
-    // if (selectedPlace.value == null) {
-    //   Fluttertoast.showToast(
-    //     msg: "Please select a place",
-    //     toastLength: Toast.LENGTH_SHORT,
-    //     gravity: ToastGravity.TOP,
-    //   );
-    //   return;
-    // }
-    // var result = await _repository.updateListing(
-    //   id: createdListingId ?? '',
-    //   body: {
-    //     "id": createdListingId,
-    //     "address": selectedPlace.value?.address ?? '',
-    //     "latitude": selectedPlace.value?.latitude ?? '',
-    //     "longitude": selectedPlace.value?.longitude ?? '',
-    //   },
-    // );
+void goNextAfterSelectingPlace() async {
+  await submitLocationData(createdListingId);
+  await submitLocationDataMAp(createdListingId);
+  await fetchCreatedListing();
+}
 
-   await submitLocationData(createdListingId);
-   await submitLocationDataMAp(createdListingId);
-
-    await fetchCreatedListing();
-    currentState(CurrentState.FIFTH);
-  }
-
-  void goNextAfterSelectingBasics() async {
-    if (selectedPlace.value == null) {
-      Fluttertoast.showToast(
-        msg: "Please select a place",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-      );
-      return;
-    }
-    var result = await _repository.updateListing(
-      id: createdListingId ?? '',
-      body: {
-        "id": createdListingId,
-        'bathroom_count': bathroomsCount.value,
-        'bed_count': bedsCount.value,
-        'bedroom_count': bedroomsCount.value,
-        'guest_count': personsCount.value,
-      },
-    );
-    if (!result.isSuccess) {
-      Fluttertoast.showToast(
-        msg: "Failed to update place location",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-      );
-      return;
-    }
-    await fetchCreatedListing();
-    currentState(CurrentState.SIXTH);
-  }
-
-  void goNextAfterSelectingAmenities() async {
-    if (selectedPlace.value == null) {
-      Fluttertoast.showToast(
-        msg: "Please select a place",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-      );
-      return;
-    }
-
-
-    var result =   await _repository.updateListingAmenities(
-      listingId: "$createdListingId",
-      amenityIds: selectedAmenities,
-    );
-
+void goNextAfterSelectingBasics() async {
+  var result = await _repository.updateListing(
+    id: createdListingId ?? '',
+    body: {
+      "id": createdListingId,
+      'bathroom_count': bathroomsCount.value,
+      'bed_count': bedsCount.value,
+      'bedroom_count': bedroomsCount.value,
+      'guest_count': personsCount.value,
+    },
+  );
+  if (!result.isSuccess) {
     Fluttertoast.showToast(
-      msg: 'Amenities updated successfully',
+      msg: "Failed to update basics",
       gravity: ToastGravity.TOP,
     );
-    await fetchCreatedListing();
-    currentState(CurrentState.SEVENTH);
+    return;
   }
+  await fetchCreatedListing();
+}
 
-  void goNextAfterUploadedPhotos() async {
-    if (uploadedPhotoUrls.isEmpty) {
-      Fluttertoast.showToast(
-        msg: "Please upload at least one photo",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-      );
-      return;
-    }
-
-    var result = await _repository.updateListing(
-      id: createdListingId ?? '',
-      body: {
-        "id": createdListingId,
-        "cover_photo": uploadedPhotoUrls.first,
-        "images": uploadedPhotoUrls.toList(),
-      },
+ void goNextAfterSelectingAmenities() async {
+  await _repository.updateListingAmenities(
+    listingId: "$createdListingId",
+    amenityIds: selectedAmenities,
+  );
+  Fluttertoast.showToast(
+    msg: 'Amenities updated successfully',
+    gravity: ToastGravity.TOP,
+  );
+  await fetchCreatedListing();
+}
+ void goNextAfterUploadedPhotos() async {
+  if (uploadedPhotoUrls.isEmpty) {
+    Fluttertoast.showToast(
+      msg: "Please upload at least one photo",
+      gravity: ToastGravity.TOP,
     );
-    if (!result.isSuccess) {
-      Fluttertoast.showToast(
-        msg: "Failed to update listing photos",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-      );
-      return;
-    }
-    await fetchCreatedListing();
-    currentState(CurrentState.EIGHTH);
+    return;
   }
+
+  var result = await _repository.updateListing(
+    id: createdListingId ?? '',
+    body: {
+      "id": createdListingId,
+      "cover_photo": uploadedPhotoUrls.first,
+      "images": uploadedPhotoUrls.toList(),
+    },
+  );
+  if (!result.isSuccess) {
+    Fluttertoast.showToast(
+      msg: "Failed to update listing photos",
+      gravity: ToastGravity.TOP,
+    );
+    return;
+  }
+  await fetchCreatedListing();
+}
 
   Future<bool> goNextAfterEnteredTitle() async {
     if (titleController.text.trim().isEmpty) {
@@ -1050,30 +1005,27 @@ class ListingController extends GetxController {
     currentState(CurrentState.TENTH);
   }
 
-  void goNextAfterEnteredPrice() async {
-    if (priceController.text.isEmpty) {
-      Fluttertoast.showToast(
-        msg: "Please enter price",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-      );
-      return;
-    }
-    var result = await _repository.updateListing(
-      id: createdListingId ?? '',
-      body: {"id": createdListingId, "price": priceController.text},
+ void goNextAfterEnteredPrice() async {
+  if (priceController.text.isEmpty) {
+    Fluttertoast.showToast(
+      msg: "Please enter price",
+      gravity: ToastGravity.TOP,
     );
-    if (!result.isSuccess) {
-      Fluttertoast.showToast(
-        msg: "Failed to update price",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-      );
-      return;
-    }
-    await fetchCreatedListing();
-    currentState(CurrentState.ELEVENTH);
+    return;
   }
+  var result = await _repository.updateListing(
+    id: createdListingId ?? '',
+    body: {"id": createdListingId, "price": priceController.text},
+  );
+  if (!result.isSuccess) {
+    Fluttertoast.showToast(
+      msg: "Failed to update price",
+      gravity: ToastGravity.TOP,
+    );
+    return;
+  }
+  await fetchCreatedListing();
+}
 
   void onPublishClick() async {
   var result = await _repository.updateListing(
@@ -1081,7 +1033,8 @@ class ListingController extends GetxController {
     body: {
       "id": createdListingId,
       "price": priceController.text,
-      'status': 'published',
+      // 'status': 'published',
+      'status':'in_review',
     },
   );
   if (!result.isSuccess) {
@@ -1093,6 +1046,13 @@ class ListingController extends GetxController {
     return;
   }
   await fetchCreatedListing();
+
+  Get.snackbar(
+  "Submitted Successfully",
+  "Your property is currently in review. Our admin team will publish it soon after verification.",
+  snackPosition: SnackPosition.TOP,
+  duration: const Duration(seconds: 8),
+);
   
   // Reset all state after publish
   _resetAfterPublish();

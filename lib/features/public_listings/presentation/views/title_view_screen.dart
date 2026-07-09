@@ -10,6 +10,7 @@ import '../../../../generated/assets.dart';
 import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
 import '../controllers/public_listings_controller.dart';
 
+
 class TitleViewScreen extends StatefulWidget {
   static const String route = '/title_view_screen';
   final String title;
@@ -88,7 +89,7 @@ class _TitleViewScreenState extends State<TitleViewScreen> {
                   ),
                   Gap(10),
                   Text(
-                    widget.title,
+                    controller.getDisplaySectionTitle(widget.title),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

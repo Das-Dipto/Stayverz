@@ -639,6 +639,24 @@ class ListingEditController extends GetxController {
       return;
     }
     await fetchListingDetails();
+
+    if (result.isSuccess && statusController.text != "published") {
+      Get.dialog(
+        AlertDialog(
+          title: const Text("Almost There!"),
+          content: Text(
+            "Your property is currently in \"${statusController.text}\" status. Our admin team will publish it soon after verification.",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
+    isUpdating.value = false;
   }
 
   void onUpdateLocation({required String location, required double lat,required double long,}) async {

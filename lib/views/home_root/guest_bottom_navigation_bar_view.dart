@@ -80,7 +80,7 @@ class _GuestBottomNavigationBarViewState
     });
     return UpgradeAlert(
       upgrader: Upgrader(
-        debugLogging: false,
+        debugLogging:true,
         countryCode: 'BD',
         durationUntilAlertAgain: Duration.zero,
       ),
