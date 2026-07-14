@@ -244,23 +244,32 @@ class ApiClient {
     };
 
     return await _dio.request<T>(
-      path,
-      data: data,
-      queryParameters: queryParameters,
-      options: Options(
-        method: method,
-        headers: headers,
-        responseType: options?.responseType,
-        contentType: options?.contentType,
-        extra: options?.extra,
-        followRedirects: options?.followRedirects,
-        validateStatus: options?.validateStatus,
-        receiveDataWhenStatusError: options?.receiveDataWhenStatusError,
-      ),
-      cancelToken: cancelToken,
-      onSendProgress: onSendProgress,
-      onReceiveProgress: onReceiveProgress,
+  path,
+  data: data,
+  queryParameters: queryParameters,
+  options: Options(
+    method: method,
+    headers: headers,
+    responseType: options?.responseType,
+    contentType: options?.contentType,
+    extra: options?.extra,
+    followRedirects: options?.followRedirects,
+    validateStatus: options?.validateStatus,
+    receiveDataWhenStatusError: options?.receiveDataWhenStatusError,
+  ),
+  cancelToken: cancelToken,
+  onSendProgress: onSendProgress,
+  onReceiveProgress: onReceiveProgress,
+).timeout(
+  const Duration(seconds: 25),
+  onTimeout: () {
+    throw DioException(
+      requestOptions: RequestOptions(path: path),
+      type: DioExceptionType.receiveTimeout,
+      error: 'Request exceeded hard timeout ceiling (25s)',
     );
+  },
+);
   }
 
   /// Gets the appropriate content type header

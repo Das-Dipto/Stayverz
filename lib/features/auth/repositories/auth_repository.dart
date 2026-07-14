@@ -21,8 +21,12 @@ class AuthRepository implements AuthRepositoryInterface {
     String password,
     String role,
   ) async {
-    final response = await _apiClient.post(
-      '/accounts/public/login-with-create/',
+    // final response = await _apiClient.post(
+    //   '/accounts/public/login-with-create/',
+    //   data: {'u_type': role, 'phone_number': phone, 'password': password},
+    // );
+        final response = await _apiClient.post(
+      '/accounts/public/login/',
       data: {'u_type': role, 'phone_number': phone, 'password': password},
     );
     final data = response.data;

@@ -692,6 +692,7 @@ Future<Either<Failure, BookingResponse>> getHostInstantBookings({
   Future<AssistanceBookingModel?> postBooking(
     Map<String, dynamic> bookingData,
   ) async {
+    print("This is booking related Payload Data- ${bookingData}");
     try {
       final response = await _apiClient.post(
         ApiRoutes.postAssistanceBookings,

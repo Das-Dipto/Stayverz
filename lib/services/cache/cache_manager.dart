@@ -79,24 +79,14 @@ class CacheManager {
   
   /// Gets the current refresh token from cache
   // For testing: set this flag to true to use a test refresh token
-  static bool useTestRefreshToken = true;
+  // static bool useTestRefreshToken = true;
   
-  static Future<String?> getRefreshToken() async {
-    await _ensureInitialized();
-    
-    // Return cached token if it exists
-    final cachedToken = _pref?.getString(CacheKeys.refreshToken.name);
-    if (cachedToken != null && cachedToken.isNotEmpty) {
-      return cachedToken;
-    }
-    
-    // If no cached token and test mode is enabled, return test token
-    if (useTestRefreshToken) {
-      return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjIxMjEyMTIxMjEzX2d1ZXN0IiwiZXhwIjoxNzUwMjI3NTk3LCJ0b2tlbl90eXBlIjoicmVmcmVzaCJ9.x1EqGevl27ZMjVjQyBbeB-106urpXVXq5YVwDsKE7A0';
-    }
-    
-    return null;
-  }
+static Future<String?> getRefreshToken() async {
+  await _ensureInitialized();
+  final cachedToken = _pref?.getString(CacheKeys.refreshToken.name);
+  return (cachedToken != null && cachedToken.isNotEmpty) ? cachedToken : null;
+}
+
   static Future<bool> removeAll() async => _pref!.clear();
 
   static Future<bool> _remove(String key) async {

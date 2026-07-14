@@ -147,6 +147,11 @@ class ListingRepositoryImpl implements ListingRepositoryInterface {
   Future<Either<String, BookingResponseModel>> postBooking(
     BookingPostModel bookingData,
   ) async {
+     final json = bookingData.toJson();
+      print("Look at this:");
+      json.forEach((key, value) {
+        print("$key: $value (${value.runtimeType})");
+      });
     try {
       final response = await _apiClient.post(
         '/bookings/user/bookings/',

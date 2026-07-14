@@ -19,58 +19,51 @@ class TokenRefreshInterceptor extends Interceptor {
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    // Check if this is a 401 response and handle it directly
-    if (response.statusCode == 401 || response.statusCode == 403) {
-      
-      // Check if response contains token expiration messages
-      final data = response.data;
-      bool isTokenExpired = false;
-      
-      if (data is Map<String, dynamic>) {
-        final message = data['message']?.toString().toLowerCase() ?? '';
-        isTokenExpired = message.contains('expired') || 
-                         message.contains('invalid token') || message.contains('Forbidden') ||
-                         message.contains('signature');
-        
-      }
-      
-      if (isTokenExpired) {
-        // For responses, use the existing flow we have for error handling
-        
-        // Mark as refreshing to prevent multiple refresh attempts
-        _isRefreshing.value = true;
-        
-        // Use Get.find to get the AuthController to handle token refresh
-        final authController = Get.find<AuthController>();
-        authController.refreshToken().then((success) {
-          if (success) {
-            // Retry the original request with new token
-            _retryRequest(response.requestOptions).then((newResponse) {
-              // Process queued requests and resolve this one
-              _processQueuedRequests();
-              handler.next(newResponse);
-            }).catchError((error) {
-              handler.next(response); // Fall back to original response on error
-            });
-          } else {
-            // Logout and redirect
-            authController.logOut();
-            Get.offAllNamed(AppRoute.login);
-            handler.next(response); // Continue with original response
-          }
-          _isRefreshing.value = false;
-        }).catchError((e) {
-          _isRefreshing.value = false;
-          handler.next(response); // Continue with original response
-        });
-        return;
-      }
+ @override
+void onResponse(Response response, ResponseInterceptorHandler handler) {
+  if (response.statusCode == 401 || response.statusCode == 403) {
+    final alreadyRetried = response.requestOptions.extra['tokenRetried'] == true;
+    if (alreadyRetried) {
+      handler.next(response);
+      return;
     }
-    
-    // Allow normal responses to pass through
-    handler.next(response);
+
+    final data = response.data;
+    bool isTokenExpired = false;
+    if (data is Map<String, dynamic>) {
+      final message = data['message']?.toString().toLowerCase() ?? '';
+      isTokenExpired = message.contains('expired') ||
+                        message.contains('invalid token') ||
+                        message.contains('signature');
+    }
+
+    if (isTokenExpired) {
+      _isRefreshing.value = true;
+      final authController = Get.find<AuthController>();
+      authController.refreshToken().then((success) {
+        if (success) {
+          response.requestOptions.extra['tokenRetried'] = true;
+          _retryRequest(response.requestOptions).then((newResponse) {
+            _processQueuedRequests();
+            handler.next(newResponse);
+          }).catchError((error) {
+            handler.next(response);
+          });
+        } else {
+          authController.logOut();
+          Get.offAllNamed(AppRoute.login);
+          handler.next(response);
+        }
+        _isRefreshing.value = false;
+      }).catchError((e) {
+        _isRefreshing.value = false;
+        handler.next(response);
+      });
+      return;
+    }
   }
+  handler.next(response);
+}
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
@@ -118,12 +111,12 @@ class TokenRefreshInterceptor extends Interceptor {
           // Return the successful response
           handler.resolve(retryResponse);
         } else {
-          
-          // Logout and redirect to login screen
           authController.logOut();
           Get.offAllNamed(AppRoute.login);
-          
-          // Continue with the original error
+          for (final entry in _pendingRequests.entries) {
+            entry.value.completeError(Exception('Token refresh failed'));
+          }
+          _pendingRequests.clear();
           handler.next(err);
         }
       } catch (e) {
