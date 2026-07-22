@@ -61,6 +61,7 @@ project.extra.set("extraFrontEndOptions", listOf("--no-tree-shake-icons"))
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }
 
 flutter {

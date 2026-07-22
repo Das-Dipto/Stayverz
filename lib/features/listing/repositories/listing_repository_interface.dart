@@ -19,6 +19,9 @@ import '../models/payment_post_model.dart';
 import '../models/map_suggestions_response_model.dart';
 import '../models/single_host_listing_response_model.dart';
 
+import '../models/stripe/exchange_rates_model.dart';
+import '../models/stripe/stripe_payment_models.dart';
+
 abstract class ListingRepositoryInterface {
   Future<ListingResponseModel> getListings({required int page, required int pageSize, String? search, String? status});
 
@@ -89,6 +92,22 @@ abstract class ListingRepositoryInterface {
   Future<Either<String, Map<String, dynamic>>> postListingCalendar({
     required int listingId,
     required List<BookingPayload> payload,
+  });
+
+
+  Future<ExchangeRatesResponseModel> getStripeExchangeRates({
+    required String bookingId,
+    required String userId,
+  });
+
+  Future<CreateStripePaymentResponse> createStripePayment({
+    required CreateStripePaymentRequest payload,
+    required String userId,
+  });
+
+  Future<ConfirmStripePaymentResponse> confirmStripePayment({
+    required ConfirmStripePaymentRequest payload,
+    required String userId,
   });
 
 

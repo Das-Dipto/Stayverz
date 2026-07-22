@@ -30,6 +30,10 @@ import '../models/single_host_listing_response_model.dart';
 import '../presentation/views/my_listing/my_listing_screen.dart';
 import '../repositories/listing_repository_interface.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmap;
+import '../models/stripe/exchange_rates_model.dart';
+
+import '../models/stripe/stripe_payment_models.dart';
+import '../../../controllers/main_controller.dart';
 
 class ListingController extends GetxController {
   final _errorDisplay = Get.find<ErrorDisplayManager>();
@@ -107,6 +111,15 @@ class ListingController extends GetxController {
   RxInt onHostMyListingTabViewChangeValue = RxInt(0);
   RxInt onHostCalendarTabViewChangeValue = RxInt(0);
   RxBool isInitialCalendarLoad = true.obs; // Track initial load state
+
+
+// ---------- STRIPE PAYMENT STATE ----------
+  final Rx<ExchangeRatesResponseModel?> exchangeRates = Rx<ExchangeRatesResponseModel?>(null);
+  final RxBool isLoadingExchangeRates = false.obs;
+  final RxString selectedStripeCurrency = 'USD'.obs;
+  final RxBool isCreatingStripePayment = false.obs;
+  final RxBool isConfirmingStripePayment = false.obs;
+
 
   // Pagination settings
   final int pageSize = 10;
@@ -1216,6 +1229,72 @@ void _resetAfterPublish() {
         return responseModel.data;
       },
     );
+  }
+
+  String get _stripeUserId => Get.find<MainController>().userId.value;
+
+  Future<ExchangeRatesResponseModel?> fetchStripeExchangeRates(String bookingId) async {
+    isLoadingExchangeRates.value = true;
+    try {
+      final result = await _repository.getStripeExchangeRates(
+        bookingId: bookingId,
+        userId: _stripeUserId,
+      );
+      exchangeRates.value = result;
+      return result;
+    } catch (e) {
+      print("DEBUG fetchStripeExchangeRates ERROR: $e");
+      Get.snackbar("Error", "Failed to load exchange rates");
+      return null;
+    } finally {
+      isLoadingExchangeRates.value = false;
+    }
+  }
+
+  Future<CreateStripePaymentResponse?> createStripePayment({
+    required String bookingId,
+    required String currency,
+    String email = '',
+  }) async {
+    isCreatingStripePayment.value = true;
+    try {
+      final payload = CreateStripePaymentRequest(
+        bookingId: bookingId,
+        currency: currency,
+        email: email,
+      );
+      final result = await _repository.createStripePayment(
+        payload: payload,
+        userId: _stripeUserId,
+      );
+      print("DEBUG createStripePayment result raw: ${result.raw}");
+      return result;
+    } catch (e) {
+      print("DEBUG createStripePayment ERROR: $e");
+      Get.snackbar("Error", "Failed to initiate Stripe payment");
+      return null;
+    } finally {
+      isCreatingStripePayment.value = false;
+    }
+  }
+
+  Future<ConfirmStripePaymentResponse?> confirmStripePayment(String paymentIntentId) async {
+    isConfirmingStripePayment.value = true;
+    try {
+      final payload = ConfirmStripePaymentRequest(paymentIntentId: paymentIntentId);
+      final result = await _repository.confirmStripePayment(
+        payload: payload,
+        userId: _stripeUserId,
+      );
+      print("DEBUG confirmStripePayment result raw: ${result.raw}");
+      return result;
+    } catch (e) {
+      print("DEBUG confirmStripePayment ERROR: $e");
+      Get.snackbar("Error", "Failed to confirm Stripe payment");
+      return null;
+    } finally {
+      isConfirmingStripePayment.value = false;
+    }
   }
 
   Future<List<PlaceSuggestion>> onPlaceSearchChange(String query) async {

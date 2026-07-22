@@ -57,6 +57,8 @@ import 'package:stayverz_flutter_app/features/messaging/bindings/messaging_bindi
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+
 
 // Global navigator key for showing bottom sheet before GetMaterialApp is ready
 final GlobalKey<NavigatorState> globalNavigatorKey =
@@ -64,6 +66,13 @@ final GlobalKey<NavigatorState> globalNavigatorKey =
 
 // Global instance of MainController for easy access
 late final MainController mainControl;
+
+// Add this constant somewhere accessible, e.g. core/constants/stripe_constants.dart
+class StripeConstants {
+  // ⚠️ TEST KEY — replace with production publishable key before release
+  static const String publishableKey =
+      'pk_test_51PcIrTRqCTTZXE10UId5L7MwYHny38YWvTEwaqAeSxFJQvQBVdr7FI1ZfzjDhXCgf0R3ZodNCfcdtIkao5JaW9E4001XNPWYnV';
+}
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -82,6 +91,19 @@ Future<void> main() async {
     HttpOverrides.global = MyHttpOverrides();
 
     await Firebase.initializeApp();
+    try {
+  Stripe.publishableKey = StripeConstants.publishableKey;
+  
+  // Add this line - very important for newer versions of flutter_stripe
+  Stripe.instance.applySettings(); // Remove await if it causes hanging
+  
+  print('✅ .');
+} catch (e, stack) {
+  print('❌ Stripe initialization failed: $e');
+  print(stack);
+  // Don't let Stripe failure kill the whole app
+}
+    
     await NotificationService().initFCM();
 
     await SystemChrome.setPreferredOrientations([

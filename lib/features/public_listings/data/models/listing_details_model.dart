@@ -443,7 +443,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
+      id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}') ?? 0,
       email: json['email'] ?? '',
       image: json['image'] ?? '',
       uType: json['u_type'] ?? '',
@@ -550,7 +550,7 @@ class Booking {
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
-      id: json['id'],
+      id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}') ?? 0,
       invoiceNo: json['invoice_no'] ?? '',
       reservationCode: json['reservation_code'] ?? '',
     );

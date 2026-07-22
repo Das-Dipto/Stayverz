@@ -7,6 +7,8 @@ import 'package:stayverz_flutter_app/components/your_reservations_component.dart
 import 'package:stayverz_flutter_app/controllers/profile_controller.dart';
 import 'package:stayverz_flutter_app/core/constants/app_colors.dart';
 import 'package:stayverz_flutter_app/features/reservation/controllers/reservation_controller.dart';
+import 'package:stayverz_flutter_app/features/runsys/models/runsys_status_model.dart';
+import 'package:stayverz_flutter_app/features/runsys/repositories/runsys_repository.dart';
 import 'package:stayverz_flutter_app/widgets/own_app_bar.dart';
 import '../../../components/your_assistance_component.dart';
 import '../../../generated/assets.dart';
@@ -14,6 +16,7 @@ import '../../../widgets/your_reservation_components_shimmer_loading.dart';
 import '../../assistance_service/presentation/views/create_assistance/create_assistance_service_screen.dart';
 import '../../listing/presentation/create_listing/create_listing_screen.dart';
 import 'view_all_reservations_screen.dart';
+import '../../../main.dart';
 
 class TodayScreen extends StatefulWidget {
   TodayScreen({super.key});
@@ -27,12 +30,107 @@ class _TodayScreenState extends State<TodayScreen> {
   final ProfileController profileController = Get.find<ProfileController>();
   bool _initialized = false;
 
+  RunsysStatusModel? _runsysStatus;
+  bool _runsysLoading = true;
+  bool _runsysConnecting = false;
+
   @override
   void initState() {
     super.initState();
     profileController.fetchProfile();
     // Reset dialog flag so popup shows on each screen visit
     controller.hasShownReviewDialog.value = false;
+    _fetchRunsysStatus();
+  }
+
+    Future<void> _fetchRunsysStatus() async {
+    final userId = mainControl.userId.value;
+    if (userId.isEmpty) {
+      if (mounted) setState(() => _runsysLoading = false);
+      return;
+    }
+    final status = await RunsysRepository().getIntegrationStatus(userId);
+    if (mounted) {
+      setState(() {
+        _runsysStatus = status;
+        _runsysLoading = false;
+      });
+    }
+  }
+
+  Future<void> _connectRunsys() async {
+    final profile = profileController.profile.value;
+    if (profile == null) return;
+
+    String? email = profile.email;
+    String? phone = profile.phoneNumber;
+    final companyName = (profile.fullName?.trim().isNotEmpty ?? false)
+        ? profile.fullName!.trim()
+        : '${profile.firstName} ${profile.lastName}'.trim();
+
+    if ((email == null || email.isEmpty) || (phone == null || phone.isEmpty)) {
+      final result = await _askMissingInfo(email: email, phone: phone);
+      if (result == null) return; // user cancelled
+      email = result['email'];
+      phone = result['phone'];
+    }
+
+    setState(() => _runsysConnecting = true);
+    final status = await RunsysRepository().createIntegrationBridge(
+      companyName: companyName,
+      email: email!,
+      phoneNumber: phone!,
+      userId: profile.id.toString(),
+    );
+    if (!mounted) return;
+    setState(() {
+      _runsysConnecting = false;
+      if (status != null) _runsysStatus = status;
+    });
+
+    Get.snackbar(
+      'Runsys',
+      status != null
+          ? (status.message.isNotEmpty ? status.message : 'Request submitted successfully')
+          : 'Failed to connect. Please try again.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: status != null ? Colors.green.shade600 : Colors.red.shade600,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(16),
+      borderRadius: 8,
+    );
+  }
+
+  Future<Map<String, String>?> _askMissingInfo({String? email, String? phone}) {
+    final emailController = TextEditingController(text: email ?? '');
+    final phoneController = TextEditingController(text: phone ?? '');
+    return showDialog<Map<String, String>>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Complete Your Info'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
+            const SizedBox(height: 12),
+            TextField(controller: phoneController, decoration: const InputDecoration(labelText: 'Phone Number')),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              if (emailController.text.trim().isEmpty || phoneController.text.trim().isEmpty) return;
+              Navigator.pop(ctx, {
+                'email': emailController.text.trim(),
+                'phone': phoneController.text.trim(),
+              });
+            },
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -78,6 +176,145 @@ class _TodayScreenState extends State<TodayScreen> {
       });
     }
   }
+
+ String _formatDate(String? iso) {
+    if (iso == null || iso.isEmpty) return '';
+    final dt = DateTime.tryParse(iso)?.toLocal();
+    if (dt == null) return '';
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+    final minute = dt.minute.toString().padLeft(2, '0');
+    return '${months[dt.month - 1]} ${dt.day}, ${dt.year} • ${hour}:$minute $ampm';
+  }
+
+  Widget _buildRunsysStatusCard() {
+    if (_runsysLoading || _runsysStatus == null) return const SizedBox.shrink();
+    final s = _runsysStatus!;
+
+    // Visual config per state
+    late Color bg, border, badgeBg, badgeText, iconColor;
+    late IconData icon;
+    late String badgeLabel, description;
+
+    if (s.isApproved) {
+      bg = Colors.green.shade50; border = Colors.green.shade200;
+      badgeBg = Colors.green.shade100; badgeText = Colors.green.shade700;
+      iconColor = Colors.green.shade600; icon = Icons.check_circle;
+      badgeLabel = 'Connected';
+      description = 'Your account is successfully connected to Runsys! You can now enjoy advanced property management features.';
+    } else if (s.isPending) {
+      bg = Colors.blue.shade50; border = Colors.blue.shade200;
+      badgeBg = Colors.blue.shade100; badgeText = Colors.blue.shade700;
+      iconColor = Colors.blue.shade600; icon = Icons.hourglass_top;
+      badgeLabel = 'Pending Approval';
+      description = 'Your request is awaiting admin approval. You\'ll be notified once it\'s approved.';
+    } else if (s.isRejected) {
+      bg = Colors.red.shade50; border = Colors.red.shade200;
+      badgeBg = Colors.red.shade100; badgeText = Colors.red.shade700;
+      iconColor = Colors.red.shade600; icon = Icons.cancel;
+      badgeLabel = 'Rejected';
+      description = (s.rejectionReason?.isNotEmpty ?? false)
+          ? 'Reason: ${s.rejectionReason}'
+          : 'Your request was rejected. You can submit a new request.';
+    } else {
+      bg = Colors.orange.shade50; border = Colors.orange.shade200;
+      badgeBg = Colors.orange.shade100; badgeText = Colors.orange.shade800;
+      iconColor = Colors.orange.shade700; icon = Icons.error_outline;
+      badgeLabel = 'Not Connected';
+      description = 'Connect your account to Runsys to unlock advanced property management features.';
+    }
+
+    final dateLabel = s.isApproved
+        ? _formatDate(s.approvedAt)
+        : s.isRejected
+            ? _formatDate(s.rejectedAt)
+            : _formatDate(s.requestedAt);
+    final dateCaption = s.isApproved
+        ? 'Approved'
+        : s.isRejected
+            ? 'Rejected'
+            : 'Requested';
+
+    final showButton = !s.isApproved && !s.isPending; // not-connected or rejected → allow (re)submit
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: ShapeDecoration(
+        color: bg,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(width: 1, color: border),
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+            child: Icon(icon, color: iconColor, size: 22),
+          ),
+          const Gap(12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Text('Runsys', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                    const Gap(8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(20)),
+                      child: Text(
+                        badgeLabel,
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: badgeText),
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(6),
+                Text(description, style: TextStyle(fontSize: 12, color: Colors.grey.shade700, height: 1.4)),
+                if (dateLabel.isNotEmpty) ...[
+                  const Gap(6),
+                  Text(
+                    '$dateCaption: $dateLabel',
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+                  ),
+                ],
+                if (showButton) ...[
+                  const Gap(10),
+                  SizedBox(
+                    height: 32,
+                    child: ElevatedButton(
+                      onPressed: _runsysConnecting ? null : _connectRunsys,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepOrange.shade700,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: _runsysConnecting
+                          ? const SizedBox(
+                              height: 14, width: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : Text(
+                              s.isRejected ? 'Resubmit Request' : 'Connect Now',
+                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                            ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -468,6 +705,7 @@ class _TodayScreenState extends State<TodayScreen> {
               ],
             ),
             const Gap(40),
+            _buildRunsysStatusCard(),
             const Text(
               'Your reservations',
               style: TextStyle(

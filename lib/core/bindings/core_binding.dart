@@ -14,6 +14,7 @@ import '../../features/reservation/bindings/reservation_binding.dart';
 import '../../features/messaging/data/services/websocket_service.dart' as ws;
 import '../../features/messaging/data/services/notification_service.dart';
 import '../../features/messaging/data/repositories/messaging_repository.dart';
+import '../../services/network/node_api_client.dart';
 
 class CoreBinding extends Bindings {
   @override
@@ -54,6 +55,14 @@ class CoreBinding extends Bindings {
     if (!Get.isRegistered<ApiClient>()) {
       Get.lazyPut<ApiClient>(
         () => ApiClient.create(), // Uses connectivity-aware API client
+        fenix: true,
+      );
+    }
+
+    // Initialize NodeApiClient for Stripe (node-api.stayverz.com)
+    if (!Get.isRegistered<NodeApiClient>()) {
+      Get.lazyPut<NodeApiClient>(
+        () => NodeApiClient(),
         fenix: true,
       );
     }

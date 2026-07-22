@@ -23,8 +23,13 @@ import '../models/post_assistance_payment_model.dart';
 import '../models/user_moel_cupon_list.dart';
 import '../models/post_booking_model.dart';
 
+import 'package:stayverz_flutter_app/services/network/node_api_client.dart';
+import '../../../listing/models/stripe/exchange_rates_model.dart';
+import '../../../listing/models/stripe/stripe_payment_models.dart';
+
 class BookingRepositoryImpl implements BookingRepositoryInterface {
   final ApiClient _apiClient = Get.find<ApiClient>();
+  final NodeApiClient _nodeApiClient = Get.find<NodeApiClient>();
 
   @override
   Future<Either<String, BookingListResponse>> getUserBookings({
@@ -728,6 +733,64 @@ Future<Either<Failure, BookingResponse>> getHostInstantBookings({
       rethrow;
     }
   }
+
+  @override
+  Future<ExchangeRatesResponseModel> getStripeExchangeRates({
+    required String bookingId,
+    required String userId,
+  }) async {
+    try {
+      final response = await _nodeApiClient.get(
+        'stripe/exchange-rates/$bookingId',
+        userId: userId,
+      );
+      print("Exchange rates response: ${response.data}");
+      return ExchangeRatesResponseModel.fromJson(response.data);
+    } catch (e) {
+      print("Failed to Exchange rates: $e");
+      rethrow;
+    }
+  }
+
+  @override
+  Future<CreateStripePaymentResponse> createStripePayment({
+    required CreateStripePaymentRequest payload,
+    required String userId,
+  }) async {
+    try {
+      final response = await _nodeApiClient.post(
+        'stripe/create-payment',
+        data: payload.toJson(),
+        userId: userId,
+      );
+      print("Create stripe payment response: ${response.data}");
+      return CreateStripePaymentResponse.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ConfirmStripePaymentResponse> confirmStripePayment({
+    required ConfirmStripePaymentRequest payload,
+    required String userId,
+  }) async {
+    try {
+      final response = await _nodeApiClient.post(
+        'stripe/confirm-payment',
+        data: payload.toJson(),
+        userId: userId,
+      );
+      print("Confirm stripe payment response: ${response.data}");
+      return ConfirmStripePaymentResponse.fromJson(response.data);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  
+
+
 }
 
 // Hello I am Tamim

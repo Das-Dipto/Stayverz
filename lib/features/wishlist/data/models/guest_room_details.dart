@@ -338,7 +338,7 @@ class Booking {
 
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
-      id: json['id'],
+      id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}') ?? 0,
       invoiceNo: json['invoice_no'],
       reservationCode: json['reservation_code'],
     );

@@ -11,10 +11,15 @@ import 'package:stayverz_flutter_app/core/constants/app_routes.dart';
 import 'package:stayverz_flutter_app/features/auth/models/user_model.dart';
 import 'package:stayverz_flutter_app/main.dart';
 import 'package:stayverz_flutter_app/services/cache/cache_manager.dart';
+import '../../runsys/repositories/runsys_repository.dart';
+import '../../profile/models/profile_model.dart';
+
+
 
 import '../../../services/notification_service.dart';
 import '../../../views/home_root/host_bottom_navigation_bar_view.dart';
 import '../models/get_referral_code_response.dart';
+
 
 /// AuthController handles authentication logic using MVVM + GetX architecture.
 /// It manages login state, error handling, and navigation based on user type.
@@ -220,6 +225,7 @@ class AuthController extends GetxController {
           // 6. Navigate based on user type
           if (profile.uType == 'host') {
             Get.offAll(HostBottomNavigationBarView());
+            _checkRunsysIntegration(profile);
           } else {
             onLogin();
             Get.offAllNamed(AppRoute.guest);
@@ -663,6 +669,58 @@ class AuthController extends GetxController {
       // Send token to your backend API
       await sendFcmTokenToServer(fcmToken);
     }
+  }
+
+   void _checkRunsysIntegration(ProfileModel profile) {
+    if ((profile.uType ?? '').toLowerCase() != 'host') return;
+
+    Future(() async {
+      try {
+        final repository = RunsysRepository();
+        final result = await repository.getIntegrationStatus(profile.id.toString());
+
+        // print("This is result for snackbar- ${result}");
+
+        if (result != null && result.isApproved) {
+          Get.snackbar(
+            'Runsys Integration',
+            'Your account is integrated with Runsys',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.shade600,
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 8,
+            duration: const Duration(seconds: 4),
+          );
+        } else if(result != null && result.isPending){
+          Get.snackbar(
+            'Runsys Integration',
+            'Your request is awaiting for admin approval',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.blue.shade600,
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 8,
+            duration: const Duration(seconds: 4),
+          );
+        }
+         else {
+          Get.snackbar(
+            'Runsys Integration',
+            "Your account isn't linked to Runsys yet. Please complete the integration from the Menu to continue",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.orange.shade700,
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 8,
+            duration: const Duration(seconds: 5),
+          );
+        }
+      } catch (e) {
+        dev.log('❌ [AuthController] Runsys integration check failed: $e');
+        // Silent fail — don't disrupt the user's post-login experience
+      }
+    });
   }
 }
 

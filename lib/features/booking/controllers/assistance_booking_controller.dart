@@ -9,6 +9,13 @@ import '../data/models/cupon_model.dart';
 import '../data/models/post_assistance_payment_model.dart';
 import '../domain/repositories/booking_repository_interface.dart';
 
+import 'package:stayverz_flutter_app/features/listing/models/stripe/exchange_rates_model.dart';
+
+import '../../listing/models/stripe/exchange_rates_model.dart';
+import '../../listing/models/stripe/stripe_payment_models.dart';
+import '../../../controllers/main_controller.dart';
+
+
 class AssistanceBookingController extends GetxController {
   final _errorDisplay = Get.find<ErrorDisplayManager>();
 
@@ -26,6 +33,12 @@ class AssistanceBookingController extends GetxController {
   int? extraGuestCount, nightCount;
   String? location;
   String? phoneNumber;
+
+  final Rx<ExchangeRatesResponseModel?> exchangeRates = Rx<ExchangeRatesResponseModel?>(null);
+  final RxBool isLoadingExchangeRates = false.obs;
+  final RxString selectedStripeCurrency = 'USD'.obs;
+  final RxBool isCreatingStripePayment = false.obs;
+  final RxBool isConfirmingStripePayment = false.obs;
 
   final BookingRepositoryInterface _repository;
 
@@ -101,6 +114,72 @@ class AssistanceBookingController extends GetxController {
   Future<PostAssistancePaymentData?> createPayment(Map<String, dynamic> bookingCode) async {
     final result = await _repository.postPayment(bookingCode);
     return result?.data;
+  }
+
+  String get _stripeUserId => Get.find<MainController>().userId.value;
+
+  Future<ExchangeRatesResponseModel?> fetchStripeExchangeRates(String bookingId) async {
+    isLoadingExchangeRates.value = true;
+    try {
+      final result = await _repository.getStripeExchangeRates(
+        bookingId: bookingId,
+        userId: _stripeUserId,
+      );
+      exchangeRates.value = result;
+      return result;
+    } catch (e) {
+      print("DEBUG fetchStripeExchangeRates ERROR: $e");
+      Get.snackbar("Error", "Failed to load exchange rates");
+      return null;
+    } finally {
+      isLoadingExchangeRates.value = false;
+    }
+  }
+
+  Future<CreateStripePaymentResponse?> createStripePayment({
+    required String bookingId,
+    required String currency,
+    String email = '',
+  }) async {
+    isCreatingStripePayment.value = true;
+    try {
+      final payload = CreateStripePaymentRequest(
+        bookingId: bookingId,
+        currency: currency,
+        email: email,
+      );
+      final result = await _repository.createStripePayment(
+        payload: payload,
+        userId: _stripeUserId,
+      );
+      print("DEBUG createStripePayment result raw: ${result.raw}");
+      return result;
+    } catch (e) {
+      print("DEBUG createStripePayment ERROR: $e");
+      Get.snackbar("Error", "Failed to initiate Stripe payment");
+      return null;
+    } finally {
+      isCreatingStripePayment.value = false;
+    }
+  }
+
+  Future<ConfirmStripePaymentResponse?> confirmStripePayment(String paymentIntentId) async {
+    isConfirmingStripePayment.value = true;
+    try {
+      final payload = ConfirmStripePaymentRequest(paymentIntentId: paymentIntentId);
+      final result = await _repository.confirmStripePayment(
+        payload: payload,
+        userId: _stripeUserId,
+      );
+      print("DEBUG confirmStripePayment result raw: ${result.raw}");
+      return result;
+    } catch (e) {
+      print("DEBUG confirmStripePayment ERROR: $e");
+      Get.snackbar("Error", "Failed to confirm Stripe payment");
+      return null;
+    } finally {
+      isConfirmingStripePayment.value = false;
+    }
   }
 
 }

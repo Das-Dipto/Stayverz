@@ -18,6 +18,9 @@ import '../../data/models/cupon_model.dart';
 import '../../data/models/post_assistance_payment_model.dart';
 import '../../data/models/user_moel_cupon_list.dart';
 
+import '../../../listing/models/stripe/exchange_rates_model.dart';
+import '../../../listing/models/stripe/stripe_payment_models.dart';
+
 abstract class BookingRepositoryInterface {
   Future<Either<String, BookingListResponse>> getUserBookings({
     int page,
@@ -105,6 +108,21 @@ abstract class BookingRepositoryInterface {
   Future<Either<Failure, void>> declineBookingAssistance({
     required String bookingId,
     required String reason,
+  });
+
+  Future<ExchangeRatesResponseModel> getStripeExchangeRates({
+    required String bookingId,
+    required String userId,
+  });
+
+  Future<CreateStripePaymentResponse> createStripePayment({
+    required CreateStripePaymentRequest payload,
+    required String userId,
+  });
+
+  Future<ConfirmStripePaymentResponse> confirmStripePayment({
+    required ConfirmStripePaymentRequest payload,
+    required String userId,
   });
 
   Future<AssistanceBookingModel?> postBooking(Map<String, dynamic> bookingData);

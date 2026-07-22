@@ -11,6 +11,10 @@ import '../../../features/listing/controllers/listing_controller.dart';
 import '../../../features/listing/models/booking_post_model.dart';
 import '../../../widgets/own_app_bar.dart';
 
+import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
+import 'package:stayverz_flutter_app/features/listing/models/stripe/exchange_rates_model.dart';
+import 'package:stayverz_flutter_app/controllers/profile_controller.dart';
+
 class PaymentScreen extends GetView<ListingController> {
   final dynamic data;
   final double price;
@@ -40,6 +44,288 @@ class PaymentScreen extends GetView<ListingController> {
     return DateFormat("hh:mm a").format(now); // e.g. "08:30 PM"
   }
   final RxBool isSubmitting = false.obs;
+
+
+  Future<void> _showPaymentMethodPopup(BuildContext context, String bookingCode, String bookingId) async {
+    await showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Pay with', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                Gap(16),
+                ListTile(
+                  title: Text('SSL Commerz'),
+                  subtitle: Text('Local Payment (BDT)'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _payWithSSL(bookingCode);
+                  },
+                ),
+                Divider(),
+                ListTile(
+                  title: Text('Stripe'),
+                  subtitle: Text('International Cards (USD, GBP, EUR, CAD, AUD)'),
+                  onTap: () async {
+                    Navigator.pop(ctx);
+                    await _showCurrencyPicker(context, bookingId, bookingCode);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _payWithSSL(String bookingCode) async {
+    final paymentData = await controller.createPayment(bookingCode);
+    if (paymentData != null) {
+      final resultWebView = await Get.to(() => PaymentWebViewScreen(
+        url: paymentData.paymentGatewayUrl,
+        booKiD: bookingCode,
+      ));
+
+      if (resultWebView == "success") {
+        Get.snackbar("Payment", "Payment successful ✅");
+      } else if (resultWebView == "fail") {
+        Get.snackbar("Payment", "Payment failed ❌");
+      } else if (resultWebView == "cancel") {
+        Get.snackbar("Payment", "Payment cancelled ⚠️");
+      }
+    } else {
+      Get.find<ErrorDisplayManager>().showError("Payment failed");
+    }
+  }
+
+Future<String?> _resolveEmail(BuildContext context) async {
+    final profileEmail = Get.find<ProfileController>().profile.value?.email;
+    if (profileEmail != null && profileEmail.isNotEmpty) return profileEmail;
+
+    final emailCtrl = TextEditingController();
+    return await showDialog<String?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) => AlertDialog(
+        title: Text('Enter your email'),
+        content: TextField(
+          controller: emailCtrl,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(hintText: 'you@example.com'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(null),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final val = emailCtrl.text.trim();
+              if (val.isEmpty || !val.contains('@')) {
+                Get.snackbar('Invalid', 'Please enter a valid email');
+                return;
+              }
+              Navigator.of(dialogCtx).pop(val);
+            },
+            child: Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+  Future<void> _showCurrencyPicker(BuildContext context, String bookingId, String bookingCode) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+  try{
+    final rates = await controller.fetchStripeExchangeRates(bookingId);
+    Navigator.of(context, rootNavigator: true).pop(); // close loader
+
+    if (rates?.data == null) {
+      Get.snackbar("Error", "Could not load currency rates");
+      return;
+    }
+
+    final currencies = rates!.data!.stripeSupportedCurrencies;
+
+await showModalBottomSheet(
+  context: context,
+  isScrollControlled: true,
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+  ),
+  builder: (ctx) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: SizedBox(
+          height: MediaQuery.of(ctx).size.height * 0.6,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Select Currency',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Gap(16),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: currencies.length,
+                  itemBuilder: (_, index) {
+                    final code = currencies[index];
+                    final info = rates.data!.currencies[code]!;
+
+                    return ListTile(
+                      title: Text(code),
+                      subtitle: Text(info.display),
+                      onTap: () async {
+                        Navigator.pop(ctx);
+                        final email = await _resolveEmail(context);
+                        if (email == null) return; // user cancelled
+                        _payWithStripe(context, bookingId, code, email);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  },
+);
+  }
+  catch(e){
+    Navigator.of(context, rootNavigator: true).pop();
+      Get.snackbar("Error", "Something went wrong: $e");
+  }
+  }
+
+  Future<void> _payWithStripe(BuildContext context ,String bookingId, String currency, String email) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+    final result = await controller.createStripePayment(
+      bookingId: bookingId,
+      currency: currency,
+      email: email,
+    );
+    Navigator.of(context, rootNavigator: true).pop(); // close loader
+    if (result == null) {
+      Get.snackbar("Error", "Failed to start Stripe payment");
+      return;
+    }
+
+    // Debug: print full raw response so we can see actual shape
+    print("STRIPE CREATE-PAYMENT RAW: ${result.raw}");
+
+     if (result.success == false) {
+      Get.snackbar(
+        "Payment Unavailable",
+        result.message ?? "This amount cannot be processed via Stripe.",
+        duration: Duration(seconds: 4),
+      );
+      return;
+    }
+
+    if (result.clientSecret != null) {
+      // Native PaymentSheet flow
+      try {
+        if (result.stripePublicKey != null) {
+          stripe.Stripe.publishableKey = result.stripePublicKey!;
+          await stripe.Stripe.instance.applySettings();
+        }
+        
+
+        await stripe.Stripe.instance.initPaymentSheet(
+          paymentSheetParameters: stripe.SetupPaymentSheetParameters(
+            paymentIntentClientSecret: result.clientSecret!,
+            merchantDisplayName: 'Stayverz',
+            billingDetailsCollectionConfiguration:
+                const stripe.BillingDetailsCollectionConfiguration(
+              address: stripe.AddressCollectionMode.never,
+            ),
+          ),
+        );
+        await stripe.Stripe.instance.presentPaymentSheet();
+
+       if (result.paymentIntentId != null) {
+          final confirm = await controller.confirmStripePayment(result.paymentIntentId!);
+          print("STRIPE CONFIRM RAW: ${confirm?.raw}");
+        }
+
+       await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.check_circle, color: Colors.green, size: 60),
+                Gap(16),
+                Text('Payment Successful!', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                Gap(8),
+                Text(
+                  'Your payment is completed. Kindly check your email for confirmation.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+              ],
+            ),
+            actions: [
+              Center(
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context), // closes just the dialog
+                  child: Text('OK'),
+                ),
+              ),
+            ],
+          ),
+        );
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context); // safely go back to previous screen (booking form)
+        }
+      } catch (e) {
+        print("STRIPE PAYMENT SHEET ERROR: $e");
+        if (Navigator.of(context, rootNavigator: true).canPop()) {
+          Navigator.of(context, rootNavigator: true).pop(); // close loader if open
+        }
+        Get.snackbar("Payment", "Payment failed or cancelled ❌");
+      }
+    } 
+    
+    
+    
+    else if (result.checkoutUrl != null) {
+      // Hosted checkout flow — reuse WebView
+      final resultWebView = await Get.to(() => PaymentWebViewScreen(
+        url: result.checkoutUrl!,
+        booKiD: bookingId,
+      ));
+      print("STRIPE WEBVIEW RESULT: $resultWebView");
+    } else {
+      Get.snackbar("Error", "Unrecognized Stripe response — check console");
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -452,31 +738,38 @@ class PaymentScreen extends GetView<ListingController> {
                   final result = await controller.createBooking(booking);
 
                   if(data.instantBookingAllowed==true){
+                    // if (result != null) {
+                    //   final bookingCode = result.invoiceNo ?? '';
+                    //   final paymentData = await controller.createPayment(bookingCode);
+                    //   if (paymentData != null) {
+                    //     // 🔹 Navigate to WebView and wait for result
+                    //     final resultWebView = await Get.to(() => PaymentWebViewScreen(
+                    //       url: paymentData.paymentGatewayUrl,
+                    //       booKiD: bookingCode,
+                    //     ));
+
+                    //     if (resultWebView == "success") {
+                    //       // Optional: verify payment with backend using bookingCode
+                    //       Get.snackbar("Payment", "Payment successful ✅");
+                    //       // Example: navigate to booking success screen
+                    //       // Get.offAll(() => BookingSuccessScreen(bookingCode: bookingCode));
+                    //     } else if (resultWebView == "fail") {
+                    //       Get.snackbar("Payment", "Payment failed ❌");
+                    //     } else if (resultWebView == "cancel") {
+                    //       Get.snackbar("Payment", "Payment cancelled ⚠️");
+                    //     }
+                    //   } else {
+                    //     Get.find<ErrorDisplayManager>().showError("Payment failed");
+                    //   }
+
+                    // }
                     if (result != null) {
                       final bookingCode = result.invoiceNo ?? '';
-                      final paymentData = await controller.createPayment(bookingCode);
-                      if (paymentData != null) {
-                        // 🔹 Navigate to WebView and wait for result
-                        final resultWebView = await Get.to(() => PaymentWebViewScreen(
-                          url: paymentData.paymentGatewayUrl,
-                          booKiD: bookingCode,
-                        ));
-
-                        if (resultWebView == "success") {
-                          // Optional: verify payment with backend using bookingCode
-                          Get.snackbar("Payment", "Payment successful ✅");
-                          // Example: navigate to booking success screen
-                          // Get.offAll(() => BookingSuccessScreen(bookingCode: bookingCode));
-                        } else if (resultWebView == "fail") {
-                          Get.snackbar("Payment", "Payment failed ❌");
-                        } else if (resultWebView == "cancel") {
-                          Get.snackbar("Payment", "Payment cancelled ⚠️");
-                        }
-                      } else {
-                        Get.find<ErrorDisplayManager>().showError("Payment failed");
-                      }
-
-                    } else {
+                      final bookingId = '${result.id ?? ''}'; // adjust field name if different
+                      await _showPaymentMethodPopup(context, bookingCode, bookingId);
+                    }
+                    
+                     else {
                       Get.find<ErrorDisplayManager>().showError("Booking failed");
                     }
                   } else{
