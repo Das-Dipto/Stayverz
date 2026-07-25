@@ -12,6 +12,9 @@ import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
 import '../../data/models/search_view_modle.dart';
 import '../controllers/public_listings_controller.dart';
 
+import '../controllers/all_filters_controller.dart';
+import '../../presentation/views/all_filters_dialog.dart';
+
 class NewSearchViewScreen extends GetView<PublicListingsController> {
   const NewSearchViewScreen({super.key});
 
@@ -57,6 +60,11 @@ class NewSearchViewScreen extends GetView<PublicListingsController> {
       // );
 
       final SectionModel? location = searchData['location'];
+
+      final AllFiltersController filtersController =
+    Get.isRegistered<AllFiltersController>()
+        ? Get.find<AllFiltersController>()
+        : Get.put(AllFiltersController());
 
         controller.fetchUpdatedListings(
           latitude: location?.lat ?? (lat != 0.0 ? lat : null),
@@ -157,331 +165,394 @@ class NewSearchViewScreen extends GetView<PublicListingsController> {
           ),
         ),
       ),
-
-      body: Obx(() {
-        if (controller.isLoadingListings.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.hasErrorListings.value) {
-          return Center(
-            child: Text(controller.errorMessageListings.value),
-          );
-        }
-
-        if (controller.newListings.isEmpty) {
-          return const Center(child: Text('No results found',style: TextStyle(color: Colors.black,fontSize: 16 ),));
-        }
-
-        return NotificationListener<ScrollNotification>(
-          onNotification: (scrollInfo) {
-            if (scrollInfo.metrics.pixels ==
-                scrollInfo.metrics.maxScrollExtent) {
-              controller.fetchUpdatedListings(loadMore: true);
-            }
-            return false;
-          },
-          child: ListView.separated(
-             padding: const EdgeInsets.symmetric(horizontal: 10),
-            separatorBuilder: (context, index) => const Gap(14),
-            itemCount: controller.newListings.length,
-            itemBuilder: (context, index) {
-              final item = controller.newListings[index];
-              final currentImageIndex = 0.obs;
-
-              final screenWidth = MediaQuery.of(context).size.width;
-              final cardWidth = screenWidth - 32;
-              const imageHeight = 324.88;
-
-              return GestureDetector(
-                onTap: () {
-                  Get.to(
-                    PublicListingDetailsView(),
-                    arguments: {'id': item.uniqueId},
+body: Column(
+        children: [
+          // ── ALL FILTERS BUTTON ROW ──────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: InkWell(
+                onTap: () async {
+                  final result = await Get.bottomSheet(
+                    const AllFiltersDialog(),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
                   );
+                  if (result != null) {
+                    // TODO: merge `result` (filter params) into fetchUpdatedListings
+                    // once the API contract is confirmed.
+                    controller.fetchUpdatedListings(
+                      latitude: (searchData['location'] as SectionModel?)?.lat ??
+                          (lat != 0.0 ? lat : null),
+                      longitude: (searchData['location'] as SectionModel?)?.long ??
+                          (long != 0.0 ? long : null),
+                      radius: 6,
+                      guests: totalGuests > 0 ? totalGuests : null,
+                      checkIn: startDate.isNotEmpty ? startDate : null,
+                      checkOut: endDate.isNotEmpty ? endDate : null,
+                    );
+                  }
                 },
                 child: Container(
-                  width: cardWidth,
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: ShapeDecoration(
                     color: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.58),
+                      side: const BorderSide(width: 1, color: Color(0xFFD8DCE0)),
+                      borderRadius: BorderRadius.circular(24),
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // ── IMAGE SECTION ──────────────────────────────────────────
-                      ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(13),
-                          bottom: Radius.circular(13),
-                        ),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: imageHeight,
-                          child: Stack(
-                            children: [
-                              // PAGE VIEW
-                              PageView.builder(
-                                // Use default image if images list is null or empty
-                                itemCount: (item.images != null && item.images.isNotEmpty)
-                                    ? (item.images.length > 10 ? 10 : item.images.length)
-                                    : 1, // show only 1 default image
-                                onPageChanged: (pageIndex) {
-                                  currentImageIndex.value = pageIndex;
-                                },
-                                itemBuilder: (context, imageIndex) {
-                                  // Decide which image to show
-                                  final imageUrl = (item.images != null && item.images.isNotEmpty)
-                                      ? item.images[imageIndex]
-                                      : Assets.assetsDefaultImage; // your default image asset
-
-                                  // Show network image if available, else default asset
-                                  if (item.images != null && item.images.isNotEmpty) {
-                                    return Image.network(
-                                      imageUrl,
-                                      width: double.infinity,
-                                      height: imageHeight,
-                                      fit: BoxFit.fill,
-                                      loadingBuilder: (context, child, loadingProgress) {
-                                        if (loadingProgress == null) return child;
-                                        return Shimmer.fromColors(
-                                          baseColor: Colors.grey.shade300,
-                                          highlightColor: Colors.grey.shade100,
-                                          child: Container(color: Colors.white),
-                                        );
-                                      },
-                                      errorBuilder: (_, __, ___) {
-                                        return Image.asset(
-                                          Assets.assetsDefaultImage,
-                                          fit: BoxFit.fill,
-                                          width: double.infinity,
-                                          height: imageHeight,
-                                        );
-                                      },
-                                    );
-                                  } else {
-                                    // Show default image if list is empty
-                                    return Image.asset(
-                                      Assets.assetsDefaultImage,
-                                      fit: BoxFit.fill,
-                                      width: double.infinity,
-                                      height: imageHeight,
-                                    );
-                                  }
-                                },
-                              ),
-
-                              // ❤️ WISHLIST BUTTON (top-right)
-                              Positioned(
-                                top: 12,
-                                right: 12,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    final id = item.id;
-                                    if (id != null) {
-                                      Get.find<WishlistController>().toggleWishlist(id);
-                                    }
-                                  },
-                                  child: Obx(() {
-                                    final id = item.id;
-                                    final wishlistController = Get.find<WishlistController>();
-                                    final isFav = id != null && (wishlistController.inWishlistMap[id] ?? false);
-                                    return Icon(
-                                      isFav ? Icons.favorite : Icons.favorite_border,
-                                      color: isFav ? const Color(0xFFF15925) : Colors.white,
-                                      size: 25,
-                                    );
-                                  }),
-                                ),
-                              ),
-
-                              // SHARE BUTTON
-                              Positioned(
-                                top: 12,
-                                right: 55,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    _share(context, 'https://stayverz.com/rooms/${item.uniqueId}');
-                                  },
-                                  child: const Icon(
-                                    Icons.share,
-                                    size: 25,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-
-                              // ●●● DOT INDICATOR
-                              Positioned(
-                                bottom: 12,
-                                left: 0,
-                                right: 0,
-                                child: Obx(() {
-                                  final images = (item.images != null && item.images.isNotEmpty)
-                                      ? item.images
-                                      : [Assets.assetsDefaultImage]; // default image
-                                  final imageCount = images.length > 10 ? 10 : images.length;
-
-                                  // Reset currentImageIndex if out of range
-                                  if (currentImageIndex.value >= imageCount) {
-                                    currentImageIndex.value = 0;
-                                  }
-
-                                  return Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: List.generate(
-                                      imageCount,
-                                          (dotIndex) => AnimatedContainer(
-                                        duration: const Duration(milliseconds: 300),
-                                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                                        width: 10,
-                                        height: 6,
-                                        decoration: BoxDecoration(
-                                          color: currentImageIndex.value == dotIndex
-                                              ? Colors.white
-                                              : Colors.white54,
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }),
-                              ),
-                            ],
-                          )
-                        ),
-                      ),
-
-                      // ── DETAILS SECTION ────────────────────────────────────────
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // TITLE + RATING ROW
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    '${item.title}',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Color(0xFF090909),
-                                      fontSize: 12.58,
-                                      fontFamily: 'Inter',
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.44,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.star, color: Colors.amber, size: 16),
-                                    const SizedBox(width: 3),
-                                    Text(
-                                      "${item.avgRating} (${item.totalRatingCount ?? 0})",
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF1D2939),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-
-                            // AREA / SUBTITLE
-                            SizedBox(
-                              width: 253.62,
-                              child: Text(
-                                '${item.area}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Color(0xFF989B9D),
-                                  fontSize: 14.67,
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.29,
-                                ),
-                              ),
-                            ),
-
-                            // PRICE + LOCATION BADGE ROW
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: '${item.price}/- ',
-                                        style: const TextStyle(
-                                          color: Color(0xFF090909),
-                                          fontSize: 14.67,
-                                          fontFamily: 'Inter',
-                                          fontWeight: FontWeight.w500,
-                                          height: 1.29,
-                                        ),
-                                      ),
-                                      const TextSpan(
-                                        text: 'night',
-                                        style: TextStyle(
-                                          color: Color(0xFF090909),
-                                          fontSize: 14.67,
-                                          fontFamily: 'Inter',
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.29,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const Spacer(),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12.58, vertical: 6.29),
-                                  decoration: ShapeDecoration(
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                        width: 1.05,
-                                        color: Color(0xFF3D3F40),
-                                      ),
-                                      borderRadius: BorderRadius.circular(5.24),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    '${item.thana}',
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Color(0xFF3D3F40),
-                                      fontSize: 12.58,
-                                      fontFamily: 'Inter',
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.44,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                      Icon(Icons.tune, size: 16, color: Color(0xFF090909)),
+                      SizedBox(width: 6),
+                      Text(
+                        'All Filters',
+                        style: TextStyle(
+                          color: Color(0xFF090909),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                 ),
-              );
-            },
+              ),
+            ),
           ),
-        );
-      }),
+
+          // ── RESULTS LIST (UNCHANGED LOGIC, JUST WRAPPED) ────────
+          Expanded(
+            child: Obx(() {
+              if (controller.isLoadingListings.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (controller.hasErrorListings.value) {
+                return Center(
+                  child: Text(controller.errorMessageListings.value),
+                );
+              }
+
+              if (controller.newListings.isEmpty) {
+                return const Center(child: Text('No results found',style: TextStyle(color: Colors.black,fontSize: 16 ),));
+              }
+
+              return NotificationListener<ScrollNotification>(
+                onNotification: (scrollInfo) {
+                  if (scrollInfo.metrics.pixels ==
+                      scrollInfo.metrics.maxScrollExtent) {
+                    controller.fetchUpdatedListings(loadMore: true);
+                  }
+                  return false;
+                },
+                child: ListView.separated(
+                   padding: const EdgeInsets.symmetric(horizontal: 10),
+                  separatorBuilder: (context, index) => const Gap(14),
+                  itemCount: controller.newListings.length,
+                  itemBuilder: (context, index) {
+                    final item = controller.newListings[index];
+                    final currentImageIndex = 0.obs;
+
+                    final screenWidth = MediaQuery.of(context).size.width;
+                    final cardWidth = screenWidth - 32;
+                    const imageHeight = 324.88;
+
+                    return GestureDetector(
+                      onTap: () {
+                        Get.to(
+                          PublicListingDetailsView(),
+                          arguments: {'id': item.uniqueId},
+                        );
+                      },
+                      child: Container(
+                        width: cardWidth,
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: ShapeDecoration(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.58),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // ── IMAGE SECTION ──────────────────────────────────────────
+                            ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(13),
+                                bottom: Radius.circular(13),
+                              ),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: imageHeight,
+                                child: Stack(
+                                  children: [
+                                    // PAGE VIEW
+                                    PageView.builder(
+                                      // Use default image if images list is null or empty
+                                      itemCount: (item.images != null && item.images.isNotEmpty)
+                                          ? (item.images.length > 10 ? 10 : item.images.length)
+                                          : 1, // show only 1 default image
+                                      onPageChanged: (pageIndex) {
+                                        currentImageIndex.value = pageIndex;
+                                      },
+                                      itemBuilder: (context, imageIndex) {
+                                        // Decide which image to show
+                                        final imageUrl = (item.images != null && item.images.isNotEmpty)
+                                            ? item.images[imageIndex]
+                                            : Assets.assetsDefaultImage; // your default image asset
+
+                                        // Show network image if available, else default asset
+                                        if (item.images != null && item.images.isNotEmpty) {
+                                          return Image.network(
+                                            imageUrl,
+                                            width: double.infinity,
+                                            height: imageHeight,
+                                            fit: BoxFit.fill,
+                                            loadingBuilder: (context, child, loadingProgress) {
+                                              if (loadingProgress == null) return child;
+                                              return Shimmer.fromColors(
+                                                baseColor: Colors.grey.shade300,
+                                                highlightColor: Colors.grey.shade100,
+                                                child: Container(color: Colors.white),
+                                              );
+                                            },
+                                            errorBuilder: (_, __, ___) {
+                                              return Image.asset(
+                                                Assets.assetsDefaultImage,
+                                                fit: BoxFit.fill,
+                                                width: double.infinity,
+                                                height: imageHeight,
+                                              );
+                                            },
+                                          );
+                                        } else {
+                                          // Show default image if list is empty
+                                          return Image.asset(
+                                            Assets.assetsDefaultImage,
+                                            fit: BoxFit.fill,
+                                            width: double.infinity,
+                                            height: imageHeight,
+                                          );
+                                        }
+                                      },
+                                    ),
+
+                                    // ❤️ WISHLIST BUTTON (top-right)
+                                    Positioned(
+                                      top: 12,
+                                      right: 12,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          final id = item.id;
+                                          if (id != null) {
+                                            Get.find<WishlistController>().toggleWishlist(id);
+                                          }
+                                        },
+                                        child: Obx(() {
+                                          final id = item.id;
+                                          final wishlistController = Get.find<WishlistController>();
+                                          final isFav = id != null && (wishlistController.inWishlistMap[id] ?? false);
+                                          return Icon(
+                                            isFav ? Icons.favorite : Icons.favorite_border,
+                                            color: isFav ? const Color(0xFFF15925) : Colors.white,
+                                            size: 25,
+                                          );
+                                        }),
+                                      ),
+                                    ),
+
+                                    // SHARE BUTTON
+                                    Positioned(
+                                      top: 12,
+                                      right: 55,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          _share(context, 'https://stayverz.com/rooms/${item.uniqueId}');
+                                        },
+                                        child: const Icon(
+                                          Icons.share,
+                                          size: 25,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+
+                                    // ●●● DOT INDICATOR
+                                    Positioned(
+                                      bottom: 12,
+                                      left: 0,
+                                      right: 0,
+                                      child: Obx(() {
+                                        final images = (item.images != null && item.images.isNotEmpty)
+                                            ? item.images
+                                            : [Assets.assetsDefaultImage]; // default image
+                                        final imageCount = images.length > 10 ? 10 : images.length;
+
+                                        // Reset currentImageIndex if out of range
+                                        if (currentImageIndex.value >= imageCount) {
+                                          currentImageIndex.value = 0;
+                                        }
+
+                                        return Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: List.generate(
+                                            imageCount,
+                                                (dotIndex) => AnimatedContainer(
+                                              duration: const Duration(milliseconds: 300),
+                                              margin: const EdgeInsets.symmetric(horizontal: 3),
+                                              width: 10,
+                                              height: 6,
+                                              decoration: BoxDecoration(
+                                                color: currentImageIndex.value == dotIndex
+                                                    ? Colors.white
+                                                    : Colors.white54,
+                                                borderRadius: BorderRadius.circular(6),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ),
+                                  ],
+                                )
+                              ),
+                            ),
+
+                            // ── DETAILS SECTION ────────────────────────────────────────
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // TITLE + RATING ROW
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          '${item.title}',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Color(0xFF090909),
+                                            fontSize: 12.58,
+                                            fontFamily: 'Inter',
+                                            fontWeight: FontWeight.w500,
+                                            height: 1.44,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.star, color: Colors.amber, size: 16),
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            "${item.avgRating} (${item.totalRatingCount ?? 0})",
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF1D2939),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+
+                                  // AREA / SUBTITLE
+                                  SizedBox(
+                                    width: 253.62,
+                                    child: Text(
+                                      '${item.area}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Color(0xFF989B9D),
+                                        fontSize: 14.67,
+                                        fontFamily: 'Inter',
+                                        fontWeight: FontWeight.w400,
+                                        height: 1.29,
+                                      ),
+                                    ),
+                                  ),
+
+                                  // PRICE + LOCATION BADGE ROW
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text.rich(
+                                        TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: '${item.price}/- ',
+                                              style: const TextStyle(
+                                                color: Color(0xFF090909),
+                                                fontSize: 14.67,
+                                                fontFamily: 'Inter',
+                                                fontWeight: FontWeight.w500,
+                                                height: 1.29,
+                                              ),
+                                            ),
+                                            const TextSpan(
+                                              text: 'night',
+                                              style: TextStyle(
+                                                color: Color(0xFF090909),
+                                                fontSize: 14.67,
+                                                fontFamily: 'Inter',
+                                                fontWeight: FontWeight.w400,
+                                                height: 1.29,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12.58, vertical: 6.29),
+                                        decoration: ShapeDecoration(
+                                          shape: RoundedRectangleBorder(
+                                            side: const BorderSide(
+                                              width: 1.05,
+                                              color: Color(0xFF3D3F40),
+                                            ),
+                                            borderRadius: BorderRadius.circular(5.24),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '${item.thana}',
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            color: Color(0xFF3D3F40),
+                                            fontSize: 12.58,
+                                            fontFamily: 'Inter',
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.44,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
+    
     );
   }
 }
