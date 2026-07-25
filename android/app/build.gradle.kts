@@ -53,6 +53,10 @@ android {
         release {
             // 3. Instructs Gradle to use your official release key configuration
             signingConfig = signingConfigs.getByName("release")
+             proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

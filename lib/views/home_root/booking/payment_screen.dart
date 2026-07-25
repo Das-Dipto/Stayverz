@@ -62,7 +62,7 @@ class PaymentScreen extends GetView<ListingController> {
                 Gap(16),
                 ListTile(
                   title: Text('SSL Commerz'),
-                  subtitle: Text('Local Payment (BDT)'),
+                  subtitle: Text('Local Payment (BDT- BKash, Rocket, Upay)'),
                   onTap: () {
                     Navigator.pop(ctx);
                     _payWithSSL(bookingCode);
