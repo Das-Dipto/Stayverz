@@ -68,6 +68,13 @@ abstract class PublicListingsRepository {
   int? guests,
   String? checkIn,
   String? checkOut,
+  double? priceMin,
+  double? priceMax,
+  String? placeType,
+  int? bedroomCount,
+  int? bathroomCount,
+  int? bedCount,
+  List<int>? amenities,
   });
 
   Future<PropertyListResponse> getSectionViewListings({

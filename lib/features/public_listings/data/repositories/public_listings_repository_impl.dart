@@ -243,7 +243,7 @@ Future<Map<String, dynamic>> getHostAvgResponseTime({required int hostId}) async
     }
   }
 
-  @override
+
 @override
 Future<PropertyListResponse> getUpdatedPublicListings({
   int page = 1,
@@ -254,9 +254,16 @@ Future<PropertyListResponse> getUpdatedPublicListings({
   int? guests,
   String? checkIn,
   String? checkOut,
+  double? priceMin,
+  double? priceMax,
+  String? placeType,
+  int? bedroomCount,
+  int? bathroomCount,
+  int? bedCount,
+  List<int>? amenities,
 }) async {
   try {
-    final bool hasLocationFilter = id != null || 
+    final bool hasLocationFilter = id != null ||
                                   (latitude != null && longitude != null);
 
     final Map<String, dynamic> queryParams = {'page': page};
@@ -269,33 +276,36 @@ Future<PropertyListResponse> getUpdatedPublicListings({
     Map<String, dynamic> finalParams = Map.from(queryParams);
 
     if (hasLocationFilter) {
-      // 🔵 Location-based search
       endpoint = 'https://api-sub.stayverz.com/search/results';
       if (id != null) finalParams['id'] = id;
       if (latitude != null) finalParams['latitude'] = latitude;
       if (longitude != null) finalParams['longitude'] = longitude;
       if (radius != null) finalParams['radius'] = radius;
     } else {
-      // 🔴 General search (no location)
       endpoint = 'https://apix.stayverz.com/api/v1/listings/public/listings/';
-      finalParams['page_size'] = 10;
+      finalParams['page_size'] = 9; // matches web
+    }
+
+    // ✅ NEW — filter params, sent on BOTH branches (web sends them regardless of location)
+    if (priceMin != null) finalParams['price_min'] = priceMin;
+    if (priceMax != null) finalParams['price_max'] = priceMax;
+    if (placeType != null) finalParams['place_type__in'] = placeType;
+    if (bedroomCount != null) finalParams['bedroom_count'] = bedroomCount;
+    if (bathroomCount != null) finalParams['bathroom_count'] = bathroomCount;
+    if (bedCount != null) finalParams['bed_count'] = bedCount;
+    if (amenities != null && amenities.isNotEmpty) {
+      finalParams['listing_amenity__in'] = amenities.join(',');
     }
 
     print("🔍 Using endpoint: $endpoint");
     print("📊 Params: $finalParams");
 
-    final response = await _apiClient.get(
-      endpoint,
-      queryParameters: finalParams,
-    );
-
+    final response = await _apiClient.get(endpoint, queryParameters: finalParams);
     final Map<String, dynamic> json = response.data ?? {};
 
-    if (hasLocationFilter) {
-      return PropertyListResponse.fromJson(json);
-    } else {
-      return _parseGeneralResponse(json, page);
-    }
+    return hasLocationFilter
+        ? PropertyListResponse.fromJson(json)
+        : _parseGeneralResponse(json, page);
   } catch (e) {
     print("❌ Error in getUpdatedPublicListings: $e");
     rethrow;

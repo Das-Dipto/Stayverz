@@ -46,6 +46,14 @@ class PublicListingsController extends GetxController {
 
   List<String> hiddenListingIds = ['e70df89c-9630-4c54-b3ef-e7ff6966b184'];
 
+  double? _lastPriceMin;
+double? _lastPriceMax;
+String? _lastPlaceType;
+int? _lastBedroomCount;
+int? _lastBathroomCount;
+int? _lastBedCount;
+List<int>? _lastAmenities;
+
 
   Future<void> fetchAssistanceCategory() async {
     isCategoryLoading.value = true;
@@ -867,76 +875,100 @@ Future<void> fetchHomeLayout({required String tab}) async {
   String? _lastCheckIn;
   String? _lastCheckOut;
   /// Fetch listings (initial + pagination)
-  Future<void> fetchUpdatedListings({
-    bool loadMore = false,
-    int? id,
-    double? latitude,
-    double? longitude,
-    int? radius,
-    int? guests,
-    String? checkIn,
-    String? checkOut,
-  }) async {
-    try {
-      if (isLoadingListings.value) return;
+Future<void> fetchUpdatedListings({
+  bool loadMore = false,
+  int? id,
+  double? latitude,
+  double? longitude,
+  int? radius,
+  int? guests,
+  String? checkIn,
+  String? checkOut,
+  double? priceMin,
+  double? priceMax,
+  String? placeType,
+  int? bedroomCount,
+  int? bathroomCount,
+  int? bedCount,
+  List<int>? amenities,
+}) async {
+  try {
+    if (isLoadingListings.value) return;
 
-      // Save last used parameters for pagination
-      if (!loadMore) {
-        _lastId = id;
-        _lastLat = latitude;
-        _lastLong = longitude;
-        _lastRadius = radius;
-        _lastGuests = guests;
-        _lastCheckIn = checkIn;
-        _lastCheckOut = checkOut;
-      }
-
-      if (loadMore) {
-        if (currentPage.value >= lastPage.value) return;
-        isLoadMore.value = true;
-        currentPage.value += 1;
-
-        // Use last saved parameters if not passed
-        id ??= _lastId;
-        latitude ??= _lastLat;
-        longitude ??= _lastLong;
-        radius ??= _lastRadius;
-        guests ??= _lastGuests;
-        checkIn ??= _lastCheckIn;
-        checkOut ??= _lastCheckOut;
-      } else {
-        isLoadingListings.value = true;
-        currentPage.value = 1;
-        newListings.clear();
-      }
-
-      hasErrorListings.value = false;
-
-      final response = await _repository.getUpdatedPublicListings(
-        page: currentPage.value,
-        id: id,
-        latitude: latitude,
-        longitude: longitude,
-        radius: radius,
-        guests: guests,
-        checkIn: checkIn,
-        checkOut: checkOut,
-      );
-
-      newListings.addAll(response.data);
-      lastPage.value = response.meta.lastPage;
-
-      isLoadingListings.value = false;
-      isLoadMore.value = false;
-    } catch (e) {
-      isLoadingListings.value = false;
-      isLoadMore.value = false;
-      hasErrorListings.value = true;
-      errorMessageListings.value = e.toString();
+    if (!loadMore) {
+      _lastId = id;
+      _lastLat = latitude;
+      _lastLong = longitude;
+      _lastRadius = radius;
+      _lastGuests = guests;
+      _lastCheckIn = checkIn;
+      _lastCheckOut = checkOut;
+      _lastPriceMin = priceMin;
+      _lastPriceMax = priceMax;
+      _lastPlaceType = placeType;
+      _lastBedroomCount = bedroomCount;
+      _lastBathroomCount = bathroomCount;
+      _lastBedCount = bedCount;
+      _lastAmenities = amenities;
     }
+
+    if (loadMore) {
+      if (currentPage.value >= lastPage.value) return;
+      isLoadMore.value = true;
+      currentPage.value += 1;
+
+      id ??= _lastId;
+      latitude ??= _lastLat;
+      longitude ??= _lastLong;
+      radius ??= _lastRadius;
+      guests ??= _lastGuests;
+      checkIn ??= _lastCheckIn;
+      checkOut ??= _lastCheckOut;
+      priceMin ??= _lastPriceMin;
+      priceMax ??= _lastPriceMax;
+      placeType ??= _lastPlaceType;
+      bedroomCount ??= _lastBedroomCount;
+      bathroomCount ??= _lastBathroomCount;
+      bedCount ??= _lastBedCount;
+      amenities ??= _lastAmenities;
+    } else {
+      isLoadingListings.value = true;
+      currentPage.value = 1;
+      newListings.clear();
+    }
+
+    hasErrorListings.value = false;
+
+    final response = await _repository.getUpdatedPublicListings(
+      page: currentPage.value,
+      id: id,
+      latitude: latitude,
+      longitude: longitude,
+      radius: radius,
+      guests: guests,
+      checkIn: checkIn,
+      checkOut: checkOut,
+      priceMin: priceMin,
+      priceMax: priceMax,
+      placeType: placeType,
+      bedroomCount: bedroomCount,
+      bathroomCount: bathroomCount,
+      bedCount: bedCount,
+      amenities: amenities,
+    );
+
+    newListings.addAll(response.data);
+    lastPage.value = response.meta.lastPage;
+
+    isLoadingListings.value = false;
+    isLoadMore.value = false;
+  } catch (e) {
+    isLoadingListings.value = false;
+    isLoadMore.value = false;
+    hasErrorListings.value = true;
+    errorMessageListings.value = e.toString();
   }
-
-
+}
 
   /// Reset when filters change
   void resetListings() {

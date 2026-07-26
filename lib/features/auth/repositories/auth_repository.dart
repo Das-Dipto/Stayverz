@@ -156,7 +156,7 @@ class AuthRepository implements AuthRepositoryInterface {
     print("This is fullname:${fullName}, phonenumber:${phoneNumber}, uType:${uType}, password:${password}, otp:${otp}, referCode:${referCode}");
     try {
       final response = await _apiClient.post(
-        '/accounts/public/register/ref/',
+        '/accounts/public/register/',
         data: {
           'full_name': fullName,
           'phone_number': phoneNumber,
@@ -280,6 +280,8 @@ print("This is the request payload- ${phone}, ${type}, ${scope}");
         '/otp/public/otp-validate/',
         data: payload,
       );
+
+      print("This is the response of validate OTP- ${response}");
 
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data;

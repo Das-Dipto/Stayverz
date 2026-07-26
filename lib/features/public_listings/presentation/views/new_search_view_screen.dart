@@ -180,18 +180,22 @@ body: Column(
                     backgroundColor: Colors.transparent,
                   );
                   if (result != null) {
-                    // TODO: merge `result` (filter params) into fetchUpdatedListings
-                    // once the API contract is confirmed.
-                    controller.fetchUpdatedListings(
-                      latitude: (searchData['location'] as SectionModel?)?.lat ??
-                          (lat != 0.0 ? lat : null),
-                      longitude: (searchData['location'] as SectionModel?)?.long ??
-                          (long != 0.0 ? long : null),
-                      radius: 6,
-                      guests: totalGuests > 0 ? totalGuests : null,
-                      checkIn: startDate.isNotEmpty ? startDate : null,
-                      checkOut: endDate.isNotEmpty ? endDate : null,
-                    );
+                   final Map<String, dynamic> f = result;
+  controller.fetchUpdatedListings(
+    latitude: (searchData['location'] as SectionModel?)?.lat ?? (lat != 0.0 ? lat : null),
+    longitude: (searchData['location'] as SectionModel?)?.long ?? (long != 0.0 ? long : null),
+    radius: 6,
+    guests: totalGuests > 0 ? totalGuests : null,
+    checkIn: startDate.isNotEmpty ? startDate : null,
+    checkOut: endDate.isNotEmpty ? endDate : null,
+    priceMin: f['min_price'],
+    priceMax: f['max_price'],
+    placeType: f['property_type'],
+    bedroomCount: f['bedrooms'],
+    bathroomCount: f['bathrooms'],
+    bedCount: f['beds'],
+    amenities: f['amenities'] != null ? List<int>.from(f['amenities']) : null,
+  );
                   }
                 },
                 child: Container(

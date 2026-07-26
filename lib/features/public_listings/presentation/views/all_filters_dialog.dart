@@ -33,61 +33,66 @@ class AllFiltersDialog extends GetView<AllFiltersController> {
           child: Column(
             children: [
               _header(),
+              
               const Divider(height: 1),
-              Expanded(
-                child: Obx(() {
-                  // amenitiesList is fetched once in PublicListingsController.onInit()
-                  if (publicListingsController.isLoadingg.value &&
-                      publicListingsController.amenitiesList.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+Expanded(
+  child: Obx(() {
+    // Ensure amenities are actually fetched (safe no-op if already loaded/loading)
+    if (publicListingsController.amenitiesList.isEmpty &&
+        !publicListingsController.isLoadingg.value) {
+      publicListingsController.fetchAmenities();
+    }
 
-                  // Flatten all categories' items into one list, grouped by a_type
-                  final List<AmenityModel> allAmenities = publicListingsController
-                      .amenitiesList
-                      .expand((cat) => cat.data ?? <AmenityModel>[])
-                      .toList();
+    if (publicListingsController.amenitiesList.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-                  final entirePlace = allAmenities
-                      .where((a) => a.aType == 'entire_place')
-                      .toList();
-                  final standOut = allAmenities
-                      .where((a) => a.aType == 'stand_out')
-                      .toList();
-                  final safety = allAmenities
-                      .where((a) => a.aType == 'safety')
-                      .toList();
+    // Flatten every category's items into ONE list, then split strictly by a_type
+    final List<AmenityModel> allAmenities = publicListingsController
+        .amenitiesList
+        .expand((cat) => cat.data ?? <AmenityModel>[])
+        .toList();
 
-                  return ListView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.all(20),
-                    children: [
-                      _priceRangeSection(),
-                      const Gap(20),
-                      const Divider(),
-                      const Gap(20),
-                      _propertyTypeSection(),
-                      const Gap(20),
-                      const Divider(),
-                      const Gap(20),
-                      _bedsAndBathsSection(),
-                      const Gap(20),
-                      const Divider(),
-                      const Gap(20),
-                      if (entirePlace.isNotEmpty)
-                        _amenitiesGroup('Amenities', 'Entire Place', entirePlace),
-                      if (standOut.isNotEmpty) ...[
-                        const Gap(24),
-                        _amenitiesGroup(null, 'Stand Out', standOut),
-                      ],
-                      if (safety.isNotEmpty) ...[
-                        const Gap(24),
-                        _amenitiesGroup(null, 'Safety', safety),
-                      ],
-                    ],
-                  );
-                }),
-              ),
+    final entirePlace = allAmenities
+        .where((a) => (a.aType ?? '').trim() == 'entire_place')
+        .toList();
+    final standOut = allAmenities
+        .where((a) => (a.aType ?? '').trim() == 'stand_out')
+        .toList();
+    final safety = allAmenities
+        .where((a) => (a.aType ?? '').trim() == 'safety')
+        .toList();
+
+    return ListView(
+      controller: scrollController,
+      padding: const EdgeInsets.all(20),
+      children: [
+        _priceRangeSection(),
+        const Gap(20),
+        const Divider(),
+        const Gap(20),
+        _propertyTypeSection(),
+        const Gap(20),
+        const Divider(),
+        const Gap(20),
+        _bedsAndBathsSection(),
+        const Gap(20),
+        const Divider(),
+        const Gap(20),
+        if (entirePlace.isNotEmpty)
+          _amenitiesGroup('Amenities', 'Entire Place', entirePlace),
+        if (standOut.isNotEmpty) ...[
+          const Gap(24),
+          _amenitiesGroup(null, 'Stand Out', standOut),
+        ],
+        if (safety.isNotEmpty) ...[
+          const Gap(24),
+          _amenitiesGroup(null, 'Safety', safety),
+        ],
+      ],
+    );
+  }),
+),
               const Divider(height: 1),
               _bottomBar(),
             ],
@@ -212,33 +217,40 @@ class AllFiltersDialog extends GetView<AllFiltersController> {
         Obx(
           () => Row(
             children: types.map((t) {
-              final isSelected = controller.selectedPropertyType.value == t['key'];
+             final isSelected = controller.selectedPropertyTypes.contains(t['key']);
               return Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: InkWell(
                     onTap: () => controller.togglePropertyType(t['key'] as String),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: isSelected ? _dark : _borderColor,
-                          width: isSelected ? 1.5 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(t['icon'] as IconData, color: _dark),
-                          const Gap(10),
-                          Text(
-                            t['label'] as String,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 12, color: _dark),
-                          ),
-                        ],
-                      ),
-                    ),
+                  
+child: Container(
+  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+  decoration: BoxDecoration(
+    color: isSelected ? _orange.withOpacity(0.08) : Colors.white,
+    border: Border.all(
+      color: isSelected ? _orange : _borderColor,
+      width: isSelected ? 1.5 : 1,
+    ),
+    borderRadius: BorderRadius.circular(10),
+  ),
+  child: Column(
+    children: [
+      Icon(t['icon'] as IconData, color: isSelected ? _orange : _dark),
+      const Gap(10),
+      Text(
+        t['label'] as String,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 12,
+          color: isSelected ? _orange : _dark,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+        ),
+      ),
+    ],
+  ),
+),              
+                  
                   ),
                 ),
               );
