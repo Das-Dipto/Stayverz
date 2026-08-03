@@ -32,9 +32,23 @@ import '../models/user_language_responce_model.dart';
 import '../models/user_location_responce_model.dart';
 import '../models/work_responce_model.dart';
 
+import 'package:dio/dio.dart' show Options; // add if not already imported
+import '../models/referral_guest_earnings_model.dart';
+import '../models/referral_guest_list_item_model.dart';
+
+import '../models/referral_host_earnings_model.dart';
+import '../models/referral_host_list_item_model.dart';
+
+
 
 class ProfileRepositoryImpl implements ProfileRepositoryInterface {
   final ApiClient _apiClient = Get.find<ApiClient>();
+
+   // Separate client for the node API v2 (different host, x-user-id auth)
+  final ApiClient _nodeApiClient = ApiClient(
+    baseUrl: ApiRoutes.nodeApiBaseURL,
+    useInterceptors: false,
+  );
 
   @override
   Future<ProfileModel> getProfile() async {
@@ -215,6 +229,62 @@ class ProfileRepositoryImpl implements ProfileRepositoryInterface {
     }
   }
 
+  @override
+Future<ReferralHostEarnings> getReferralHostEarnings({required String userId}) async {
+  try {
+    final response = await _nodeApiClient.get(
+      ApiRoutes.referralHostEarningsPath,
+      options: Options(headers: {'x-user-id': userId}),
+    );
+ 
+    final responseData = response.data;
+    if (responseData == null || responseData['success'] != true) {
+      throw Exception('Failed to fetch host referral earnings');
+    }
+ 
+    // API returns "data" as a List with a single summary object
+    final rawData = responseData['data'];
+    final data = rawData is List
+        ? (rawData.isNotEmpty ? rawData.first : null)
+        : rawData;
+ 
+    if (data == null) {
+      throw Exception('Host referral earnings data is null');
+    }
+ 
+    return ReferralHostEarnings.fromJson(data as Map<String, dynamic>);
+  } on dio.DioException catch (e) {
+    throw Exception('Failed to connect to the server: ${e.message}');
+  } catch (e) {
+    throw Exception('An unexpected error occurred: $e');
+  }
+}
+ 
+@override
+Future<List<ReferralHostListItem>> getReferralHostList({required String userId}) async {
+  try {
+    final response = await _nodeApiClient.get(
+      ApiRoutes.referralHostListPath,
+      options: Options(headers: {'x-user-id': userId}),
+    );
+ 
+    final responseData = response.data;
+    if (responseData == null || responseData['success'] != true) {
+      throw Exception('Failed to fetch host referral list');
+    }
+ 
+    final List list = responseData['data'] ?? [];
+    return list
+        .map((e) => ReferralHostListItem.fromJson(e as Map<String, dynamic>))
+        .toList();
+  } on dio.DioException catch (e) {
+    throw Exception('Failed to connect to the server: ${e.message}');
+  } catch (e) {
+    throw Exception('An unexpected error occurred: $e');
+  }
+}
+
+
 
   @override
   Future<PatchUserProfileRequest> patchUserSchool(String school) async {
@@ -265,6 +335,57 @@ class ProfileRepositoryImpl implements ProfileRepositoryInterface {
       throw Exception('Unexpected error occurred: $e');
     }
   }
+
+  @override
+Future<ReferralGuestEarnings> getReferralGuestEarnings({required String userId}) async {
+  try {
+    final response = await _nodeApiClient.get(
+      ApiRoutes.referralGuestEarningsPath,
+      options: Options(headers: {'x-user-id': userId}),
+    );
+
+    final responseData = response.data;
+    if (responseData == null || responseData['success'] != true) {
+      throw Exception('Failed to fetch referral earnings');
+    }
+
+    final data = responseData['data'] ?? responseData['Data'];
+    if (data == null) {
+      throw Exception('Referral earnings data is null');
+    }
+
+    return ReferralGuestEarnings.fromJson(data);
+  } on dio.DioException catch (e) {
+    throw Exception('Failed to connect to the server: ${e.message}');
+  } catch (e) {
+    throw Exception('An unexpected error occurred: $e');
+  }
+}
+
+@override
+Future<List<ReferralGuestListItem>> getReferralGuestList({required String userId}) async {
+  try {
+    final response = await _nodeApiClient.get(
+      ApiRoutes.referralGuestListPath,
+      options: Options(headers: {'x-user-id': userId}),
+    );
+
+    final responseData = response.data;
+    if (responseData == null || responseData['success'] != true) {
+      throw Exception('Failed to fetch referral guest list');
+    }
+
+    final List list = responseData['data'] ?? [];
+    return list
+        .map((e) => ReferralGuestListItem.fromJson(e as Map<String, dynamic>))
+        .toList();
+  } on dio.DioException catch (e) {
+    throw Exception('Failed to connect to the server: ${e.message}');
+  } catch (e) {
+    throw Exception('An unexpected error occurred: $e');
+  }
+}
+
 
 
   @override

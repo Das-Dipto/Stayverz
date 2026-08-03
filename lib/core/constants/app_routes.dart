@@ -6,6 +6,7 @@ import 'package:stayverz_flutter_app/features/auth/views/login_view.dart';
 import 'package:stayverz_flutter_app/views/home_root/guest_bottom_navigation_bar_view.dart';
 import 'package:stayverz_flutter_app/views/home_root/menu_screen/blog_details.dart';
 import 'package:stayverz_flutter_app/features/public_listings/presentation/views/public_listings_view.dart';
+import '../../features/profile/presentation/views/host_public_profile_view.dart';
 
 class AppRoute {
   // Route names
@@ -14,6 +15,7 @@ class AppRoute {
   static const String guest = '/guest';
   static const String blogDetails = '/blog-details';
   static const String publicListings = '/public-listings';
+  static const String hostPublicProfile = '/host-public-profile';
 
   // Route generator
   static Map<String, Widget Function(BuildContext)> routes = {
@@ -21,6 +23,7 @@ class AppRoute {
     host: (context) => const HostBottomNavigationBarView(),
     guest: (context) => const GuestBottomNavigationBarView(),
     publicListings: (context) => PublicListingsView(),
+    hostPublicProfile: (context) => const HostPublicProfileView(),
     blogDetails: (context) {
       final blog = ModalRoute.of(context)!.settings.arguments as DataItem?;
       return BlogDetails(blog: blog);

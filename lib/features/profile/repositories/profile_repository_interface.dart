@@ -25,6 +25,13 @@ import '../models/user_language_responce_model.dart';
 import '../models/user_location_responce_model.dart' show UserAddressLocationData;
 import '../models/work_responce_model.dart';
 
+import '../models/referral_guest_earnings_model.dart';
+import '../models/referral_guest_list_item_model.dart';
+
+import '../models/referral_host_earnings_model.dart';
+import '../models/referral_host_list_item_model.dart';
+
+
 /// Abstract class defining the contract for profile data operations
 abstract class ProfileRepositoryInterface {
   /// Fetches the user profile from the server
@@ -48,6 +55,12 @@ abstract class ProfileRepositoryInterface {
   Future<PatchUserProfileRequest> patchUserSchool(String school);
 
   Future<UserWorkProfileData> patchUserWork(String school);
+  
+Future<ReferralGuestEarnings> getReferralGuestEarnings({required String userId});
+Future<List<ReferralGuestListItem>> getReferralGuestList({required String userId});
+
+Future<ReferralHostEarnings> getReferralHostEarnings({required String userId});
+Future<List<ReferralHostListItem>> getReferralHostList({required String userId});
 
 
   Future<UploadImageData> patchImageUpload(String imageUrl);

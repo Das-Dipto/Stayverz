@@ -1223,251 +1223,249 @@ Padding(
               ),
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 60,
-                          height: 60,
-                          alignment: Alignment.center,
-                          decoration: ShapeDecoration(
-                            color: const Color(0xFFD9D9D9),
-                            shape: OvalBorder(),
-                            shadows: [
-                              BoxShadow(
-                                color: Color(0x3F000000),
-                                blurRadius: 4,
-                                offset: Offset(0, 4),
-                                spreadRadius: 0,
-                              ),
-                            ],
-                          ),
-                          child: Container(
-                            width: 56,
-                            height: 56,
-                            decoration: ShapeDecoration(
-                              image: DecorationImage(
-                                image:
-                                controller.listingDetails.value.coverPhoto ==
-                                    null ||
-                                    controller
-                                        .listingDetails
-                                        .value
-                                        .coverPhoto ==
-                                        ""
-                                    ? AssetImage("assets/default_image.jpg")
-                                    : NetworkImage(
-                                  controller
-                                      .listingDetails
-                                      .value
-                                      .coverPhoto ??
-                                      "",
-                                ),
-                                fit: BoxFit.cover,
-                              ),
-                              shape: OvalBorder(),
-                            ),
-                          ),
-                        ),
-                        Gap(20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hosted by',
-                                style: TextStyle(
-                                  color: const Color(0xFF67666B) /* Grey-70 */,
-                                  fontSize: 12,
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.50,
-                                ),
-                              ),
-                              Gap(5),
-                              Text(
-                                controller.listingDetails.value.host?.fullName ?? '',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.50,
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    'Joined in ${formatToDayMonthYear("${controller.listingDetails.value.host?.dateJoined}")}',
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                      color: const Color(0xFF67666B) /* Grey-70 */,
-                                      fontSize: 12,
-                                      fontFamily: 'Inter',
-                                      fontWeight: FontWeight.w400,
-                                      height: 1.50,
-                                    ),
-                                  ),
-                                  Spacer(),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.star,
-                                        size: 18,
-                                        color: Colors.yellow,
-                                      ),
-                                      Gap(5),
-                                      Text(
-                                        '${(controller.listingDetails.value.reviews ?? []).length} Reviews',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 12,
-                                          fontFamily: 'Inter',
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.50,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                              // ✅ ADD THIS BELOW
-
-// ✅ NEW: Conditional Response Time Label
-Obx(() {
-  final data = controller.hostAvgResponseTime;
-  if (data.isEmpty || data['data'] == null) return const SizedBox.shrink();
-
-  final overall = data['data']['overall'];
-  final replied = data['data']['replied'];
-  final pending = data['data']['pending'];
-
-  final avgTimeInSeconds = overall?['avg_response_time_seconds'] ?? 0;
-  final avgFormatted = overall?['avg_response_time_formatted'] ?? 'N/A';
-  final totalResponses = replied?['total_responses'] ?? 0;
-  final totalPending = pending?['total_pending'] ?? 0;
-  final totalConversations = overall?['total_conversations'] ?? 0;
-  final responseRate = totalConversations > 0
-      ? ((totalResponses / totalConversations) * 100).round()
-      : 0;
-
-  // 🎯 Categorize response time (User-friendly labels)
-  String responseTitle;
-  Color titleColor;
-  IconData titleIcon;
-
-  if (avgTimeInSeconds <= 60) {                    // ≤ 1 hour
-    responseTitle = "Lightning Fast";
-    titleColor = Colors.green;
-    titleIcon = Icons.bolt;
-  } 
-  else if (avgTimeInSeconds <= 300) {               // ≤ 2 hours
-    responseTitle = "Very Fast";
-    titleColor = Colors.green;
-    titleIcon = Icons.flash_on;
-  } 
-  else if (avgTimeInSeconds <= 900) {              // ≤ 4 hours
-    responseTitle = "Fast";
-    titleColor = Colors.orange;
-    titleIcon = Icons.thumb_up_alt_outlined;
-  } 
-  else if (avgTimeInSeconds <= 3600) {              // ≤ 8 hours
-    responseTitle = "Good";
-    titleColor = Colors.orange;
-    titleIcon = Icons.schedule;
-  } 
-  else if (avgTimeInSeconds <= 86400) {              // ≤ 24 hours
-    responseTitle = "Average";
-    titleColor = Colors.deepOrange;
-    titleIcon = Icons.timer_outlined;
-  } 
-  else {                                             // > 24 hours
-    responseTitle = "Slow";
-    titleColor = Colors.redAccent;
-    titleIcon = Icons.hourglass_bottom;
-  }
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Gap(10),
-      const Divider(color: Color(0xFFF0F1F5)),
-      const Gap(6),
-
-      // Dynamic Title Row
-      Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: titleColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Icon(titleIcon, color: titleColor, size: 18),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                responseTitle,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: titleColor,
-                ),
-              ),
-              Row(
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: const BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Responds in $avgFormatted',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
+                     Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: GestureDetector(
+        onTap: () {
+          final hostId = controller.listingDetails.value.host?.id;
+          if (hostId != null) {
+            Get.toNamed(
+              AppRoute.hostPublicProfile,
+              arguments: {'hostId': hostId.toString()},
+            );
+          }
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              alignment: Alignment.center,
+              decoration: ShapeDecoration(
+                color: const Color(0xFFD9D9D9),
+                shape: OvalBorder(),
+                shadows: [
+                  BoxShadow(
+                    color: Color(0x3F000000),
+                    blurRadius: 4,
+                    offset: Offset(0, 4),
+                    spreadRadius: 0,
                   ),
                 ],
               ),
-            ],
-          ),
-        ],
-      ),
-
-      const Gap(8),
-
-      // Stats Row
-      Wrap(
-        spacing: 12,
-        runSpacing: 4,
-        children: [
-          _statDot(Colors.green, '$totalResponses responses'),
-          _statDot(Colors.orange, '$totalPending waiting for reply'),
-          _statDot(Colors.blue, '$responseRate% response rate'),
-        ],
-      ),
-    ],
-  );
-}),
-                            ],
-                          ),
-                        ),
-                      ],
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: ShapeDecoration(
+                  image: DecorationImage(
+                    image:
+                    controller.listingDetails.value.coverPhoto ==
+                        null ||
+                        controller
+                            .listingDetails
+                            .value
+                            .coverPhoto ==
+                            ""
+                        ? AssetImage("assets/default_image.jpg")
+                        : NetworkImage(
+                      controller
+                          .listingDetails
+                          .value
+                          .coverPhoto ??
+                          "",
+                    ),
+                    fit: BoxFit.cover,
+                  ),
+                  shape: OvalBorder(),
+                ),
+              ),
+            ),
+            Gap(20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    'Hosted by',
+                    style: TextStyle(
+                      color: const Color(0xFF67666B) /* Grey-70 */,
+                      fontSize: 12,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                      height: 1.50,
                     ),
                   ),
+                  Gap(5),
+                  Text(
+                    controller.listingDetails.value.host?.fullName ?? '',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w500,
+                      height: 1.50,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Joined in ${formatToDayMonthYear("${controller.listingDetails.value.host?.dateJoined}")}',
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          color: const Color(0xFF67666B) /* Grey-70 */,
+                          fontSize: 12,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                          height: 1.50,
+                        ),
+                      ),
+                      Spacer(),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.star,
+                            size: 18,
+                            color: Colors.yellow,
+                          ),
+                          Gap(5),
+                          Text(
+                            '${(controller.listingDetails.value.reviews ?? []).length} Reviews',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w400,
+                              height: 1.50,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  // ✅ Conditional Response Time Label
+                  Obx(() {
+                    final data = controller.hostAvgResponseTime;
+                    if (data.isEmpty || data['data'] == null) return const SizedBox.shrink();
+
+                    final overall = data['data']['overall'];
+                    final replied = data['data']['replied'];
+                    final pending = data['data']['pending'];
+
+                    final avgTimeInSeconds = overall?['avg_response_time_seconds'] ?? 0;
+                    final avgFormatted = overall?['avg_response_time_formatted'] ?? 'N/A';
+                    final totalResponses = replied?['total_responses'] ?? 0;
+                    final totalPending = pending?['total_pending'] ?? 0;
+                    final totalConversations = overall?['total_conversations'] ?? 0;
+                    final responseRate = totalConversations > 0
+                        ? ((totalResponses / totalConversations) * 100).round()
+                        : 0;
+
+                    String responseTitle;
+                    Color titleColor;
+                    IconData titleIcon;
+
+                    if (avgTimeInSeconds <= 60) {
+                      responseTitle = "Lightning Fast";
+                      titleColor = Colors.green;
+                      titleIcon = Icons.bolt;
+                    } else if (avgTimeInSeconds <= 300) {
+                      responseTitle = "Very Fast";
+                      titleColor = Colors.green;
+                      titleIcon = Icons.flash_on;
+                    } else if (avgTimeInSeconds <= 900) {
+                      responseTitle = "Fast";
+                      titleColor = Colors.orange;
+                      titleIcon = Icons.thumb_up_alt_outlined;
+                    } else if (avgTimeInSeconds <= 3600) {
+                      responseTitle = "Good";
+                      titleColor = Colors.orange;
+                      titleIcon = Icons.schedule;
+                    } else if (avgTimeInSeconds <= 86400) {
+                      responseTitle = "Average";
+                      titleColor = Colors.deepOrange;
+                      titleIcon = Icons.timer_outlined;
+                    } else {
+                      responseTitle = "Slow";
+                      titleColor = Colors.redAccent;
+                      titleIcon = Icons.hourglass_bottom;
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Gap(10),
+                        const Divider(color: Color(0xFFF0F1F5)),
+                        const Gap(6),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: titleColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(titleIcon, color: titleColor, size: 18),
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  responseTitle,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: titleColor,
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 7,
+                                      height: 7,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.blue,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Responds in $avgFormatted',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const Gap(8),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 4,
+                          children: [
+                            _statDot(Colors.green, '$totalResponses responses'),
+                            _statDot(Colors.orange, '$totalPending waiting for reply'),
+                            _statDot(Colors.blue, '$responseRate% response rate'),
+                          ],
+                        ),
+                      ],
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
                   Gap(10),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),

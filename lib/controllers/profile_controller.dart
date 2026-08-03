@@ -24,6 +24,13 @@ import '../features/profile/models/user_get_review_modle.dart';
 import '../features/profile/models/user_language_responce_model.dart';
 import '../features/profile/repositories/profile_repository_interface.dart';
 
+import '../features/profile/models/referral_guest_earnings_model.dart';
+import '../features/profile/models/referral_guest_list_item_model.dart';
+
+import '../features/profile/models/referral_host_earnings_model.dart';
+import '../features/profile/models/referral_host_list_item_model.dart';
+
+
 import '../services/network/api_client.dart';
 import 'main_controller.dart';
 
@@ -55,6 +62,18 @@ class ProfileController extends GetxController {
   RxBool isLoadingListdata = false.obs;
   RxString errorListdata = ''.obs;
   Rx<GetSuperhostResponse?> superhostData = Rx<GetSuperhostResponse?>(null);
+
+
+  final Rxn<ReferralGuestEarnings> referralEarnings = Rxn<ReferralGuestEarnings>();
+final RxBool isLoadingEarnings = false.obs;
+final RxString errorEarnings = ''.obs;
+
+final RxList<ReferralGuestListItem> referralGuestList = <ReferralGuestListItem>[].obs;
+final RxBool isLoadingGuestList = false.obs;
+final RxString errorGuestList = ''.obs;
+
+
+
   // Text editing controllers
   late final TextEditingController firstNameController;
   late final TextEditingController lastNameController;
@@ -245,6 +264,91 @@ class ProfileController extends GetxController {
       isLoading.value = false;
     }
   }
+
+ 
+
+Future<void> getReferralGuestEarnings() async {
+  final userId = profile.value?.id;
+  if (userId == null) {
+    errorEarnings.value = 'User profile not loaded yet';
+    return;
+  }
+  try {
+    isLoadingEarnings.value = true;
+    errorEarnings.value = '';
+    final data = await repository.getReferralGuestEarnings(userId: userId.toString());
+    referralEarnings.value = data;
+  } catch (e) {
+    errorEarnings.value = 'Failed to fetch referral earnings: ${e.toString()}';
+  } finally {
+    isLoadingEarnings.value = false;
+  }
+}
+
+Future<void> getReferralGuestListData() async {
+  final userId = profile.value?.id;
+  if (userId == null) {
+    errorGuestList.value = 'User profile not loaded yet';
+    return;
+  }
+  try {
+    isLoadingGuestList.value = true;
+    errorGuestList.value = '';
+    final data = await repository.getReferralGuestList(userId: userId.toString());
+    referralGuestList.value = data;
+  } catch (e) {
+    errorGuestList.value = 'Failed to fetch referral guest list: ${e.toString()}';
+  } finally {
+    isLoadingGuestList.value = false;
+  }
+}
+
+final Rxn<ReferralHostEarnings> referralHostEarnings = Rxn<ReferralHostEarnings>();
+final RxBool isLoadingHostEarnings = false.obs;
+final RxString errorHostEarnings = ''.obs;
+ 
+final RxList<ReferralHostListItem> referralHostList = <ReferralHostListItem>[].obs;
+final RxBool isLoadingHostList = false.obs;
+final RxString errorHostList = ''.obs;
+ 
+// Add these two methods, right next to getReferralGuestEarnings / getReferralGuestListData:
+ 
+Future<void> getReferralHostEarnings() async {
+  final userId = profile.value?.id;
+  if (userId == null) {
+    errorHostEarnings.value = 'User profile not loaded yet';
+    return;
+  }
+  try {
+    isLoadingHostEarnings.value = true;
+    errorHostEarnings.value = '';
+    final data = await repository.getReferralHostEarnings(userId: userId.toString());
+    referralHostEarnings.value = data;
+  } catch (e) {
+    errorHostEarnings.value = 'Failed to fetch host referral earnings: ${e.toString()}';
+  } finally {
+    isLoadingHostEarnings.value = false;
+  }
+}
+ 
+Future<void> getReferralHostListData() async {
+  final userId = profile.value?.id;
+  if (userId == null) {
+    errorHostList.value = 'User profile not loaded yet';
+    return;
+  }
+  try {
+    isLoadingHostList.value = true;
+    errorHostList.value = '';
+    final data = await repository.getReferralHostList(userId: userId.toString());
+    referralHostList.value = data;
+  } catch (e) {
+    errorHostList.value = 'Failed to fetch host referral list: ${e.toString()}';
+  } finally {
+    isLoadingHostList.value = false;
+  }
+}
+
 
   void _updateFormFields(ProfileModel profileData) {
     // Add safety checks before updating controllers

@@ -18,6 +18,7 @@ import '../../menu_screen/blog_screen.dart';
 import '../../menu_screen/change_password.dart';
 import '../../menu_screen/contact_us.dart';
 import '../../menu_screen/refaral_screen.dart';
+import '../../menu_screen/host_referral_screen.dart';
 import '../../menu_screen/terms_conditions.dart';
 import 'co_host/co_host_option_screen.dart';
 import '../../../../features/listing/presentation/views/my_listing/my_listing_screen.dart';
@@ -209,7 +210,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                 Get.to(PaymentMethodScreen());
                                 break;
                               case 'Refer Host':
-                                Get.to(ReferralScreen());
+                                Get.to(HostReferralScreen());
                                 break;
                               case 'Super Host':
                                 final userId = controller.profile.value?.id;

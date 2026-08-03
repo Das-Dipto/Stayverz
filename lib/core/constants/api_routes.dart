@@ -33,6 +33,15 @@ class ApiRoutes {
   static const String getUserNotifications = '/notifications/user/notifications/';
   static const String referLInk = "$apiBaseURL/referrals/my-link/";
 
+  // Node API v2 (referrals earnings/list)
+static const String nodeApiBaseURL = 'https://node-api.stayverz.com/api/v2';
+static const String referralGuestEarningsPath = '/referrals/guest/earnings';
+static const String referralGuestListPath = '/referrals/guest/list';
+
+static const String referralHostEarningsPath = '/referrals/host/earnings';
+static const String referralHostListPath = '/referrals/host/list';
+
+
   // Organization endpoints
   static const String organizations = "$apiBaseURL/organizations/";
   static const String requestJoinOrganization = "$apiBaseURL/organizations/join/";

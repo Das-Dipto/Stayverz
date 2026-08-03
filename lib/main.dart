@@ -59,6 +59,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
+import './features/profile/bindings/host_public_profile_binding.dart';
+import './features/profile/presentation/views/host_public_profile_view.dart';
+
 
 // Global navigator key for showing bottom sheet before GetMaterialApp is ready
 final GlobalKey<NavigatorState> globalNavigatorKey =
@@ -318,6 +321,11 @@ final List<GetPage> appPages = [
     page: () => GiveUserFeedbackScreen(),
     binding: UserFeedbackBinding(),
   ),
+  GetPage(
+  name: AppRoute.hostPublicProfile,
+  page: () => const HostPublicProfileView(),
+  binding: HostPublicProfileBinding(),
+),
 ];
 
 class MyApp extends StatefulWidget {
