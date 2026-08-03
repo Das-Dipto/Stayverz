@@ -247,7 +247,7 @@ class _ReferralLinkState extends State<ReferralLink> {
           Gap(20),
           InkWell(
             onTap:  () async {
-            var data=  await controller.getReferralLink();
+             var data=  await controller.getReferralLink();
              String? datatype= controller.referData.value?.shortLink ?? '';
              String? dataCode = controller.referData.value?.referralCode ?? '';
               _showReferralBottomSheet(context, datatype, dataCode);
@@ -272,8 +272,8 @@ class _ReferralLinkState extends State<ReferralLink> {
                 spreadRadius: 2,
               )
             ],
-                    ),
-                    child: Text(
+                  ),
+            child: Text(
             'Create referral link',
             textAlign: TextAlign.center,
             style: TextStyle(

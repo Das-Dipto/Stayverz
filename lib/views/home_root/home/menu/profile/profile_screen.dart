@@ -91,6 +91,7 @@ class _ProfileScreenState extends State<_ProfileScreen> {
           );
         }
         final profile = controller.profile.value;
+        print("This is the profile- ${profile?.toJson()}");
         if (profile == null) {
           return const Center(child: Text('No profile data available'));
         }
@@ -265,20 +266,20 @@ class _ProfileScreenState extends State<_ProfileScreen> {
                           const Gap(11),
                           Row(
                             children: [
-                              profile.isPhoneVerified != true
-                                  ? Icon(Icons.close, color: Colors.red)
-                                  : Icon(
+                              (profile.isPhoneVerified == true || profile.identityVerificationStatus == 'verified')
+                                  ? Icon(
                                     Icons.check_circle,
                                     color: Colors.green,
-                                  ),
+                                  )
+                                  : Icon(Icons.close, color: Colors.red), 
                               const Gap(8),
                               Text(
-                                profile.isPhoneVerified == true
+                                (profile.isPhoneVerified == true || profile.identityVerificationStatus == 'verified')
                                     ? 'Phone Verified'
                                     : 'Phone Not Verified',
                                 style: TextStyle(
                                   color:
-                                      profile.isPhoneVerified == true
+                                      (profile.isPhoneVerified == true || profile.identityVerificationStatus == 'verified')
                                           ? Colors.green
                                           : Colors.red,
                                   fontSize: 16,

@@ -44,7 +44,7 @@ android {
         multiDexEnabled = true
         applicationId = "com.stayverz.stayverz"
         minSdk = flutter.minSdkVersion
-        targetSdk = 35
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
