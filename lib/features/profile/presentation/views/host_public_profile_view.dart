@@ -2,21 +2,32 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:stayverz_flutter_app/core/constants/app_routes.dart';
 import 'package:stayverz_flutter_app/features/profile/controllers/host_public_profile_controller.dart';
 import 'package:stayverz_flutter_app/features/profile/models/host_listing_item_model.dart';
+import 'package:stayverz_flutter_app/features/public_listings/presentation/views/public_listing_details_view.dart';
 
 class HostPublicProfileView extends GetView<HostPublicProfileController> {
   const HostPublicProfileView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final String hostId = (Get.arguments?['hostId'] ?? '').toString();
+    final args = Get.arguments ?? {};
+    final String hostId = (args['hostId'] ?? '').toString();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.setHostInfo(
+        fullName: args['fullName'] ?? '',
+        image: args['image'] ?? '',
+        bio: args['bio'] ?? '',
+        address: args['address'] ?? '',
+        languages: (args['languages'] as List<dynamic>? ?? [])
+            .map((e) => e.toString())
+            .toList(),
+        dateJoined: args['dateJoined'] ?? '',
+        reviewCount: args['reviewCount'] ?? 0,
+      );
       if (hostId.isNotEmpty) {
-        controller.loadHostProfile(hostId);
-        controller.loadHostListings();
+        controller.loadHostListings(hostId);
       }
     });
 
@@ -29,16 +40,13 @@ class HostPublicProfileView extends GetView<HostPublicProfileController> {
         title: const Text('Host profile'),
       ),
       body: Obx(() {
-        if (controller.isLoadingProfile.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.hasError.value || controller.hostProfile.value == null) {
-          return const Center(child: Text('Unable to load host profile.'));
-        }
-
-        final host = controller.hostProfile.value!;
-        final details = host.profile;
+        final fullName = controller.hostFullName.value;
+        final image = controller.hostImage.value;
+        final bio = controller.hostBio.value;
+        final address = controller.hostAddress.value;
+        final languages = controller.hostLanguages;
+        final dateJoined = controller.hostDateJoined.value;
+        final reviewCount = controller.hostReviewCount.value;
 
         return ListView(
           padding: const EdgeInsets.all(20),
@@ -55,16 +63,16 @@ class HostPublicProfileView extends GetView<HostPublicProfileController> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.grey.shade300,
-                    backgroundImage: (host.image != null && host.image!.isNotEmpty)
-                        ? CachedNetworkImageProvider(host.image!)
+                    backgroundImage: image.isNotEmpty
+                        ? CachedNetworkImageProvider(image)
                         : null,
-                    child: (host.image == null || host.image!.isEmpty)
+                    child: image.isEmpty
                         ? const Icon(Icons.person, size: 40, color: Colors.white)
                         : null,
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    host.fullName ?? '${host.firstName} ${host.lastName}',
+                    fullName,
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 6),
@@ -74,28 +82,18 @@ class HostPublicProfileView extends GetView<HostPublicProfileController> {
                       const Icon(Icons.star, size: 16, color: Colors.amber),
                       const SizedBox(width: 4),
                       Text(
-                        '${host.avgRating?.toStringAsFixed(2) ?? "0.00"} · ${host.totalRatingCount ?? 0} reviews',
+                        '$reviewCount reviews',
                         style: const TextStyle(color: Colors.black54, fontSize: 13),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  if (host.isPhoneVerified == true || host.isEmailVerified == true)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Confirmed information",
-                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        if (host.isPhoneVerified == true) _verifiedRow('Phone number'),
-                        if (host.isEmailVerified == true) _verifiedRow('Email address'),
-                      ],
+                  if (dateJoined.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Joined ${_formatDate(dateJoined)}',
+                      style: const TextStyle(color: Colors.black54, fontSize: 12),
                     ),
+                  ],
                 ],
               ),
             ),
@@ -104,23 +102,21 @@ class HostPublicProfileView extends GetView<HostPublicProfileController> {
 
             // --- About section ---
             Text(
-              'About ${host.firstName}',
+              'About $fullName',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 16),
 
-            if (details?.work.isNotEmpty == true)
-              _infoRow(Icons.work_outline, 'My work: ${details!.work}'),
-            if (details?.address.isNotEmpty == true)
-              _infoRow(Icons.location_on_outlined, 'Where I live: ${details!.address}'),
-            if (details?.languages.isNotEmpty == true)
+            if (address.isNotEmpty)
+              _infoRow(Icons.location_on_outlined, 'Where I live: $address'),
+            if (languages.isNotEmpty)
               _infoRow(Icons.chat_bubble_outline,
-                  'Languages I speak: ${details!.languages.join(", ")}'),
+                  'Languages I speak: ${languages.join(", ")}'),
 
-            if (details?.bio.isNotEmpty == true) ...[
+            if (bio.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
-                details!.bio,
+                bio,
                 style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.black87),
               ),
             ],
@@ -134,7 +130,7 @@ class HostPublicProfileView extends GetView<HostPublicProfileController> {
             ),
             const SizedBox(height: 4),
             Obx(() => Text(
-                  '${controller.verifiedListings.length} properties available',
+                  '${controller.hostListings.length} properties available',
                   style: const TextStyle(color: Colors.black54, fontSize: 13),
                 )),
             const SizedBox(height: 16),
@@ -162,12 +158,12 @@ class HostPublicProfileView extends GetView<HostPublicProfileController> {
                 );
               }
 
-              if (controller.verifiedListings.isEmpty) {
+              if (controller.hostListings.isEmpty) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(vertical: 20),
                   child: Center(
                     child: Text(
-                      'No verified properties yet.',
+                      'No properties yet.',
                       style: TextStyle(color: Colors.black54),
                     ),
                   ),
@@ -178,10 +174,10 @@ class HostPublicProfileView extends GetView<HostPublicProfileController> {
                 height: 250,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: controller.verifiedListings.length,
+                  itemCount: controller.hostListings.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 14),
                   itemBuilder: (context, index) {
-                    final listing = controller.verifiedListings[index];
+                    final listing = controller.hostListings[index];
                     return _PropertyCard(listing: listing);
                   },
                 ),
@@ -195,17 +191,17 @@ class HostPublicProfileView extends GetView<HostPublicProfileController> {
     );
   }
 
-  Widget _verifiedRow(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          const Icon(Icons.verified, size: 16, color: Colors.deepOrangeAccent),
-          const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontSize: 13)),
-        ],
-      ),
-    );
+  String _formatDate(String isoDate) {
+    try {
+      final dt = DateTime.parse(isoDate);
+      const months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      ];
+      return '${months[dt.month - 1]} ${dt.year}';
+    } catch (_) {
+      return '';
+    }
   }
 
   Widget _infoRow(IconData icon, String text) {
@@ -233,8 +229,8 @@ class _PropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Get.toNamed(
-          AppRoute.publicListings,
+        Get.to(
+          () => PublicListingDetailsView(),
           arguments: {'id': listing.uniqueId},
         );
       },
@@ -304,13 +300,29 @@ class _PropertyCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    '৳${listing.price.toStringAsFixed(0)} / night',
-                    style: const TextStyle(
-                      color: Color(0xFFF15925),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '৳${listing.price.toStringAsFixed(0)} / night',
+                        style: const TextStyle(
+                          color: Color(0xFFF15925),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
+                      if (listing.totalRatingCount > 0)
+                        Row(
+                          children: [
+                            const Icon(Icons.star, size: 12, color: Colors.amber),
+                            const SizedBox(width: 2),
+                            Text(
+                              listing.avgRating.toStringAsFixed(1),
+                              style: const TextStyle(fontSize: 11, color: Colors.black54),
+                            ),
+                          ],
+                        ),
+                    ],
                   ),
                 ],
               ),

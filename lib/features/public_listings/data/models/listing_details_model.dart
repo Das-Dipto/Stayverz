@@ -295,27 +295,27 @@ class CancellationPolicy {
 }
 
 class Host {
-  final int id;
+  final int? id;
   final String fullName;
   final String image;
   final String email;
   final String identityVerificationStatus;
   final String status;
   final String bio;
-  final DateTime dateJoined;
+  final DateTime? dateJoined;
   final List<dynamic> languages;
   final String address;
   final String phoneNumber;
 
   Host({
-    required this.id,
+    this.id,
     required this.fullName,
     required this.image,
     required this.email,
     required this.identityVerificationStatus,
     required this.status,
     required this.bio,
-    required this.dateJoined,
+    this.dateJoined,
     required this.languages,
     required this.address,
     required this.phoneNumber,
@@ -323,14 +323,16 @@ class Host {
 
   factory Host.fromJson(Map<String, dynamic> json) {
     return Host(
-      id: json['id'],
+      id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}'),
       fullName: json['full_name'] ?? '',
       image: json['image'] ?? '',
       email: json['email'] ?? '',
       identityVerificationStatus: json['identity_verification_status'] ?? '',
       status: json['status'] ?? '',
       bio: json['bio'] ?? '',
-      dateJoined: DateTime.parse(json['date_joined']),
+      dateJoined: json['date_joined'] != null
+          ? DateTime.tryParse(json['date_joined'].toString())
+          : null,
       languages: List<dynamic>.from(json['languages'] ?? []),
       address: json['address'] ?? '',
       phoneNumber: json['phone_number'] ?? '',
@@ -346,7 +348,7 @@ class Host {
       'identity_verification_status': identityVerificationStatus,
       'status': status,
       'bio': bio,
-      'date_joined': dateJoined.toIso8601String(),
+      'date_joined': dateJoined?.toIso8601String(),
       'languages': languages,
       'address': address,
       'phone_number': phoneNumber,
@@ -355,7 +357,7 @@ class Host {
 }
 
 class CalendarDay {
-  final int id;
+  final int? id;
   final double price;
   final bool isBlocked;
   final bool isBooked;
@@ -363,7 +365,7 @@ class CalendarDay {
   final String note;
 
   CalendarDay({
-    required this.id,
+    this.id,
     required this.price,
     required this.isBlocked,
     required this.isBooked,
@@ -373,10 +375,10 @@ class CalendarDay {
 
   factory CalendarDay.fromJson(Map<String, dynamic> json) {
     return CalendarDay(
-      id: json['id'],
-      price: (json['price'] as num).toDouble(),
-      isBlocked: json['is_blocked'],
-      isBooked: json['is_booked'],
+      id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}'),
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      isBlocked: json['is_blocked'] ?? false,
+      isBooked: json['is_booked'] ?? false,
       bookingData: json['booking_data'] != null && json['booking_data'] is Map && (json['booking_data'] as Map).isNotEmpty
           ? BookingData.fromJson(json['booking_data'])
           : BookingData.empty(),
@@ -465,17 +467,17 @@ class User {
 }
 
 class AmenityItem {
-  final int id;
+  final int? id;
   final Amenity amenity;
 
   AmenityItem({
-    required this.id,
+    this.id,
     required this.amenity,
   });
 
   factory AmenityItem.fromJson(Map<String, dynamic> json) {
     return AmenityItem(
-      id: json['id'],
+      id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}'),
       amenity: Amenity.fromJson(json['amenity']),
     );
   }
@@ -565,15 +567,17 @@ class Booking {
   }
 }
 
+
+
 class ReviewUser {
-  final int id;
+  final int? id;
   final String fullName;
   final String image;
   final String phoneNumber;
   final String uType;
 
   ReviewUser({
-    required this.id,
+    this.id,
     required this.fullName,
     required this.image,
     required this.phoneNumber,
@@ -582,11 +586,11 @@ class ReviewUser {
 
   factory ReviewUser.fromJson(Map<String, dynamic> json) {
     return ReviewUser(
-      id: json['id'] as int,
-      fullName: json['full_name'] as String,
-      image: json['image'] as String,
-      phoneNumber: json['phone_number'] as String,
-      uType: json['u_type'] as String,
+      id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}'),
+      fullName: json['full_name'] ?? '',
+      image: json['image'] ?? '',
+      phoneNumber: json['phone_number'] ?? '',
+      uType: json['u_type'] ?? '',
     );
   }
 
@@ -600,13 +604,13 @@ class ReviewUser {
 }
 
 class Review {
-  final int id;
+  final int? id;
   final int rating;
   final String review;
   final ReviewUser reviewBy;
 
   Review({
-    required this.id,
+    this.id,
     required this.rating,
     required this.review,
     required this.reviewBy,
@@ -614,10 +618,12 @@ class Review {
 
   factory Review.fromJson(Map<String, dynamic> json) {
     return Review(
-      id: json['id'] as int,
-      rating: json['rating'] as int,
-      review: json['review'] as String,
-      reviewBy: ReviewUser.fromJson(json['review_by'] as Map<String, dynamic>),
+      id: json['id'] is int ? json['id'] as int : int.tryParse('${json['id']}'),
+      rating: json['rating'] is int ? json['rating'] as int : int.tryParse('${json['rating']}') ?? 0,
+      review: json['review'] ?? '',
+      reviewBy: json['review_by'] != null && json['review_by'] is Map
+          ? ReviewUser.fromJson(json['review_by'] as Map<String, dynamic>)
+          : ReviewUser(fullName: '', image: '', phoneNumber: '', uType: ''),
     );
   }
 
