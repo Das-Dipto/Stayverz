@@ -635,18 +635,18 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
             Gap(10),
             Divider(color: const Color(0xFFDCDEE3)),
             Gap(10),
-            if ((controller.listingDetails.value.lengthOfStayDiscounts ?? {}).isNotEmpty)
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                margin: EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade100,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  'You have ${controller.listingDetails.value.lengthOfStayDiscounts!.entries.first.value}% discount up to ${controller.listingDetails.value.lengthOfStayDiscounts!.entries.first.key} days reservation',
-                ),
-              ),
+            // if ((controller.listingDetails.value.lengthOfStayDiscounts ?? {}).isNotEmpty)
+            //   Container(
+            //     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            //     margin: EdgeInsets.symmetric(horizontal: 16),
+            //     decoration: BoxDecoration(
+            //       color: Colors.orange.shade100,
+            //       borderRadius: BorderRadius.circular(6),
+            //     ),
+            //     child: Text(
+            //       'You have ${controller.listingDetails.value.lengthOfStayDiscounts!.entries.first.value}% discount up to ${controller.listingDetails.value.lengthOfStayDiscounts!.entries.first.key} days reservation',
+            //     ),
+            //   ),
 
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
@@ -1227,14 +1227,14 @@ Padding(
       padding: const EdgeInsets.all(4.0),
       child: GestureDetector(
         onTap: () {
-          final hostId = controller.listingDetails.value.host?.id;
-          if (hostId != null) {
-            Get.toNamed(
-              AppRoute.hostPublicProfile,
-              arguments: {'hostId': hostId.toString()},
-            );
-          }
-        },
+  final hostId = controller.listingDetails.value.host?.id;
+  if (hostId != null) {
+    Get.toNamed(
+      AppRoute.hostPublicProfile,
+      arguments: {'hostId': hostId.toString()},
+    );
+  }
+},
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

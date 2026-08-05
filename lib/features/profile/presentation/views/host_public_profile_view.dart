@@ -15,18 +15,8 @@ class HostPublicProfileView extends GetView<HostPublicProfileController> {
     final String hostId = (args['hostId'] ?? '').toString();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.setHostInfo(
-        fullName: args['fullName'] ?? '',
-        image: args['image'] ?? '',
-        bio: args['bio'] ?? '',
-        address: args['address'] ?? '',
-        languages: (args['languages'] as List<dynamic>? ?? [])
-            .map((e) => e.toString())
-            .toList(),
-        dateJoined: args['dateJoined'] ?? '',
-        reviewCount: args['reviewCount'] ?? 0,
-      );
       if (hostId.isNotEmpty) {
+        controller.loadHostProfile(hostId);
         controller.loadHostListings(hostId);
       }
     });
@@ -40,13 +30,23 @@ class HostPublicProfileView extends GetView<HostPublicProfileController> {
         title: const Text('Host profile'),
       ),
       body: Obx(() {
-        final fullName = controller.hostFullName.value;
-        final image = controller.hostImage.value;
-        final bio = controller.hostBio.value;
-        final address = controller.hostAddress.value;
-        final languages = controller.hostLanguages;
-        final dateJoined = controller.hostDateJoined.value;
-        final reviewCount = controller.hostReviewCount.value;
+        if (controller.isLoadingProfile.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (controller.hasError.value || controller.hostProfile.value == null) {
+          return const Center(child: Text('Unable to load host profile.'));
+        }
+
+        final host = controller.hostProfile.value!;
+        final details = host.profile;
+        final fullName = host.fullName ?? '${host.firstName} ${host.lastName}';
+        final image = host.image ?? '';
+        final bio = details?.bio ?? '';
+        final address = details?.address ?? '';
+        final languages = details?.languages ?? <String>[];
+        final dateJoined = host.dateJoined ?? '';
+        final reviewCount = host.totalRatingCount ?? 0;
 
         return ListView(
           padding: const EdgeInsets.all(20),
