@@ -254,7 +254,7 @@ Future<ApiResponse<CreatedListing>> createHostListing({
     );
 
     print('DEBUG status: ${response.statusCode}');
-    print('DEBUG response data: ${response.data}');
+    print('DEBUG response data for createHostListing: ${response.data}');
 
     CreateHostListingResponseModel data = CreateHostListingResponseModel.fromJson(response.data);
     

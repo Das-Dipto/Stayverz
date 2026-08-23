@@ -29,7 +29,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # version: 1.0.17+45
 # version: 1.0.18+46
 # version: 1.0.19+47
-version: 1.0.20+48
+# version: 1.0.20+48
+version: 1.0.21+49
 
 
 environment:

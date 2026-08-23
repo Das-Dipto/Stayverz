@@ -817,10 +817,14 @@ case CurrentState.EIGHTH:
 
   Future<void> initListing() async {
   try {
-    print('DEBUG initListing called');
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final slug = 'untitled-listing-$timestamp';
+
     var result = await _repository.createHostListing(body: {
       "title": "Untitled Listing",
+      "slug": slug,
     });
+
     print('DEBUG result: ${result.isSuccess}');
     
     // if (!result.isSuccess) {
