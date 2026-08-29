@@ -511,22 +511,51 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
               ),
             ),
             Gap(8),
-            
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                '${controller.listingDetails.value.title}',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: const Color(0xFF090909),
-                  fontSize: 26,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w500,
-                  height: 1.2,
-                ),
-              ),
-            ),
+
+Obx(() {
+  final title = controller.listingDetails.value.title ?? '';
+  final isLoggedIn = mainControl.isLogin.value;
+
+  // final displayTitle = isLoggedIn
+  //     ? title
+  //     : (title.length > 7 ? '${title.substring(0, 7)}...' : title);
+
+  final displayTitle = title;
+
+  return GestureDetector(
+    onTap: () {
+      if (!isLoggedIn) {
+        Get.snackbar(
+          'Login Required',
+          'Kindly login to view the property address',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.black87,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(12),
+          borderRadius: 8,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    },
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        displayTitle,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: const Color(0xFF090909),
+          fontSize: 26,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w500,
+          height: 1.2,
+        ),
+      ),
+    ),
+  );
+}),
+
+
             Gap(6),
 
             Row(
@@ -573,21 +602,45 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
               ],
             ),
             Gap(5),
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Text(
-                '${controller.listingDetails.value.address}'??"N/A",
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: const Color(0xFF717375),
-                  fontSize: 14,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
 
-                ),
-              ),
-            ),
+Obx(() {
+  final address = controller.listingDetails.value.address ?? 'N/A';
+  final isLoggedIn = mainControl.isLogin.value;
+  final displayAddress = isLoggedIn
+      ? address
+      : (address.length > 15 ? '${address.substring(0, 15)}...' : address);
+
+  return GestureDetector(
+    onTap: () {
+      if (!isLoggedIn) {
+        Get.snackbar(
+          'Login Required',
+          'Kindly login to view the property address',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.black87,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(12),
+          borderRadius: 8,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    },
+    child: Padding(
+      padding: const EdgeInsets.only(left: 20),
+      child: Text(
+        displayAddress,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: const Color(0xFF717375),
+          fontSize: 14,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    ),
+  );
+}),
 
             Gap(5),
             Divider(color: const Color(0xFFDCDEE3)),

@@ -10,6 +10,8 @@ import '../../../../generated/assets.dart';
 import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
 import '../controllers/public_listings_controller.dart';
 
+import '../../../../main.dart';
+
 
 class TitleViewScreen extends StatefulWidget {
   static const String route = '/title_view_screen';
@@ -355,21 +357,47 @@ class _TitleViewScreenState extends State<TitleViewScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: Text(
-                          '${item.title}',
+                     Expanded(
+  child: Obx(() {
+    final title = item.title ?? '';
+    final isLoggedIn = mainControl.isLogin.value;
 
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Color(0xFF090909),
-                            fontSize: 12.58,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w500,
-                            height: 1.44,
-                          ),
-                        ),
-                      ),
+    // final displayTitle = isLoggedIn
+    //     ? title
+    //     : (title.length > 7 ? '${title.substring(0, 7)}...' : title);
+
+    final displayTitle = title;
+
+    return GestureDetector(
+      onTap: () {
+        if (!isLoggedIn) {
+          Get.snackbar(
+            'Login Required',
+            'Kindly login to view the property address',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.black87,
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(12),
+            borderRadius: 8,
+            duration: const Duration(seconds: 2),
+          );
+        }
+      },
+      child: Text(
+        displayTitle,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          color: Color(0xFF090909),
+          fontSize: 12.58,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w500,
+          height: 1.44,
+        ),
+      ),
+    );
+  }),
+),
                       const SizedBox(width: 8),
                       Row(
                         children: [
@@ -389,21 +417,44 @@ class _TitleViewScreenState extends State<TitleViewScreen> {
                   ),
 
                   // SUBTITLE
-                  SizedBox(
-                    width: 253.62,
-                    child: Text(
-                      '${item.area}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFF989B9D),
-                        fontSize: 14.67,
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w400,
-                        height: 1.29,
-                      ),
-                    ),
-                  ),
+SizedBox(
+  width: 253.62,
+  child: Obx(() {
+    final area = item.area ?? '';
+    final isLoggedIn = mainControl.isLogin.value;
+    final displayArea = isLoggedIn
+        ? area
+        : (area.length > 15 ? '${area.substring(0, 15)}...' : area);
+    return GestureDetector(
+      onTap: () {
+        if (!isLoggedIn) {
+          Get.snackbar(
+            'Login Required',
+            'Kindly login to view the property address',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.black87,
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(12),
+            borderRadius: 8,
+            duration: const Duration(seconds: 2),
+          );
+        }
+      },
+      child: Text(
+        displayArea,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          color: Color(0xFF989B9D),
+          fontSize: 14.67,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w400,
+          height: 1.29,
+        ),
+      ),
+    );
+  }),
+),
 
                   // PRICE + LOCATION BADGE ROW
                   Row(

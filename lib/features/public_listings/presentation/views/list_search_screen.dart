@@ -17,6 +17,8 @@ import '../../../listing/models/map_suggestions_response_model.dart';
 import '../../../wishlist/presentation/controllers/wishlist_controller.dart';
 import '../controllers/public_listings_controller.dart';
 
+import '../../../../main.dart';
+
 class ListSearchScreen extends StatefulWidget {
   const ListSearchScreen({super.key});
 
@@ -571,18 +573,43 @@ class _ListSearchScreenState extends State<ListSearchScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Gap(10),
-                                  Text(
-                                    listing.title,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: const Color(0xFF004E70) /* Info */,
-                                      fontSize: 16,
-                                      fontFamily: 'Inter',
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                                  Obx(() {
+  final title = listing.title ?? '';
+  final isLoggedIn = mainControl.isLogin.value;
+  // final displayTitle = isLoggedIn
+  //     ? title
+  //     : (title.length > 7 ? '${title.substring(0, 7)}...' : title);
+  
+  final displayTitle = title;
+  return GestureDetector(
+    onTap: () {
+      if (!isLoggedIn) {
+        Get.snackbar(
+          'Login Required',
+          'Kindly login to view the property address',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.black87,
+          colorText: Colors.white,
+          margin: const EdgeInsets.all(12),
+          borderRadius: 8,
+          duration: const Duration(seconds: 2),
+        );
+      }
+    },
+    child: Text(
+      displayTitle,
+      textAlign: TextAlign.center,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        color: const Color(0xFF004E70) /* Info */,
+        fontSize: 16,
+        fontFamily: 'Inter',
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  );
+}),
                                   Gap(6),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
@@ -596,22 +623,45 @@ class _ListSearchScreenState extends State<ListSearchScreen> {
                                       ),
                                       Gap(5),
                                       Expanded(
-                                        child: Text(
-                                          listing.address,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: const Color(
-                                              0xFF33496C,
-                                            ) /* Text */,
-                                            fontSize: 12,
-                                            fontFamily: 'Inter',
-                                            fontWeight: FontWeight.w400,
-                                            height: 1.50,
-                                          ),
-                                        ),
-                                      ),
+  child: Obx(() {
+    final address = listing.address ?? '';
+    final isLoggedIn = mainControl.isLogin.value;
+    final displayAddress = isLoggedIn
+        ? address
+        : (address.length > 15 ? '${address.substring(0, 15)}...' : address);
+    return GestureDetector(
+      onTap: () {
+        if (!isLoggedIn) {
+          Get.snackbar(
+            'Login Required',
+            'Kindly login to view the property address',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.black87,
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(12),
+            borderRadius: 8,
+            duration: const Duration(seconds: 2),
+          );
+        }
+      },
+      child: Text(
+        displayAddress,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: const Color(
+            0xFF33496C,
+          ) /* Text */,
+          fontSize: 12,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w400,
+          height: 1.50,
+        ),
+      ),
+    );
+  }),
+),
                                       Spacer(),
                                     ],
                                   ),
