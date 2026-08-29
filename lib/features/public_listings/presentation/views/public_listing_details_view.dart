@@ -511,6 +511,7 @@ class PublicListingDetailsView extends GetView<PublicListingsController> {
               ),
             ),
             Gap(8),
+            
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
