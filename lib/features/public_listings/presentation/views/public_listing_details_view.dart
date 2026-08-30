@@ -14,6 +14,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:stayverz_flutter_app/features/public_listings/utils/address_utils.dart';
 import 'package:stayverz_flutter_app/widgets/own_icons_icons.dart';
 import '../../../../core/constants/app_routes.dart';
 import '../../../../generated/assets.dart';
@@ -523,20 +524,20 @@ Obx(() {
   final displayTitle = title;
 
   return GestureDetector(
-    onTap: () {
-      if (!isLoggedIn) {
-        Get.snackbar(
-          'Login Required',
-          'Kindly login to view the property address',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.black87,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(12),
-          borderRadius: 8,
-          duration: const Duration(seconds: 2),
-        );
-      }
-    },
+    // onTap: () {
+    //   if (!isLoggedIn) {
+    //     Get.snackbar(
+    //       'Login Required',
+    //       'Kindly login to view the property address',
+    //       snackPosition: SnackPosition.TOP,
+    //       backgroundColor: Colors.black87,
+    //       colorText: Colors.white,
+    //       margin: const EdgeInsets.all(12),
+    //       borderRadius: 8,
+    //       duration: const Duration(seconds: 2),
+    //     );
+    //   }
+    // },
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Text(
@@ -606,25 +607,27 @@ Obx(() {
 Obx(() {
   final address = controller.listingDetails.value.address ?? 'N/A';
   final isLoggedIn = mainControl.isLogin.value;
-  final displayAddress = isLoggedIn
-      ? address
-      : (address.length > 15 ? '${address.substring(0, 15)}...' : address);
+  // final displayAddress = isLoggedIn
+  //     ? address
+  //     : (address.length > 15 ? '${address.substring(0, 15)}...' : address);
+  
+  final displayAddress = getMainAddress(address);
 
   return GestureDetector(
-    onTap: () {
-      if (!isLoggedIn) {
-        Get.snackbar(
-          'Login Required',
-          'Kindly login to view the property address',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.black87,
-          colorText: Colors.white,
-          margin: const EdgeInsets.all(12),
-          borderRadius: 8,
-          duration: const Duration(seconds: 2),
-        );
-      }
-    },
+    // onTap: () {
+    //   if (!isLoggedIn) {
+    //     Get.snackbar(
+    //       'Login Required',
+    //       'Kindly login to view the property address',
+    //       snackPosition: SnackPosition.TOP,
+    //       backgroundColor: Colors.black87,
+    //       colorText: Colors.white,
+    //       margin: const EdgeInsets.all(12),
+    //       borderRadius: 8,
+    //       duration: const Duration(seconds: 2),
+    //     );
+    //   }
+    // },
     child: Padding(
       padding: const EdgeInsets.only(left: 20),
       child: Text(

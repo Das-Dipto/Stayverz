@@ -12,6 +12,8 @@ import '../controllers/public_listings_controller.dart';
 
 import '../../../../main.dart';
 
+import '../../utils/address_utils.dart';
+
 
 class TitleViewScreen extends StatefulWidget {
   static const String route = '/title_view_screen';
@@ -369,20 +371,20 @@ class _TitleViewScreenState extends State<TitleViewScreen> {
     final displayTitle = title;
 
     return GestureDetector(
-      onTap: () {
-        if (!isLoggedIn) {
-          Get.snackbar(
-            'Login Required',
-            'Kindly login to view the property address',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.black87,
-            colorText: Colors.white,
-            margin: const EdgeInsets.all(12),
-            borderRadius: 8,
-            duration: const Duration(seconds: 2),
-          );
-        }
-      },
+      // onTap: () {
+      //   if (!isLoggedIn) {
+      //     Get.snackbar(
+      //       'Login Required',
+      //       'Kindly login to view the property address',
+      //       snackPosition: SnackPosition.TOP,
+      //       backgroundColor: Colors.black87,
+      //       colorText: Colors.white,
+      //       margin: const EdgeInsets.all(12),
+      //       borderRadius: 8,
+      //       duration: const Duration(seconds: 2),
+      //     );
+      //   }
+      // },
       child: Text(
         displayTitle,
         maxLines: 1,
@@ -422,24 +424,27 @@ SizedBox(
   child: Obx(() {
     final area = item.area ?? '';
     final isLoggedIn = mainControl.isLogin.value;
-    final displayArea = isLoggedIn
-        ? area
-        : (area.length > 15 ? '${area.substring(0, 15)}...' : area);
+    // final displayArea = isLoggedIn
+    //     ? area
+    //     : (area.length > 15 ? '${area.substring(0, 15)}...' : area);
+
+    final displayArea = getMainAddress(area);
+    
     return GestureDetector(
-      onTap: () {
-        if (!isLoggedIn) {
-          Get.snackbar(
-            'Login Required',
-            'Kindly login to view the property address',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.black87,
-            colorText: Colors.white,
-            margin: const EdgeInsets.all(12),
-            borderRadius: 8,
-            duration: const Duration(seconds: 2),
-          );
-        }
-      },
+      // onTap: () {
+      //   if (!isLoggedIn) {
+      //     Get.snackbar(
+      //       'Login Required',
+      //       'Kindly login to view the property address',
+      //       snackPosition: SnackPosition.TOP,
+      //       backgroundColor: Colors.black87,
+      //       colorText: Colors.white,
+      //       margin: const EdgeInsets.all(12),
+      //       borderRadius: 8,
+      //       duration: const Duration(seconds: 2),
+      //     );
+      //   }
+      // },
       child: Text(
         displayArea,
         maxLines: 1,
